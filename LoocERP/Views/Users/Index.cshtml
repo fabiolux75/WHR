@@ -1,0 +1,339 @@
+﻿@*model IEnumerable<AppUser>*@
+@{
+    ViewData["Title"] = "Risorsa";
+    if (ViewBag.type == 0 || ViewBag.type == 1 || ViewBag.type == 2)
+    {
+        ViewData["Title"] = "Risorse Interne";
+    }
+    else if (ViewBag.type == 3 || ViewBag.type == 4 || ViewBag.type == 5)
+    {
+        ViewData["Title"] = "Risorse Esterne";
+    }
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script isEmployee="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+
+<section class="content">
+
+    @if (@ViewBag.type == 0)
+    {
+        <div class="col-12 p-0">
+            <div class="row">
+                <div class="col-12 p-0" style="float-right">
+                    @*
+                    <a class="btn btn-primary" asp-action="Index" asp-route-type=0>Visualizza <b>@ViewData["Title"] </b><i class="fa fa-eye"></i></a>                    
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=1>Visualizza <b>@ViewData["Title"] Fornitore </b><i class="fa fa-eye-slash"></i></a>
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=2>Visualizza <b>@ViewData["Title"] Cliente </b><i class="fa fa-eye-slash"></i></a>
+                    *@
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-primary">
+            <div class="card-body">
+                <div class="col-12 p-0">
+                    <div class="col-12 p-0">
+                        <a asp-controller="Users" asp-action="Create" asp-route-type="@ViewBag.type">
+                            Crea <b>@ViewData["Title"]</b>  <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    /*else if (@ViewBag.type == 1)
+    {
+        <div class="col-12 p-0">
+            <div class="row">
+                <div class="col-12 p-0" style="float-right">
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=0>Visualizza <b>@ViewData["Title"] </b><i class="fa fa-eye-slash"></i></a>
+                    <a class="btn btn-primary" asp-action="Index" asp-route-type=1>Visualizza <b>@ViewData["Title"] Fornitore </b><i class="fa fa-eye"></i></a>
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=2>Visualizza <b>@ViewData["Title"] Cliente </b><i class="fa fa-eye-slash"></i></a>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-primary">
+            <div class="card-body">
+                <div class="col-12 p-0">
+                    <div class="col-12 p-0">
+                        <a asp-controller="Users" asp-action="Create" asp-route-type="@ViewBag.type">
+                            Crea <b>@ViewData["Title"] Fornitore</b>  <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (@ViewBag.type == 2)
+    {
+        <div class="col-12 p-0">
+            <div class="row">
+                <div class="col-12 p-0" style="float-right">
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=0>Visualizza <b>@ViewData["Title"] </b><i class="fa fa-eye-slash"></i></a>
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=1>Visualizza <b>@ViewData["Title"] Fornitore </b><i class="fa fa-eye-slash"></i></a>
+                    <a class="btn btn-primary" asp-action="Index" asp-route-type=2>Visualizza <b>@ViewData["Title"] Cliente </b><i class="fa fa-eye"></i></a>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-primary">
+            <div class="card-body">
+                <div class="col-12 p-0">
+                    <div class="col-12 p-0">
+                        <a asp-controller="Users" asp-action="Create" asp-route-type="@ViewBag.type">
+                            Crea <b>@ViewData["Title"] Cliente</b>  <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else if (@ViewBag.type == 3)
+    {
+        <div class="col-12 p-0">
+            <div class="row">
+                <div class="col-12 p-0" style="float-right">
+                    <a class="btn btn-primary" asp-action="Index" asp-route-type=3>Visualizza <b>@ViewData["Title"] </b><i class="fa fa-eye"></i></a>
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=4>Visualizza <b>@ViewData["Title"] Fornitore </b><i class="fa fa-eye-slash"></i></a>
+                    <a class="btn btn-default" asp-action="Index" asp-route-type=5>Visualizza <b>@ViewData["Title"] Cliente </b><i class="fa fa-eye-slash"></i></a>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="card card-primary">
+            <div class="card-body">
+                <div class="col-12 p-0">
+                    <div class="col-12 p-0">
+                        <a asp-controller="Users" asp-action="Create" asp-route-type="@ViewBag.type">
+                            Crea <b>@ViewData["Title"]</b>  <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }*/
+    else if (@ViewBag.type == 4)
+    {
+    <div class="col-12 p-0">
+        <div class="row">
+            <div class="col-12 p-0" style="float-right">
+                <!--
+                <a class="btn btn-default" asp-action="Index" asp-route-type=3>Visualizza <b>@ViewData["Title"] </b><i class="fa fa-eye-slash"></i></a>
+                -->
+                <a class="btn btn-primary" asp-action="Index" asp-route-type=4>Visualizza <b>@ViewData["Title"] Fornitore </b><i class="fa fa-eye"></i></a>
+                <a class="btn btn-default" asp-action="Index" asp-route-type=5>Visualizza <b>@ViewData["Title"] Cliente </b><i class="fa fa-eye-slash"></i></a>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12 p-0">
+                <div class="col-12 p-0">
+                    <a asp-controller="Users" asp-action="Create" asp-route-type="@ViewBag.type">
+                        Crea <b>@ViewData["Title"] Fornitore</b>  <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+    else if (@ViewBag.type == 5)
+    {
+    <div class="col-12 p-0">
+        <div class="row">
+            <div class="col-12 p-0" style="float-right">
+                <!--
+                <a class="btn btn-default" asp-action="Index" asp-route-type=3>Visualizza <b>@ViewData["Title"] </b><i class="fa fa-eye-slash"></i></a>
+                -->
+                <a class="btn btn-default" asp-action="Index" asp-route-type=4>Visualizza <b>@ViewData["Title"] Fornitore </b><i class="fa fa-eye-slash"></i></a>
+                <a class="btn btn-primary" asp-action="Index" asp-route-type=5>Visualizza <b>@ViewData["Title"] Cliente </b><i class="fa fa-eye"></i></a>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12 p-0">
+                <div class="col-12 p-0">
+                    <a asp-controller="Users" asp-action="Create" asp-route-type="@ViewBag.type">
+                        Crea <b>@ViewData["Title"] Cliente</b>  <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <table id="users" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th class="hide-search"></th>
+                                <th>Codice</th>
+                                <th>Cognome</th>
+                                <th>Nome</th>
+                                <th>Telefono</th>
+                                <th>Città</th>
+                                <th>Contratto</th>
+                                <th class="hide-search"></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $('#users thead tr').clone(true).appendTo('#users thead');
+            $('#users thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var table = $('#users').DataTable({
+                ajax: "/Users/ajaxIndex?isEmployee=1&type=@ViewBag.type",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, isEmployee, row) {
+                            console.log(row);
+                           return '<img src="/Users/getProfilePicture?id=' + row.id + '&v=' + row.dataModifica + '" style="height:50px;width:50px;border: 1px solid;border-radius:50%;" />';
+                        }
+                    },
+                    { "data": "internalCode" },
+                    { "data": "lastName" },
+                    { "data": "firstName" },
+                    { "data": "phoneNumber" },
+                    { "data": "citta" },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            if (row.contract != null) {
+                                var ret = "";
+
+                                ret += "Contratto attivo";
+
+                                if (row.contract.stato == "0") {
+                                    ret = "Contratto Chiuso";
+                                }
+
+
+                                if (row.contract.validFrom != null) {
+                                    ret += "</br>Dal : " + new Date(row.contract.validFrom).toLocaleDateString('it-IT', {});
+                                }
+                                if (row.contract.validTo != null) {
+                                    ret += "</br>Fino al : " + new Date(row.contract.validTo).toLocaleDateString('it-IT', {});
+                                }
+
+                                return ret;
+                            }
+                            return 'Nessun contratto associato';
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, isEmployee, row) {
+                            return '<span>' +
+                                '<a class="btn-sm" target="_blank" href="/Users/Edit?id=' + row.id + '&isEmployee=1&type='+@ViewBag.type+'"><i class="fa fa-edit"></i></a>' +
+                                '</span>';
+                        }
+                    },
+                ],
+                columnDefs: [
+                    { width: '30px', targets: 0 },
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+}
+<style>
+    .tabulator, .tabulator-header, .tabulator-tableHolder {
+        overflow: visible !important;
+    }
+
+    .menu--expanded {
+        animation-name: menuAnimation;
+        animation-duration: 0.2s;
+        animation-timing-function: linear;
+    }
+
+    .menu__contents--expanded {
+        animation-name: menuContentsAnimation;
+        animation-duration: 0.2s;
+        animation-timing-function: linear;
+    }
+</style>

@@ -1,0 +1,375 @@
+﻿@*model List<Rel_CantiereUser>*@
+@{ LoocERP.Models.Turno turno = ViewData["Turno"] as LoocERP.Models.Turno; 
+
+}
+@{
+    Layout = "";
+    ViewData["Title"] = "Cantiere-Dipendente";    
+}
+
+<div class="modal fade bd-example-modal-lg" id="myModal2">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header" style="background-color: #4E78B1; padding: 0.75rem;">
+                <h4 class="modal-title">
+                    <b>Assegnazione Mansione/Sicurezza</b>
+                </h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="container">
+                <small>Selezionare le Mansioni e/o Specializzazioni richieste nel turno che la risorsa selezionata può soddisfare.</small>
+                <br />
+                <small>E' sempre possibile aggiungere una risorsa senza assegnare alcuna Mansione/Specializzazione specifica.</small>
+                <br />
+                <span id="assigned_text" class="error invalid-feedback" style="display: none; font-size: 24px; font-weight: bold;"></span>
+                <div id="assiegn_confirm" style="display: none;">
+                    <div class="form-group row">
+                        <div class="col-sm-12">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="customSwitch1" data-val="true" data-val-required="The enableEsecutore field is required." name="enableEsecutore" onclick="change(this)">
+                                <label class="custom-control-label" for="customSwitch1">Conferma spostamento utente</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-body">
+                @*
+            <div class="col-12 d-flex p-2 justify-content-center">
+                <div style="display:inline-block; position:relative;">
+                    <input id="text_range_mansioni" size="40" class="form-control" placeholder="Dal giorno inizio al giorno fine" disabled>
+                    <div style="position:absolute; left:0; right:0; top:0; bottom:0;" id="date-range_mansioni"></div>
+                </div>
+            </div>
+                *@
+                <div class="row">
+                    <div class="col-6">
+                        <label>Lista mansioni richieste</label>
+                        <table id="mansioni_table" class="table table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Quantità</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                        </table>
+
+                        @*
+                    <ul class="list-group" id="lista_mansioni">
+                        <li class="list-group-item">CARRI GRUETTE (3)</li>
+                        <li class="list-group-item">ASPP (2)</li>
+                    </ul>
+                        *@
+                    </div>
+                    <div class="col-6">
+                        <label>Lista specializzazioni di sicurezza richieste</label>
+                        <table id="fab_table" class="table table-bordered table-hover" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Quantità</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                <a id="add_user" class="btn btn-primary">Aggiungi</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<div class="modal fade bd-example-modal-md" id="myModal3">
+    <div class="modal-dialog modal-dialog-centered modal-md">
+        <div class="modal-content" >
+            <div class="modal-header" style="background-color: #4E78B1; padding: 0.75rem;">
+                <h4 class="modal-title">
+                    <b>Rimozione utente</b>
+                </h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="container"></div>
+            <div class="modal-body">
+                <div class="row">
+                    <label class="">Sei sicuro di voler rimuovere l'utente selezionato dal cantiere?</label>
+                </div>
+                @*
+                <div class="col-12 d-flex p-2 justify-content-center">
+                    <div style="display:inline-block; position:relative;">
+                        <input id="text_range_del" size="40" class="form-control" placeholder="Dal giorno inizio al giorno fine" disabled>
+                        <div style="position:absolute; left:0; right:0; top:0; bottom:0;" id="date-range_del"></div>
+                    </div>
+                </div>
+                *@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                <a id="remove_user" class="btn btn-danger" onclick="remUser()">Rimuovi</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function updateUpdateTimeworkRel(turnoId, mansioneId, specializzazioneId, userId) {
+        
+
+        var dataStart = $("#dataInizio");
+        var dataEnd = $("#dataFine");
+        var url = '/RelTurnoUser/ajaxAssignRel';
+        $.ajax({
+            type: 'GET',
+
+            url: url + "?UserId=" + userId + "&TurnoId=" + selectedTurno + "&WorkDate=@ViewBag.WorkDate&dataStart=" + dataStart.val() + "&dataEnd=" + dataEnd.val() + '&mansioneId=' + mansioneId + '&specializzazioneId=' + specializzazioneId,
+            success: function (data) {
+                console.log(data);
+            }
+        });
+    }
+
+    function remUser() {
+        console.log(delUser);
+        var dataStart = $("#dataInizio");
+        var dataEnd = $("#dataFine");
+        moveRows(leftTable, rightTable, false);
+
+        $.ajax({
+                type: 'GET',
+                @*data: {
+                    userId: userId,
+                    turnoId: "@ViewBag.turnoId",
+                    workDate: @ViewBag.WorkDate
+                },*@
+            url: "/RelTurnoUser/ajaxRemove?UserId=" + delUser + "&TurnoId=" + selectedTurno + "&WorkDate=@ViewBag.dtenfull&dataStart=" + dataStart.val() + "&dataEnd=" + dataEnd.val(),
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+
+
+        var empModal = $('#myModal3');
+
+        empModal.modal('hide');
+    }
+
+
+    var selected_mansioni = [];
+    var selected_sicurezza = [];
+    var mansioni_table;
+    var fab_table;
+
+    function aggiungiMansione(element,mansioneId,turnoId) {
+        if (element.checked) {
+            selected_mansioni.push({
+                mansioneId: mansioneId,
+                turnoId: turnoId,
+            });
+        } else {
+            for (var k = 0; k < selected_mansioni.length; k++) {
+                if (selected_mansioni[k].mansioneId == mansioneId) {
+                    selected_mansioni.splice(k, 1);
+                }
+            }
+        }
+    }
+
+    function aggiungiSpecializzazione(element, specializzazioneId, turnoId) {
+        if (element.checked) {
+            selected_mansioni.push({
+                specializzazioneId: specializzazioneId,
+                turnoId: turnoId,
+            });
+        } else {
+            for (var k = 0; k < selected_mansioni.length; k++) {
+                if (selected_mansioni[k].specializzazioneId == specializzazioneId) {
+                    selected_mansioni.splice(k, 1);
+                }
+            }
+        }
+    }
+
+
+
+    function setupTabMansioni() {
+        selected_mansioni = [];
+
+
+        if (mansioni_table != null) {
+            $("#mansioni_table").DataTable().clear().destroy();
+        } else {
+            @*
+            $('#mansioni_table thead tr').clone(true).appendTo('#mansioni_table thead');
+            $('#mansioni_table thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (mansioni_table.column(i).search() !== this.value) {
+                            mansioni_table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            *@
+        }
+
+        $('#mansioni_table').on('click', 'tbody tr', function () {
+            var row = mansioni_table.row($(this)).data();
+            row.check = true;
+
+        });
+
+        mansioni_table = $('#mansioni_table').DataTable({
+            ajax: "/RelFabbisognoMansione/ajaxGetSpecTurno?turnoid=" + selectedTurno + '&userid=' + selectedUser,
+            columns: [
+                { "data": "descrizione" },
+                { "data": "quantita" },
+                {
+                    "data": null,
+                    render: function (data, type, row) {
+                        return '<input type="checkbox" onclick="aggiungiMansione(this,\'' + data.id + '\',\'' + selectedTurno + '\')"/>';
+
+                    }
+                },
+            ],
+            sPaginationType: "full_numbers",
+            autoWidth: false,
+            responsive: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            paging: false,
+            searching: false,
+            info: false
+        }); // Second table
+
+
+
+        if (fab_table != null) {
+            $("#fab_table").DataTable().clear().destroy();
+        } else {
+            @*
+            $('#fab_table thead tr').clone(true).appendTo('#fab_table thead');
+            $('#fab_table thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (fab_table.column(i).search() !== this.value) {
+                            fab_table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            *@
+        }
+
+
+        fab_table = $('#fab_table').DataTable({
+            ajax: "/RelFabbisognoSicurezza/ajaxGetSpecTurno?turnoid=" + selectedTurno + '&userid=' + selectedUser,
+            columns: [
+                { "data": "descrizione" },
+                { "data": "quantita" },
+                {
+                    "data": null,
+                    render: function (data, type, row) {
+                        return '<input type="checkbox" onclick="aggiungiSpecializzazione(this,\'' + data.id + '\',\'' + selectedTurno + '\')"/>';
+
+                    }
+                },
+            ],
+            sPaginationType: "full_numbers",
+            autoWidth: false,
+            responsive: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            paging: false,
+            searching: false,
+            info: false
+        }); // Second table
+
+
+
+
+
+
+
+
+
+
+
+
+        $('#add_user').on('click', function () {
+
+            for (var k = 0; k < selected_mansioni.length; k++) {
+                updateUpdateTimeworkRel(selected_mansioni[k].turnoId, selected_mansioni[k].mansioneId, selected_mansioni[k].specializzazioneId, selectedUser);
+            }
+            if (selected_mansioni.length == 0) {
+                updateUpdateTimeworkRel(selectedTurno,null, null, selectedUser);
+            }
+
+            moveRows(rightTable, leftTable, true);
+            var empModal = $('#myModal2');
+
+            empModal.modal('hide');
+        });
+
+
+
+        /*
+        $('#remove_user').on('click', function () {
+
+            console.log("e");
+
+            /*
+            moveRows(leftTable, rightTable, true);
+            var empModal = $('#myModal3');
+
+            empModal.modal('hide');
+        });*/
+
+    }
+</script>
+<style>
+
+    /* Styles go here */
+
+    table.dataTable tbody tr.selected {
+        background-color: #b0bed9;
+    }
+
+    table.dataTable.display tbody tr.odd.selected > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_1 {
+        background-color: #a6b3cd;
+    }
+
+    table.dataTable.display tbody tr:hover.selected > .sorting_1, table.dataTable.display tbody tr.odd:hover.selected > .sorting_1, table.dataTable.display tbody tr.even:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.odd:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.even:hover.selected > .sorting_1 {
+        background-color: #a1aec7;
+    }
+
+    .modal-dialog .modal-content .modal-header {
+        background: #8d8d8d;
+        color: white;
+    }
+</style>
+
+<style>
+    .date-picker-wrapper {
+        z-index: 999999999;
+    }
+</style>
+</div>

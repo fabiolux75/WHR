@@ -1,0 +1,47 @@
+﻿@model Turno
+
+<div class="modal fade show" id="project-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crea Turno</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="Project" asp-action="Create">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <input type="hidden" asp-for="@Model.CantiereId" value="@ViewBag.CantiereId" />
+                            <div class="form-group">
+                                <label asp-for="@Model.Name"></label>
+                                <input asp-for="@Model.Name" class="form-control" placeholder="Nome del turono" />
+                                <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.OraInizio"></label>
+                                <input asp-for="@Model.OraInizio" class="form-control" />
+                                <span asp-validation-for="@Model.OraInizio" class="text-danger" placeholder="Ora inizio turno"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.OraFine"></label>
+                                <input asp-for="@Model.OraFine" class="form-control" placeholder="Ora fine turno" />
+                                <span asp-validation-for="@Model.OraFine" class="text-danger"></span>
+                            </div>
+                        </div>
+                       
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

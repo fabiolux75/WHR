@@ -1,0 +1,202 @@
+﻿@using LoocERP.Controllers
+<div class="modal fade" id="modalproperyvettoreedit" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Associazione proprietà</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignCompanyForm">
+                    <input class="CodiceVettore" type="hidden" name="IdVettore" />
+                    <div class="form-group" >
+                        <label>Nome proprietà</label>
+                        <div class="form-group">
+                            <select style="width:100%" class="select2js form-control" select2-url="/Companies/ajaxCompanySelect2" select2-placeholder="Lista propietà" name="IdCompany" id="IdCompany"></select>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginScripts())
+{
+    <script>
+        function openModalPropertyVettore(CodiceVettore) {
+            var empModal = $('#modalproperyvettoreedit');
+
+            
+            $("#IdCompany").attr("title", "");
+            $("#IdCompany").val("").trigger("change");
+
+            empModal.find(".CodiceVettore").val(CodiceVettore);
+            empModal.modal('show');
+        }
+
+
+        function removeCompany(id) {
+
+            $.ajax({
+                url: '/Vettore/ajaxRemoveCompany?codVettore=' + id,
+                type: 'get',
+                success: function (data) {
+                    reloadTable();
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+
+            $('#assignCompanyForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+
+
+
+                console.log(elements);
+
+
+
+
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+                    
+                $.ajax({
+                    url: '/Vettore/ajaxAddCompany',
+                    type: 'post',
+                    data: { codVettore: data["IdVettore"], IdCompany: data["IdCompany"] },
+                    success: function (data) {
+                    
+                        $('#modalproperyvettoreedit').modal('hide');
+
+
+                        reloadTable();
+                    }
+                });
+
+            });
+
+
+        });
+
+        /*
+        function changeProperty(value) {
+            if ($(value).val() == "1") {
+                $("#noleggioSelect").hide();
+                $("#leasingSelect").show();
+            }
+            if ($(value).val() == "0") {
+                $("#leasingSelect").hide();
+                $("#noleggioSelect").show();
+            }
+        }
+        function openModalProperty(CodiceVettore) {
+            var empModal = $('#modalproperyedit');
+
+            $("#noleggioSelect").hide();
+            $("#leasingSelect").hide();
+            $("#propertyType").val("");
+
+            $("#IdLeasing").attr("title", "");
+            $("#IdLeasing").val("");
+            $("#IdNoleggio").attr("title","");
+            $("#IdNoleggio").val("").trigger("change"); 
+
+            empModal.find(".CodiceVettore").val(CodiceVettore);
+            empModal.modal('show');
+        }
+
+        function removeFromLeasing(id) {
+            console.log(id);
+            $.ajax({
+                url: '/Leasing/ajaxRemoveVettore?idAssegnazione='+id,
+                type: 'get',
+                success: function (data) {
+                    reloadTable();
+                }
+            });
+        }
+        
+        function removeFromNoleggio(id) {
+
+            console.log(id);
+            $.ajax({
+                url: '/Noleggi/ajaxRemoveVettore?idAssegnazione=' + id,
+                type: 'get',
+                success: function (data) {
+                    reloadTable();
+                }
+            });
+        }
+
+
+        $(document).ready(function () {
+
+            $('#assignNoleggioLeasingForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+
+
+
+                console.log(elements);
+
+
+
+
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+                if (data["propertyType"] = "1") {
+                    $.ajax({
+                        url: '/Leasing/ajaxAddVettore',
+                        type: 'post',
+                        data: { IdVettore: data["IdVettore"], IdLeasing: data["IdLeasing"] },
+                        success: function (data) {
+                            console.log(data.data);
+
+                            // Add response in Modal body
+                            //Svuoto modale
+                            var empModal = $('#modalproperyedit');
+                            $('#modalproperyedit').modal('hide');
+
+
+                            reloadTable();
+                        }
+                    });
+                }
+                if (data["propertyType"] = "2") {
+                    $.ajax({
+                        url: '/Noleggi/ajaxAddVettore',
+                        type: 'post',
+                        data: { IdVettore: data["IdVettore"], IdNoleggio: data["IdNoleggio"] },
+                        success: function (data) {
+                            console.log(data.data);
+
+                            var empModal = $('#modalproperyedit');
+                            $('#modalproperyedit').modal('hide');
+
+                            reloadTable();
+                        }
+                    });
+                }
+
+            });
+
+
+        });
+        */
+       
+       
+
+
+    </script>
+}

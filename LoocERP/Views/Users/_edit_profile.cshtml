@@ -1,0 +1,217 @@
+@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+@using LoocERP.Controllers
+@model LoocERP.ViewModels.EditUserViewModel
+@{ var etmp = String.IsNullOrEmpty(@Model.User.Email) ? "" : "disabled"; }
+
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+
+
+<div class="active tab-pane" id="settings">
+    <form enctype="multipart/form-data" asp-controller="Users" asp-action="edit" method="post" class="mt-3">
+        <div class="row m-0">
+            <input type="hidden" name="tab" value="edit_profile" />
+            <input type="hidden" name="type" value="@ViewBag.type" />
+            <div class="form-group row" hidden>
+                <label asp-for="@Model.User.Id"></label>
+                <input asp-for="@Model.User.Id" class="form-control" placeholder="Id">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.InternalCode"></label>
+                @if (@Model.User.InternalCode == null)
+                {
+                    <input asp-for="@Model.User.InternalCode" class="form-control" autocomplete="off" />
+                }
+                else
+                {
+                    <input asp-for="@Model.User.InternalCode" class="form-control" autocomplete="off" />
+                }
+            </div>
+            <div class="form-group col-sm-6 d-none">
+                <!--Nascosto momentaneamente-->
+                <label asp-for="@Model.User.Email"></label>
+                <input asp-for="@Model.User.Email" class="form-control" readonly>
+                <span asp-validation-for="@Model.User.Email" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.IDCompany"></label>
+                @*<input type="hiddens" asp-for="@Model.User.IDCompany" />*@
+                <select class="form-control" asp-for="@Model.User.IDCompany">
+                    <!--Non più disabled momentaneamente-->
+                    @{
+                        foreach (var r in @Model.Companies)
+                        {
+                            //var c = "";
+                            //if (@r.ID.Equals(@Model.User.IDCompany)) c = "selected";
+                            <option value="@r.ID">@r.RagioneSociale</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.FirstName"></label>
+                <input asp-for="@Model.User.FirstName" class="form-control" autocomplete="off">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.LastName"></label>
+                <input asp-for="@Model.User.LastName" class="form-control" autocomplete="off">
+            </div>
+
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.Email"></label>
+                @if (String.IsNullOrEmpty(@Model.email) || ((await AuthorizationService.AuthorizeAsync(User, "user.edit.email")).Succeeded))
+                {
+                    <input asp-for="@Model.email" class="form-control" autocomplete="off">
+                    <small>Se compilato, l'email sarà utilizzata per l'accesso alla piattaforma</small>
+                }
+                else
+                {
+
+                    <input readonly asp-for="@Model.email" class="form-control" autocomplete="off">
+                    <small>Campo utilizzato come username in fase di accesso alla piattaforma</small>
+                }
+
+
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.PhoneNumber"></label>
+                <input asp-for="@Model.User.PhoneNumber" class="form-control" autocomplete="off">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.CellularNumber"></label>
+                <input asp-for="@Model.User.CellularNumber" class="form-control" autocomplete="off">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.PrivateNumber"></label>
+                <input asp-for="@Model.User.PrivateNumber" class="form-control" autocomplete="off">
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.Gender"></label>
+                <select asp-for="@Model.User.Gender" asp-items="Html.GetEnumSelectList<Gender>()" class=" form-control"></select>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.CodiceFiscale"></label>
+                <input asp-for="@Model.User.CodiceFiscale" class="form-control" autocomplete="off" />
+                <span asp-validation-for="@Model.User.CodiceFiscale" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.ComuneNascita"></label>
+                <input asp-for="@Model.User.ComuneNascita" class="form-control" autocomplete="off" />
+                <span asp-validation-for="@Model.User.ComuneNascita" class="text-danger"></span>
+            </div>
+
+            <div class="form-group col-sm-6">
+                <label asp-for="@Model.User.DataNascita"></label>
+                <input asp-for="@Model.User.DataNascita" class="form-control" />
+                <span asp-validation-for="@Model.User.DataNascita" class="text-danger" placeholder="Nato il"></span>
+            </div>
+
+
+            @if (@Model.User != null && @Model.User.Company != null && @Model.User.Company.isExternal == true)
+            {@* Valido solo per aziende ESTERNE *@
+            <!--AZIENDA INTERNA REFERENTE-->
+            <div class="form-group col-sm-12">
+                <label asp-for="@Model.User.InternalCompanyReferenceId" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    @*<input type="hiddens" asp-for="@Model.User.IDCompany" />*@
+                    <select class="form-control" asp-for="@Model.User.InternalCompanyReferenceId">
+                        <!--Non più disabled momentaneamente-->
+                        @{
+                            foreach (var r in @Model.CompaniesInternal)
+                            {
+                                //var c = "";
+                                //if (@r.ID.Equals(@Model.User.InternalCompanyReferenceId)) c = "selected";
+                                <option value="@r.ID">@r.RagioneSociale</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+        }
+
+        @*
+            <div class="form-group row col-sm-6">
+                <div class="col-12 text-right">
+
+                @if (@ViewBag.type == 1)
+                {
+                    <input asp-for="@Model.User.isEmployee" type="hidden" value="1" class="form-control" />
+                }
+
+                </div>
+            </div>*@
+
+            <div class="group-location location-residence col-12 row">
+                <hr class="col-12" />
+                <h4 class="col-12">Residenza</h4>
+                <div class="form-group col-sm-6">
+                    <label>Nazione</label>
+                    <!--input asp-for="Nazione" class="form-control" /-->
+                    <!-- METTERE data-value="ITA" PER SETTARE il VALORE DI DEFAULT -->
+                    <!-- <select id="nazione" asp-for="Nazione" class="form-control" onchange="setRegioni(this)" data-value="ITA">  -->
+                    <select autocomplete="off" id="nazione" asp-for="@Model.User.Nazione" class="form-control nazione" onchange="setRegioni(this)" data-value="ITA"></select>
+                    <span asp-validation-for="@Model.User.Nazione" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-sm-6">
+                    <label>Regione</label>
+                    <!--input asp-for="Regione" class="form-control" /-->
+                    <select autocomplete="off" id="regione" asp-for="@Model.User.Regione" class="form-control region" onchange="setProvince(this)" disabled data-value="@Model.User.Regione"></select>
+                    <span asp-validation-for="@Model.User.Regione" class="text-danger"></span>
+                </div>
+
+                <div class="form-group col-sm-6">
+                    <label>Provincia</label>
+                    <!--input asp-for="Provincia" class="form-control" /-->
+                    <select autocomplete="off" id="provincia" asp-for="@Model.User.Provincia" class="form-control provincia" onchange="setComuni(this)" disabled data-value="@Model.User.Provincia"></select>
+                    <span asp-validation-for="@Model.User.Provincia" class="text-danger"></span>
+                </div>
+
+                <div class="form-group  col-sm-6">
+                    <label>Città</label>
+                    <!--input asp-for="Citta" class="form-control" /-->
+                    <select autocomplete="off" id="comune" asp-for="@Model.User.Citta" class="form-control city" onchange="setCaps(this)" disabled data-value="@Model.User.Citta"></select>
+                    <span asp-validation-for="@Model.User.Citta" class="text-danger"></span>
+                </div>
+                <div class="form-group  col-sm-6">
+                    <label>Cap</label>
+                    <!--input asp-for="Citta" class="form-control" /-->
+                    <select autocomplete="off" id="caps" asp-for="@Model.User.Cap" class="form-control caps" onchange="" disabled data-value="@Model.User.Cap"></select>
+                    <span asp-validation-for="@Model.User.Cap" class="text-danger"></span>
+                </div>
+            </div>
+
+
+
+            <div class="form-group col-sm-6">
+                <label>Indirizzo</label>
+                <input asp-for="@Model.User.Indirizzo" class="form-control" autocomplete="off" />
+                <span asp-validation-for="@Model.User.Indirizzo" class="text-danger"></span>
+            </div>
+
+
+            <div class="col-12 text-right">
+                <!--button onclick="history.back()" class="btn btn-default">Annulla</!-button-->
+                <button type="submit" class="btn btn-danger">Aggiorna</button>
+            </div>
+        </div>
+    </form>
+</div>

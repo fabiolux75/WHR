@@ -1,0 +1,56 @@
+﻿@model LoocERP.Models.Mansione
+
+
+
+
+<div class="modal fade" id="modalMansioni" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modifica Mansione</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <form asp-controller="Mansione" asp-action="edit">
+                    <input asp-for="@Model.ID" id="Id_Mansione" hidden />
+                    <div class="form-group">
+                        <div class="col-sm-12 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.Codice"></label>
+                                <input asp-for="@Model.Codice" class="form-control" placeholder="Codice" id="codice_Mansione" />
+                                <span asp-validation-for="@Model.Codice" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Name"></label>
+                                <input asp-for="@Model.Name" class="form-control" placeholder="Name" id="nome_Mansione"  />
+                                <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Descrizione"></label>
+                                <input asp-for="@Model.Descrizione" class="form-control" placeholder="Descrizione" id="descrizione_Mansione" />
+                                <span asp-validation-for="@Model.Descrizione" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function openModalMansioniEdit(data) {
+        console.log(data.id);
+        var empModal = $('#modalMansioni');
+        $("#Id_Mansione").val(data.id);
+        $("#codice_Mansione").val(data.codice);
+        $("#nome_Mansione").val(data.name);
+        $("#descrizione_Mansione").val(data.descrizione);
+        empModal.modal('show');
+    }
+</script>

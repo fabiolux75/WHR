@@ -1,0 +1,210 @@
+﻿@*model List<LoocERP.Models.Cantiere>*@
+@{
+    ViewData["Title"] = "Report per risorsa";
+    //ViewData["activePage"] = "Pianificazione risorsa";    
+    DateTime wd = (@ViewBag.MontlyDate??DateTime.Now);
+    if(! DateTime.TryParse(wd.ToString(), out wd)){ 
+        wd = DateTime.Now.Date;
+    }    
+    string month = @wd.Month.ToString("0#");
+    string year = @wd.Year.ToString();
+    string monthyear = month+"-"+year;
+    string dten = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year;
+    string dtenfull = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    string dtit = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year;
+    string dtitfull = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+}
+
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jquery-date-range-picker/daterangepicker.css">
+
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+<div>&nbsp</div>
+
+<section class="content">
+
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+
+                    <form method="get" id="formreservation" >
+                        <div class="form-group">
+                            <div class="row">
+                                <div class="col-8">
+                                    <label>Report Mensile - Seleziona mese</label>
+                                    <div class="input-group">
+                                        <div class="input-group-prepend">
+                                            <span class="input-group-text">
+                                                <i class="far fa-calendar-alt"></i>
+                                            </span>
+                                        </div>
+                                        <input type="text" class="form-control float-right" id="reservation" autocomplete="off" value='@monthyear'>
+                                        <input id="reservationen" name="MontlyDate" type="hidden" value='@dtenfull'>
+                                    </div>
+                                </div>
+                                <div class="col-2 align-self-center pt-4" style="padding-left: 3%;">
+                                    <a class="btn btn-primary btn-modal" target="_blank" href="/TimesheetsDailyReport/exp?MontlyDate=@dtenfull"><i class="fa fa-calendar-check"></i> Export Mensile utenti</a>
+                                </div>
+                                <div class="col-2 align-self-center pt-4">
+                                    <a class="btn btn-warning btn-modal" target="_blank" href="/TimesheetsDailyReport/expRILPRE?MontlyDate=@dtenfull"><i class="fa fa-file-download"></i> Export Mensile RILPRE</a>
+                                </div>
+                            </div>
+                            <!-- /.input group -->
+                        </div>
+                        <p class="col-12 p-0">
+
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="table1" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="hide-search"></th></th>
+                                    <th>Cognome</th>
+                                    <th>Nome</th>                                
+                                    <th># Giornate Lavorative</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+@section Scripts {    
+    <script>
+             
+        $(document).ready(function () {
+            //Date range as a button
+             $('#reservation').datepicker(
+                {
+                    format: "mm-yyyy",
+                    viewMode: "months", 
+                    minViewMode: "months",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',                    
+                    changeMonth: true,
+                    changeYear: true,                                        
+                    language: "it",
+                    autoclose: true,                          
+                    //maxDate: "+1m"
+                },
+            ).on('changeDate', function (e) {                                                                
+                var year  = e.date.getFullYear();
+                var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                var day   = "01";//e.date.getDate().toString().padStart(2, "0");                
+                $('#reservationen').val(month+"-"+day+"-"+year);
+                //$('#reservation').val(day+"-"+month+"-"+year);                
+                $('#formreservation').submit();                
+            })
+            ;;
+                
+
+            $('#table1 thead tr').clone(true).appendTo('#table1 thead');
+            $('#table1 thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            var groupColumn = 4;
+            var table = $('#table1').DataTable({
+                ajax: '/TimesheetsDailyReport/ajaxIndexMontlyReport?MontlyDate=@dtenfull',
+                "columnDefs": [
+                    //{ "visible": false, "targets": groupColumn },
+                    //{ "visible": true, "targets": 0 },
+                    { "width": '50px', "targets": 0 },
+                    { "width": '50px', "targets": 3 },
+                    { "width": '50px', "targets": 4 },
+                ],
+                //"order": [[groupColumn, 'asc']],
+                columns: [
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, type, row) {
+                            return '<img src="/Users/getProfilePicture?id=' + row.id + '" style="height:50px;width:50px;border: 1px solid;border-radius:50%;" />';
+                        }
+                    },                    
+                    { "data": "lastName" },
+                    { "data": "firstName" },
+                    { "data": "giorniLavorativi" },
+                    {
+                        "data": 'id',
+                        "name": "",
+                        "render": function (data, type, row) {                            
+                            return '<a class="btn btn-primary btn-modal" target="_blank" href="/TimesheetsDailyReport/MontlyReport?userId='+row.id+'&MontlyDate=@dtenfull"><i class="fa fa-calendar-check"></i></a>';
+                        }
+                    },                    
+                ],                
+                language: {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                autoWidth: false,
+                responsive: true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+}
+<style>
+    .date-picker-wrapper {
+        z-index: 999999999;
+    }
+    #table1 .group{
+        background: #ccc;
+    }
+    #table1 .group td{
+        font-weight: bold;;
+    }
+</style>

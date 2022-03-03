@@ -1,0 +1,412 @@
+﻿@model LoocERP.ViewModels.DailyReportViewModel
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+    ViewData["Title"] = "Report Mensile";
+    //ViewData["activePage"] = "Pianificazione risorsa";    
+    DateTime wd = (@ViewBag.MontlyDate??DateTime.Now);
+    if(! DateTime.TryParse(wd.ToString(), out wd)){ 
+        wd = DateTime.Now.Date;
+    }    
+    int imonth = @wd.Month;
+    int iyear = @wd.Year;
+    string month = imonth.ToString("0#");
+    string year = iyear.ToString();
+    string monthyear = month+"-"+year;
+    string dten = @month+"-"+@wd.Day.ToString()+"-"+@year;
+    string dtenfull = @month+"-"+@wd.Day.ToString("0#")+"-"+@year+" 00:00:00";
+    string dtit = @wd.Day.ToString("0#")+"-"+@month+"-"+@year;
+    string dtitfull = @wd.Day.ToString("0#")+"-"+@month+"-"+@year+" 00:00:00";
+
+    string isApprovedReadOnly = (@ViewBag.isApproved) ? "readonly" : "";
+
+    
+}
+
+
+<style>
+    input{
+        height: 100%;
+        width: 100%;
+        border: none;
+        text-align: center;
+    }
+    .bg-th-table{
+        background: #ffffcc;
+    }
+    .select2-container,
+    .select2-results__option {
+        font-size: 14px !important;
+        padding: 2px !important;
+    }
+    
+    .select2-container--default .select2-selection--single {
+        padding: 0 !important;
+    }
+</style>
+<div>&nbsp;</div>
+
+           @*  TEST DEVEXTREME
+           <div class="dx-field">
+            <div class="dx-field-label">Text mask</div>
+            <div class="dx-field-value">
+                @(Html.DevExtreme().TextBox().Mask("00:XY").MaskRules(new { X = new JS("/[0-5]/"), Y = new JS("/[0-9]/") }).Placeholder("HH:MM").Value("10:50"))
+            </div>
+        </div>         *@
+<section class="content">
+    <div class="card col-12 p-0">
+                <div class="card-body">
+                    <div class="col-12">                        
+                        <div class="row">
+                            <div class="col-md-8 col-sm-6 col-12">
+                                <div class="col-12"><b>Report Mensile</b></div>
+                                <div class="col-12"><b>Risorsa:</b> @(Model.User.FirstName??"") @(Model.User.LastName??"")</div>
+                                <div class="col-12"><b>Mese:</b> @Model.Month <b>Anno:</b> @Model.Year</div>
+                                <div class="col-12"><b>Indennità Mensile:</b> @Html.DisplayFor(m =>  m.Contract.IndennitaMese)</div>
+                                @if (@ViewBag.isApproved) {
+                                    <div class="col-12"><span class="badge badge-success"><i class="far fa-check-square mr-2"></i> Report approvato</span></div>
+                                }
+
+                            </div>                            
+                            <div class="col-md-4 col-sm-6 col-12">
+                                 <div class="col-12">
+                                    <form method="get" id="formreservation" >                                        
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                </span>
+                                            </div>
+                                            <input type="text" class="form-control float-right" id="reservation" autocomplete="off" value='@monthyear'>
+                                            <input id="reservationen" name="MontlyDate" type="hidden" value='@dtenfull'>
+                                            <input id="reservationen" name="userId" type="hidden" value='@ViewBag.UserId'>
+                                        </div>                                    
+                                    </form>
+                                </div>
+                                 <div class="col-12 p-0">
+                                     <div class="row">
+                                            <div class="col-4">
+                                            @if ((!@ViewBag.isApproved) && ((await AuthorizationService.AuthorizeAsync(User, "TimesheetDailyReport.Approvazione")).Succeeded)){
+                                                    <a class="btn btn-success btn-modal mr-2 btn-approvazione" target="_blank" data-user ="@ViewBag.UserId" data-periodo="@monthyear"><i class="fa fa-clipboard-check"></i> Approvazione report</a>
+                                            } 
+                                            </div>
+                                        <div class="col-4">
+                                            <a class="btn btn-default" onclick="location.reload();"><i class="fa fa-sync mr-2" aria-hidden="true"></i>Ricarica e verifica</a>
+                                        </div>
+                                        <div class="col-4">
+                                            <a class="btn btn-primary btn-modal mr-2" target="_blank" href="/TimesheetsDailyReport/ExportMontlyReport?userId=@ViewBag.UserId&MontlyDate=@dtenfull"><i class="fa fa-calendar-check"></i> Export Mensile utente</a>
+                                        </div>
+                                     </div>
+
+                                 </div>
+                            </div>
+                        </div>    
+                    </div>
+
+
+                </div>
+            </div>
+            <div class="card card-primary">
+                <div class="col-12">
+                    <div class="row">
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Giorno</b></div>
+                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Commessa Cantiere Turno</b></div>                        
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Ore App</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Ore</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Straordinario</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Notturno</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Galleria</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Trasferta</b></div>
+                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Giustificativo</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Ore giustificativo</b></div>
+                        <!--<div class="col-1 border text-center bg-th-table bold p-0"><b>Indennità(&euro;)</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>Cigo</b></div>
+                        <div class="col-1 border text-center bg-th-table bold p-0"><b>EC</b></div>-->
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="row">                        
+                        @{ int index = 1; int days = DateTime.DaysInMonth(@iyear, @imonth);} 
+                        @foreach (var item in @Model.TimeSheetDailyReportList)
+                        {     
+                            for (int day = @index; day < @item.TimeSheetDailyReport.WorkDate.Value.Day; day++)
+                            {       
+                                DateTime dt1 = new DateTime(iyear, imonth, day);
+                                var fest1 = ((int)dt1.DayOfWeek == 0) ?  true : false;                                
+                                <div class="col-12 p-0">
+                                    <div class="row m-0">
+                                    <div class="col-1 border text-center p-0">
+                                        @if (fest1) {
+                                            <div style="display:inline-block; width:30px" class="badge badge-danger label-as-badge">@day</div>
+                                        }else {
+                                            <b>@day</b>
+                                        }
+                                        </div>
+                                        <div class="col-2 border text-center p-0"></div>                                
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01"></div>                                            
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                        <div class="col-2 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                        <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01"></div>                                        
+                                        @*<div class="col-1 border text-center p-0"><input disabled datatype="Cigo" ></div>
+                                        <div class="col-1 border text-center p-0"><input disabled datatype="Ec" ></div> *@
+                                    </div>
+                                </div>                         
+                            }
+                            <div class="col-12 p-0">
+                                <div class="row m-0">
+                                    <div class="col-1 border text-center p-0">
+                                    @{
+                                        DateTime dt = new DateTime(iyear, imonth, item.TimeSheetDailyReport.WorkDate.Value.Day);
+                                        var festivo = ((int)dt.DayOfWeek == 0) ?  true : false;
+                                    }
+                                    @if (festivo){
+                                        <div style="display:inline-block; width:30px" class="badge badge-danger label-as-badge">@item.TimeSheetDailyReport.WorkDate.Value.Day</div>
+                                    } else {
+                                        <b>@item.TimeSheetDailyReport.WorkDate.Value.Day</b>
+                                    }
+                                    </div>
+                                    <div class="col-2 border text-center p-0" style="font-size: 12px;">@item.Commessa.Name - @item.Cantiere.Name ( @item.Turno.Name )</div>                                    
+                                    <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreEffettive" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.EffectiveHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.EffectiveHour' placeholder="HH:mm" @isApprovedReadOnly></div>
+                                   
+                                    
+                                    <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="Ore" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Hour" class="edit-input dateHours " value='@item.TimeSheetDailyReport.Hour' placeholder="HH:mm" @isApprovedReadOnly></div>
+                                    <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreStraordinarie" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.OvertimeHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.OvertimeHour' placeholder="HH:mm" @isApprovedReadOnly></div>
+                                    <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreNotturne" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.NightHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.NightHour' placeholder="HH:mm" @isApprovedReadOnly></div>
+                                    <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreGalleria" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.GalleryHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.GalleryHour' placeholder="HH:mm" @isApprovedReadOnly></div>                                
+                                    <div class="col-1 border text-center p-0">
+                                    <select @isApprovedReadOnly datatype="TrasfertaId"
+                                            dataid="@item.TimeSheetDailyReport.Id"
+                                            dataprev="@item.TimeSheetDailyReport.TrasfertaId"
+                                            class="select3-giust form-control">
+                                        @if (@item.TimeSheetDailyReport.TrasfertaId != null && @item.TimeSheetDailyReport.Trasferta.type == 1) // 
+                                        {
+                                            <option selected value="@item.TimeSheetDailyReport.TrasfertaId">@item.TimeSheetDailyReport.Trasferta.Name</option>
+
+                                        }
+                                    </select>
+                                    </div>
+                                    <div class="col-2 border text-center p-0">
+                                        <select @isApprovedReadOnly datatype="GiustificativoId" 
+                                                id="@item.TimeSheetDailyReport.Id"
+                                                dataid="@item.TimeSheetDailyReport.Id"
+                                                dataprev="@item.TimeSheetDailyReport.GiustificativoId"
+                                                class="select2-giust form-control">
+                                            @if (@item.TimeSheetDailyReport.GiustificativoId != null && @item.TimeSheetDailyReport.Giustificativo.type == 0)
+                                            {
+                                                <option selected value="@item.TimeSheetDailyReport.GiustificativoId">(@item.TimeSheetDailyReport.Giustificativo.Code) - @item.TimeSheetDailyReport.Giustificativo.Name</option>
+
+                                            }
+                                        </select>
+                                    </div>                                          
+                                    @* <div class="col-1 border text-center p-0"><input min=0 type="number" step="0.01" datatype="Indennita" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Indennita" class="edit-input" value='@item.TimeSheetDailyReport.Indennita.ToString().Replace(",", ".")' @isApprovedReadOnly></div>
+                                    <div class="col-1 border text-center p-0"><input datatype="Cigo" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Cigo" class="edit-input" value='@item.TimeSheetDailyReport.Cigo' @isApprovedReadOnly></div>
+                                    <div class="col-1 border text-center p-0"><input datatype="Ec" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Ec" class="edit-input" value='@item.TimeSheetDailyReport.Ec' @isApprovedReadOnly></div> *@
+                                    <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreGiustificativo" dataid="@item.TimeSheetDailyReport.Id" dataSel ="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.OreGiustificativo" class="edit-input dateHours oreGiust" value='@item.TimeSheetDailyReport.OreGiustificativo' placeholder="HH:mm" @isApprovedReadOnly></div>
+                                    <span class="d-none">@(index = @item.TimeSheetDailyReport.WorkDate.Value.Day+1)</span>
+                                </div>
+                            </div>   
+                        }
+                        @for (int day = @index; day <= @days; day++)
+                        {                                
+                            DateTime dt = new DateTime(iyear, imonth, day);
+                            var festivo = ((int)dt.DayOfWeek == 0) ?  true : false;
+                            <div class="col-12 p-0">
+                                <div class="row m-0">
+                                     
+                                    <div class="col-1 border text-center p-0">
+                                        @if (festivo) {
+                                         <div style="display:inline-block; width:30px" class="badge badge-danger label-as-badge">@day</div>
+                                        }else {
+                                        <b>@day</b>
+                                     }
+                                    </div>
+                                    <div class="col-2 border text-center p-0"></div>
+                                    <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01"></div>                                            
+                                    <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                    <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                    <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                    <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                    <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>    
+                                    <div class="col-2 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                     <div class="col-1 border text-center p-0"><input disabled min=0 type="number" step="0.01" ></div>
+                                    @*<div class="col-1 border text-center p-0"><input disabled datatype="Cigo" ></div>
+                                    <div class="col-1 border text-center p-0"><input disabled datatype="Ec" ></div> *@
+                                </div>
+                            </div>   
+                        }
+                    </div>
+                </div>                
+            </div>
+    </div>    
+</section>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {            
+
+
+            $('.btn-approvazione').on('click',function(){
+
+                var param = {
+                    userId :  $(this).data('user'),
+                    period : $(this).data('periodo'),
+                };
+                $(this).addClass('disabled');
+                $.ajax({
+                    type: "POST",
+                    url: "/TimesheetsDailyReport/ajaxApprovaReport",
+                    contentType: 'application/json',
+                    data:  JSON.stringify(param),
+                    success: function(resp) {
+                        if (resp.esito == 1) {
+                            alert('Approvazione avvenuta!');
+                            location.reload(true);
+                        }
+                    }
+                }).done(function(e){
+                    $(this).removeClass('disabled');
+                })
+            });
+
+            $('#reservation').datepicker(
+                {
+                    format: "mm-yyyy",
+                    viewMode: "months", 
+                    minViewMode: "months",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',                    
+                    changeMonth: true,
+                    changeYear: true,                                        
+                    language: "it",
+                    autoclose: true,                          
+                    //maxDate: "+1m"
+                },
+            ).on('changeDate', function (e) {                                                                
+                var year  = e.date.getFullYear();
+                var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                var day   = "01";//e.date.getDate().toString().padStart(2, "0");                
+                $('#reservationen').val(month+"-"+day+"-"+year);
+                //$('#reservation').val(day+"-"+month+"-"+year);                
+                $('#formreservation').submit();                
+            });
+
+
+            $(".edit-input").on('change', function postinput(e){                
+                //alert("ok");            
+                var Id = e.target.getAttribute('dataid');
+                var dataprev = e.target.getAttribute('dataprev');
+                var datatype = e.target.getAttribute('datatype');
+
+
+                if ((datatype == "OreGiustificativo") && ($("#"+Id).find(":selected").val() == null)) {
+                    $(this).val("");
+                    alert('Selezionare un giustificativo');
+                    return;
+                }
+
+                var value=e.target.value.replace(",",'.');                                
+                $.ajax({
+                    //beforeSend: function() { textreplace(description); },
+                    type: "GET",  
+                    url: "/TimesheetsDailyReport/ajaxEditCellMontlyReport",
+                    data: "Id="+Id+"&"+datatype+"="+value,
+                    success: function(res){            
+                        if (res.data.result == 'ko') {
+                            e.target.className += ' alert-danger';
+                            e.target.value = dataprev;
+                        } else {
+                            e.target.className += ' alert-success';
+                            e.target.setAttribute('dataprev',e.target.value);                        
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }       
+                });                
+            });
+            $('.select2-giust').select2({
+                placeholder: "Sel. giustificativo",
+                'allowClear': true,
+                minimumInputLength: 2,
+                ajax: {
+                    url: '/Giustificativo/ajaxIndex',
+                    dataType: 'json'
+                    // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                }
+            });
+            $('.select2-giust').on('change.select2', function (e) {
+            /*.on('change', function(e){*/
+
+                var Id = e.target.getAttribute('dataid');
+                var dataprev = e.target.getAttribute('dataprev');
+                var datatype = e.target.getAttribute('datatype');
+                var value=e.target.value;
+                if ( value === "" ) {
+                    $(':input[dataSel="'+Id+'"]').val('');
+                    $(':input[dataSel="'+Id+'"]').removeClass('alert-success');
+                    value = "0";
+                }
+
+                $.ajax({
+                    //beforeSend: function() { textreplace(description); },
+                    type: "GET",
+                    url: "/TimesheetsDailyReport/ajaxEditCellMontlyReport",
+                    data: "Id="+Id+"&"+datatype+"="+value,
+                    success: function(data){
+                        e.target.className += ' alert-success';
+                        e.target.setAttribute('dataprev',e.target.value);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(textStatus);
+                        console.log(errorThrown);                               
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }
+                });
+            });
+
+            /* $('.select2-giust').on('select2:unselect', function (e) {
+                alert('ciao');
+            }); */
+
+            $('.select3-giust').select2({
+                ajax: {
+                    url: '/Giustificativo/ajaxIndex?type=1',
+                    dataType: 'json'
+                    // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                }
+            })
+            .on('change', function (e) {
+                var Id = e.target.getAttribute('dataid');
+                var dataprev = e.target.getAttribute('dataprev');
+                var datatype = e.target.getAttribute('datatype');
+                var value = e.target.value;
+                $.ajax({
+                    //beforeSend: function() { textreplace(description); },
+                    type: "GET",
+                    url: "/TimesheetsDailyReport/ajaxEditCellMontlyReport",
+                    data: "Id=" + Id + "&" + datatype + "=" + value,
+                    success: function (data) {
+                        e.target.className += ' alert-success';
+                        e.target.setAttribute('dataprev', e.target.value);
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }
+                });
+            });
+        });
+    </script>
+}

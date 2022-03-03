@@ -1,0 +1,117 @@
+﻿@model LoocERP.Models.ResourceRequest
+<div class="card card-primary">
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="col-12">
+            <label>Lista Mansioni richieste</label>
+            <div class="row">
+                <div class="col-5">
+                    <label>Seleziona Mansione</label>
+                    <div class="form-group">
+                        <select style="width:100%" class="form-control" name="" id="mansione_select2"></select>
+                    </div>
+                    <span style="color:red;display: none;" id="mansione_select2_error">Errore valore</span>
+                </div>
+                <div class="col-3">
+                    <div id="macchinaSelect">
+                        <label>Seleziona Macchina</label>
+                        <div class="form-group">
+                            <select style="width:100%" class="form-control is-invalid" name="" id="macchinaSelect_select2"></select>
+                        </div>
+
+                    </div>
+
+                </div>
+                <div class="col-3">
+                    <div id="macchinaSelect">
+                        <label>Quantità</label>
+                        <div class="form-group">
+                            <input type="text" class="form-control" value="1" id="qty" required>
+                        </div>
+                        <span style="color:red;display: none;" id="qty_error">Errore valore</span>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div id="macchinaSelect">
+                        <label></label>
+                        <div class="form-group">
+                            <a class="btn btn-primary waves-effect waves-light" onclick="addM()"><i class="fas fa-plus"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function addM() {
+
+
+
+
+        var id = $("#mansione_select2").val();
+        var mansione = $("#mansione_select2").text();
+        var idMansione = $("#mansione_select2").val();
+        var macchina = $("#macchinaSelect_select2").text();
+        var idMacchina = $("#macchinaSelect_select2").val();
+        var qty = $("#qty").val();
+
+        var i = parseInt(qty);
+
+        $("#qty").removeClass("is-invalid");
+        $("#qty_error").hide();
+        $("#mansione_select2_error").hide();
+
+        if (idMansione == null) {
+            $("#mansione_select2_error").show();
+            return;
+        }
+
+        if (i <= 0) {
+            $("#qty").addClass("is-invalid");
+            $("#qty_error").show();
+            return;
+        }
+
+
+
+
+        addMansione(id, idMansione, mansione, idMacchina, macchina, qty);
+
+        $("#mansione_select2").val("");
+        $("#mansione_select2").text("");
+        $("#macchinaSelect_select2").val("");
+        $("#macchinaSelect_select2").text("");
+    }
+
+
+    $("#macchinaSelect").hide();
+    $('#mansione_select2').select2({
+        placeholder: "Inserisci nome Mansione",
+        minimumInputLength: 1,
+        ajax: {
+            url: '/ResourceRequest/ajaxMansioniList',
+            dataType: 'json',
+
+        },
+    });
+
+    $("#mansione_select2").change(function () {
+
+        $("#macchinaSelect").show();
+
+        var val = this.value;
+        $('#macchinaSelect_select2').select2({
+            placeholder: "Inserisci nome Macchina",
+            minimumInputLength: 1,
+            ajax: {
+                url: '/ResourceRequest/ajaxMacchineList?idMansione=' + val,
+                dataType: 'json',
+
+            },
+        });
+
+    });
+</script>

@@ -1,0 +1,84 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+
+@inject UserManager<AppUser> UserManager
+
+@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Manutenzione";
+}
+
+@{
+    AppUser layout_user = new AppUser();
+    try
+    {
+        layout_user = @UserManager.GetUserAsync(User).Result;
+    }
+    catch (Exception)
+    {
+        layout_user = new AppUser();
+    }
+    //.MultiTenantId
+}
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-12">
+            <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/PackageService/ModuloOfficina/ElencoInterventi/index.aspx&uid=@layout_user.Id" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Interventi</span>
+                        <small class="info-box-number">Lista anagrafica</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/PackagePianiManutenzione/Progettazione/index.aspx&uid=@layout_user.Id" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Piani di manutenzione Progettazione</span>
+                        <small class="info-box-number">Lista anagrafica</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/PackagePianiManutenzione/Istanziazione/index.aspx&uid=@layout_user.Id" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Piani di manutenzione Istanziazione</span>
+                        <small class="info-box-number">Lista anagrafica</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=v@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/PackageGovernance/TabelleFunzionali/index.aspx&uid=@layout_user.Id" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-euro-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Tabelle funzionali</span>
+                        <small class="info-box-number">Area dedicata alla gestione dei progetti</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+    </div>
+</section>

@@ -1,0 +1,297 @@
+﻿@{
+    Layout = "_DevExtremeLayout";
+}
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="col-12">
+
+                        @( Html.DevExtreme().DataGrid<LoocERP.Models.Articolo>()
+                            //.OnSelectionChanged("selection_changed")
+                            .ID("gridContainer")
+                            .ShowBorders(true)
+                            .HoverStateEnabled(true)
+                            .Selection(s => s.Mode(SelectionMode.Single))
+                            .FilterRow(filterRow => filterRow
+                                .Visible(true)
+                                .ApplyFilter(GridApplyFilterMode.Auto)
+                            )
+                            .SearchPanel(searchPanel => searchPanel
+                                .Visible(true)
+                                .Width(240)
+                                .Placeholder("Cerca...")
+                            )
+                            .DataSource(ds => ds.Mvc()
+                                .Controller("Articoli")
+                                .LoadAction("Get")
+                                .DeleteAction("Delete")
+                                .UpdateAction("Put")
+                                .Key("ID")
+                            )
+                            .Editing(e => e.Mode(GridEditMode.Popup)
+                                .AllowUpdating(true)
+                                .AllowAdding(true)
+                                .AllowDeleting(true)
+                                .UseIcons(true)
+
+                                .Popup(p => p
+                                    .Title("Modifica articolo")
+                                    .ShowTitle(true)
+                                    .FullScreen(true)
+                                )
+                                .Form(f => f.Items(items =>
+                                {
+                                    
+                                    var tabs = new[] {
+                                        new { id = 0, text = "user", icon = "user", content = "User tab content" },
+                                        new { id = 1, text = "comment", icon = "comment", content = "Comment tab content" },
+                                        new { id = 2, text = "find", icon = "find", content = "Find tab content" }
+                                    };
+                                    var t = Html.DevExtreme().Tabs()
+                                        .DataSource(tabs)
+                                        .Width(300)
+                                        .ScrollByContent(true)
+                                        .ShowNavButtons(true).ToTemplate();
+    
+                                    items.AddSimple().Template(Html.DevExtreme().Tabs()
+                                        .DataSource(tabs)
+                                        .Width(300)
+                                        .ScrollByContent(true)
+                                        .ShowNavButtons(true).ToTemplate().ToString());
+
+                                    items.AddGroup()
+                                       .Caption("Personal Data")
+                                       .Items(groupItems =>
+                                       {
+                                           groupItems.AddSimpleFor(m => m.CodiceMag)
+                                               .IsRequired(false);
+                                       });
+
+                                    items.AddSimpleFor(m => m.CodiceMag);
+
+                                    /*
+                                    items.AddSimpleFor(m => m.CodiceMag);
+
+                                    items.AddSimpleFor(m => m.Descrizione);
+
+                                    items.AddSimpleFor(m => m.idUm)
+                                        .Editor(e => e
+                                            .Lookup()
+                                            .DataSource(ds => ds.WebApi().Controller("Articoli").LoadAction("C_UMLookup").Key("Value"))
+                                            .ValueExpr("Value")
+                                            .DisplayExpr("Text")
+                                        );
+
+                                    items.AddSimpleFor(m => m.ScortaMinima);
+
+                                    items.AddSimpleFor(m => m.Qty);
+
+                                    items.AddSimpleFor(m => m.IdMarca)
+                                        .Editor(e => e
+                                            .Lookup()
+                                            .DataSource(ds => ds.WebApi().Controller("Articoli").LoadAction("MARCHELookup").Key("Value"))
+                                            .ValueExpr("Value")
+                                            .DisplayExpr("Text")
+                                        );
+
+                                    items.AddSimpleFor(m => m.IdCategoria);
+
+                                    items.AddSimpleFor(m => m.PrezzoVendita);
+                                    */
+                                }))
+                            )
+                            .RemoteOperations(true)
+                            .Columns(columns => {
+
+                                columns.AddFor(m => m.CodiceMag);
+
+                                columns.AddFor(m => m.Descrizione);
+
+                                columns.AddFor(m => m.idUm).Lookup(lookup => lookup
+                                    .DataSource(ds => ds.WebApi().Controller("Articoli").LoadAction("C_UMLookup").Key("Value"))
+                                    .ValueExpr("Value")
+                                    .DisplayExpr("Text")
+                                );
+
+                                columns.AddFor(m => m.ScortaMinima);
+
+                                columns.AddFor(m => m.Qty);
+
+                                columns.AddFor(m => m.IdMarca).Lookup(lookup => lookup
+                                    .DataSource(ds => ds.WebApi().Controller("Articoli").LoadAction("MARCHELookup").Key("Value"))
+                                    .ValueExpr("Value")
+                                    .DisplayExpr("Text")
+                                );
+
+                                columns.AddFor(m => m.IdCategoria);
+
+                                columns.AddFor(m => m.PrezzoVendita);
+                            })
+                        /*
+                        .MasterDetail(m => m
+                            .Enabled(true)
+                            .Template(new TemplateName("gridContainer-details"))
+                        )
+                         */
+
+                        )
+
+                        @using (Html.DevExtreme().NamedTemplate("gridContainer-details"))
+                        {
+                            @(Html.DevExtreme().TabPanel()
+                                .Items(items => {
+
+                                    items.Add()
+                                        .Title("Informazioni articolo")
+                                        .Template(new TemplateName("gridContainer-details-tabOrders"))
+                                        .Option("tabExtras", new JS("data"));
+                                })
+                            )
+                        }
+
+
+                        @using (Html.DevExtreme().NamedTemplate("gridContainer-details-tabOrders"))
+                        {
+                            var formItemTemplate = "<%- editorOptions.value %>";
+
+                            @(Html.DevExtreme().Form<LoocERP.Models.Articolo>()
+                                .ElementAttr("class", "address-form form-container")
+                                .FormData(new JS("tabExtras"))
+                                .ColCount(2)
+
+
+                                .Items(items =>
+                                {
+
+
+                                    items.AddSimple().DataField("CodiceMag").Template(formItemTemplate);
+                                    items.AddSimple().DataField("Descrizione").Template(formItemTemplate);
+                                    items.AddSimple().DataField("PrezzoVendita").Template(formItemTemplate);
+                                    items.AddSimple().DataField("nomeMarca").Template(formItemTemplate);
+
+                                }
+                                )
+
+                            )
+                        }
+
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+    @*
+    #gridContainer .dx-datagrid-headers .dx-header-row {
+        background-color: rgb(154 201 255 / 60%);
+    }
+        *@
+
+    .dx-header-row {
+        color: white;
+    }
+
+    #gridContainer .dx-datagrid-headers .dx-header-row {
+        background-color: #507CD1;
+    }
+
+    #gridContainer .dx-datagrid-header-panel {
+        padding: 0;
+        background-color: rgb(154 201 255 / 60%);
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar {
+        margin: 0;
+        padding-right: 20px;
+        background-color: transparent;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-items-container {
+        height: 70px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-before .dx-toolbar-item:not(:first-child) {
+        background-color: rgba(103, 171, 255, 0.6);
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-before .dx-toolbar-item:last-child {
+        padding-right: 10px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-selectbox {
+        margin: 17px 10px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-button {
+        margin: 17px 0;
+    }
+
+    #gridContainer .informer {
+        height: 70px;
+        width: 130px;
+        text-align: center;
+        color: #fff;
+    }
+
+    #gridContainer .count {
+        padding-top: 15px;
+        line-height: 27px;
+        font-size: 28px;
+        margin: 0;
+        font-weight: normal;
+        font-family: "Helvetica Neue", "Segoe UI", Helvetica, Verdana, sans-serif;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    ​
+    .address-form label {
+        font-weight: bold;
+    }
+</style>
+@section Scripts{ 
+    <script>
+        var prevGrid = null;
+        function selection_changed(e) {
+            /*
+            if (prevGrid != null) {
+                var key = prevGrid;
+                var treeList = $("#gridContainer").dxDataGrid("instance");
+                treeList.collapseRow(key);
+            }
+            */
+            
+
+            if (prevGrid != null ) {
+                var key = prevGrid;
+                var treeList = $("#gridContainer").dxDataGrid("instance");
+                treeList.collapseRow(key);
+            }
+            
+            var key = e.selectedRowKeys[0];
+            var treeList = $("#gridContainer").dxDataGrid("instance");
+
+           
+            if (treeList.isRowExpanded(key)) {
+                treeList.collapseRow(key);
+            } else {
+                treeList.expandRow(key);
+            }
+            prevGrid = key;
+            //$('#mybutton').trigger('click');
+        }
+
+    </script>
+}

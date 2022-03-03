@@ -1,0 +1,68 @@
+﻿@using LoocERP.Controllers
+<div class="modal fade" id="modalAddOption" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Associazione noleggio/Leasing</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="formoptionAssign">
+                    <div class="form-group col-sm-12">
+                        <label for="User_InternalCode" class="active">Nome</label>
+                        <input class="form-control" autocomplete="off" type="text" data-val="true" data-val-maxlength="Lunghezza massima 50 caratteri" data-val-maxlength-max="50" id="User_InternalCode" maxlength="50" name="Name">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiungi</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginScripts())
+{ 
+    <script>
+        function openModalAddOption() {
+            var empModal = $('#modalAddOption');
+            //empModal.find(".CodiceVettore").val(CodiceVettore);
+            //empModal.find(".nposti").val(nPostiAttuali);
+            //$(".imp").val("");
+            empModal.modal('show');
+        }
+
+        $(document).ready(function () {
+
+            $('#formoptionAssign').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+
+                var elements = $(this).serializeArray();
+                var data = [];
+
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+
+                $.ajax({
+                    url: '/Noleggi/ajaxAddOption',
+                    type: 'post',
+                    data: { Name: data["Name"], },
+                    success: function (data) {
+                        console.log(data.data);
+
+                        // Add response in Modal body
+                        //Svuoto modale
+                        var empModal = $('#modalproperyedit');
+                        $('#modalproperyedit').modal('hide');
+
+
+                        reloadTable();
+                    }
+                });
+            }
+            );
+          }
+        );
+    </script>
+
+}

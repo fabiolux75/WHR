@@ -1,0 +1,148 @@
+﻿@model LoocERP.ViewModels.ContractUserViewModel
+
+<div class="modal fade show" id="contract-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiungi Contratto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="ContractUser" asp-action="Create"  runat="server" enctype="multipart/form-data">                
+                <input type="hidden" asp-for="@Model.redirectUrl" class="form-control"></input>
+                <div class="modal-body row">
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.Code"></label>
+                        <input asp-for="@Model.ContractUser.Code" class="form-control"></input>
+                        <span asp-validation-for="@Model.ContractUser.Code" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.ContractTypeId"></label>
+                        <select asp-for="@Model.ContractUser.ContractTypeId" class="form-control">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.ContractTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label>CCNL</label>
+                        <select id="create-LevelId-parent"
+                                class="form-control"
+                                data-childId="create-LevelId"
+                                data-value=null
+                                onchange="setDomainChild(this,null,'create-LevelId')">
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.LevelId"></label>
+                        <select id="create-LevelId" asp-for="@Model.ContractUser.LevelId d-none" class="form-control">
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.RetribuzioneTypeId"></label>
+                        <select asp-for="@Model.ContractUser.RetribuzioneTypeId" class="form-control">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.RetribuzioneTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.OreDiLavoroTypeId"></label>
+                        <select asp-for="@Model.ContractUser.OreDiLavoroTypeId" class="form-control">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.OreDiLavoroTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.CategoryCodeId"></label>
+                        <select asp-for="@Model.ContractUser.CategoryCodeId" class="form-control">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.CategoryCodeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.LawNumberTypeId"></label>
+                        <select asp-for="@Model.ContractUser.LawNumberTypeId" class="form-control">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.LawNumberTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.ValidFrom"></label>
+                        <input asp-for="@Model.ContractUser.ValidFrom" class="form-control" />
+                        <span asp-validation-for="@Model.ContractUser.ValidFrom" class="text-danger" placeholder="Valido dal"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.ValidTo"></label>
+                        <input asp-for="@Model.ContractUser.ValidTo" class="form-control" />
+                        <span asp-validation-for="@Model.ContractUser.ValidTo" class="text-danger" placeholder="Valido al"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.IndennitaMese"></label>
+                        <input asp-for="@Model.ContractUser.IndennitaMese" class="form-control" />
+                        <span asp-validation-for="@Model.ContractUser.IndennitaMese" class="text-danger" placeholder="Valido al"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.MesiRinnovo"></label>
+                        <input asp-for="@Model.ContractUser.MesiRinnovo" class="form-control" />
+                        <span asp-validation-for="@Model.ContractUser.MesiRinnovo" class="text-danger"></span>
+                    </div>
+
+
+                    <div class="form-group col-sm-12">
+                        @if (Model.ContractUser.FileName != null)
+                        {
+                            <label asp-for="@Model.FileUpload">Sovrascrivi contratto esistente - <a href="@ViewBag.fileDownload" download="@(DateTime.Now.ToString("dd-MM-yyyy"))-Contratto.pdf"><i class="fa fa-download"></i> Download</a></label>
+                        }
+                        else
+                        {
+                            <label asp-for="@Model.FileUpload">Carica contratto</label>
+                        }
+                        <input type="hidden" asp-for="@Model.ContractUser.FileName">
+                        <input asp-for="@Model.FileUpload" type="file" runat="server" accept=".pdf" class="form-control" />
+                        <span asp-validation-for="@Model.FileUpload" class="text-danger" placeholder="Nome file caricato"></span>
+                        <small class="text-danger">*Saranno caricati esclusivamente file PDF minori di 5MB.</small>
+                    </div>
+
+
+
+                    <input type="hidden" asp-for="@Model.ContractUser.UserId"></input>
+                    <input type="hidden" asp-for="@Model.ContractUser.Stato"></input>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    setDomainParent("create-LevelId-parent","contract_user_level");
+</script>

@@ -1,0 +1,42 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Manutenzione";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Home" asp-action="IndexHRAnagrafica" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Progettazione</span>
+                        <small class="info-box-number">Lista anagrafica</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+        </div>   
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Home" asp-action="IndexHRAnagrafica" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Istanziazione</span>
+                        <small class="info-box-number">Lista anagrafica</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+        </div>          
+    </div>
+</section>

@@ -1,0 +1,175 @@
+﻿@model Turno
+@{ List<AppUser> Employees = ViewData["Employees"] as List<AppUser>; }
+
+<div class="modal fade show" id="project-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crea Turno</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="Turni" asp-action="Create">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+
+                            <div style="display:inline-block; position:relative;" hidden>
+                                <input id="text_range" size="40" class="form-control" placeholder="Dal giorno inizio al giorno fine" disabled>
+                                <div style="position:absolute; left:0; right:0; top:0; bottom:0;" id="date-range0"></div>
+                            </div>
+
+
+                            <input type="hidden" asp-for="@Model.dataInizio" />
+                            <input type="hidden" asp-for="@Model.dataFine" />
+                            <input type="hidden" asp-for="@Model.CantiereId" value="@ViewBag.IdCantiere" />
+                            <div class="form-group">
+                                <label asp-for="@Model.Name"></label>
+                                <input asp-for="@Model.Name" class="form-control" placeholder="Nome del turno" />
+                                <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <!-- time Picker -->
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.OraInizio"></label>
+                                <div class="input-group date" id="timepickerturnoinizio" data-target-input="nearest">
+                                    <input type="text" class="form-control datetimepicker-input" data-target="#timepickerturnoinizio" asp-for="@Model.OraInizio" />
+                                    <div class="input-group-append" data-target="#timepickerturnoinizio" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="far fa-clock"></i></div>
+                                    </div>
+                                    <span asp-validation-for="@Model.OraInizio" class="text-danger" placeholder="Ora inizio turno"></span>
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+                            <!-- /.form group -->
+                        </div>
+                        <!-- time Picker -->
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.OraFine"></label>
+
+                                <div class="input-group date" id="timepickerturnofine" data-target-input="nearest">
+                                    <input asp-for="@Model.OraFine" type="text" class="form-control datetimepicker-input" data-target="#timepickerturnofine" />
+                                    <div class="input-group-append" data-target="#timepickerturnofine" data-toggle="datetimepicker">
+                                        <div class="input-group-text"><i class="far fa-clock"></i></div>
+                                    </div>
+                                    <span asp-validation-for="@Model.OraFine" class="text-danger" placeholder="Ora inizio turno"></span>
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+                            <!-- /.form group -->
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.Pausa"></label>
+                                <input asp-for="@Model.Pausa" class="form-control" placeholder="Ora auto chiusura turno" value="0" min="0" max="480" step="15" />
+                                <span asp-validation-for="@Model.Pausa" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.oraAutoChiusura"></label>
+                                <input asp-for="@Model.oraAutoChiusura" class="form-control" placeholder="Ora auto chiusura turno" value="6" min="0" max="12" />
+                                <span asp-validation-for="@Model.oraAutoChiusura" class="text-danger"></span>
+                                <small class="text-danger"><i class="fa fa-exclamation-circle" style="color: red;"></i>  Numero di ore massime al logout automatico. (In mancanza di logout della risorsa entro fine turno)</small>
+                            </div>
+                        </div>
+
+
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+
+    //Timepicker
+    $(function () {
+        $('#timepickerturnofine').datetimepicker({
+            format: 'HH:mm'
+        });
+        $('#timepickerturnoinizio').datetimepicker({
+            format: 'HH:mm'
+        });
+
+        $('#date-range0').dateRangePicker(
+            {
+                language: 'it',
+                getValue: function () {
+                    return this.innerHTML;
+                },
+                setValue: function (s) {
+                    
+                }
+            }).on('datepicker-first-date-selected', function (event, obj) {
+                /* This event will be triggered when first date is selected */
+                console.log('first-date-selected', obj);
+                // obj will be something like this:
+                // {
+                // 		date1: (Date object of the earlier date)
+                // }
+            })
+            .on('datepicker-change', function (event, obj) {
+                /* This event will be triggered when second date is selected */
+                console.log('change', obj);
+
+                var inizio = obj.date1;
+                var fine = obj.date2;
+
+                $("#dataInizio").val(inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() );
+                $("#dataFine").val(fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear() );
+
+                $("#text_range").val("Dal " + inizio.getDate() + "/" + (inizio.getMonth()+1) + "/" + inizio.getFullYear() + " al " + fine.getDate() + "/" + (fine.getMonth()+1) + "/" + fine.getFullYear());
+                // obj will be something like this:
+                // {
+                // 		date1: (Date object of the earlier date),
+                // 		date2: (Date object of the later date),
+                //	 	value: "2013-06-05 to 2013-06-07"
+                // }
+            })
+            .on('datepicker-apply', function (event, obj) {
+                /* This event will be triggered when user clicks on the apply button */
+                console.log('apply', obj);
+            })
+            .on('datepicker-close', function () {
+                /* This event will be triggered before date range picker close animation */
+                console.log('before close');
+            })
+            .on('datepicker-closed', function () {
+                /* This event will be triggered after date range picker close animation */
+                console.log('after close');
+            })
+            .on('datepicker-open', function () {
+                /* This event will be triggered before date range picker open animation */
+                console.log('before open');
+            })
+            .on('datepicker-opened', function () {
+                /* This event will be triggered after date range picker open animation */
+                console.log('after open');
+            });
+    });
+    $(document).ready(function () {
+        
+
+
+    });
+
+    
+</script>
+
+
+<style>
+    .date-picker-wrapper{
+        z-index: 999999999;
+    }
+</style>

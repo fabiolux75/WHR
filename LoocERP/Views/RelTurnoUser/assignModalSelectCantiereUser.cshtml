@@ -1,0 +1,656 @@
+﻿@*model List<Rel_CantiereUser>*@
+@{ LoocERP.Models.Turno turno = ViewData["Turno"] as LoocERP.Models.Turno; }
+@{
+    Layout = "";
+    ViewData["Title"] = "Cantiere-Dipendente";
+    DateTime wd = (ViewBag.WorkDate??DateTime.Now);
+    if(! DateTime.TryParse(ViewBag.WorkDate.ToString(), out wd)){
+        wd = DateTime.Now.Date;
+    }
+    string dten = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year;
+    string dtenfull = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    string dtit = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year;
+    string dtitfull = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    ViewBag.dtenfull = @dten;
+}
+
+<!-- Modal -->
+<div id="empModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+
+
+        <div class="modal-content" style="position: fixed;top: 1%;left: 1%;width: 98%;height: 98%; overflow: auto;border: 1px solid white;">
+            <div class="modal-header" style="background-color: #4E78B1; padding: 0.75rem;">
+                <h4 class="modal-title">
+                    <b>Gestione Cantiere: @turno.Cantiere.Description - Turno @turno.Name ( @turno.OraInizio.Hours.ToString("00"):@turno.OraInizio.Minutes.ToString("00") - @turno.OraFine.Hours.ToString("00"):@turno.OraFine.Minutes.ToString("00"))</b>
+                </h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+
+            <div class="modal-body" style="padding: 0.25rem; padding-left:1rem;">
+                <label>Data inizio: @ViewBag.WorkDate   <br />  Data fine cantiere: @turno.Cantiere.EndDate</label>
+                <br />
+                <label class="text-danger">*Le modifiche verranno applicate dalla data di inizio fino alla data di fine cantiere.</label>
+            </div>
+
+                @*
+                STA MANSIONI E FABBISOGNI DEL TURNO
+        <style>
+            .dropdown {
+                position: relative;
+                display: inline-block;
+                margin-left: 20px;
+            }
+
+            .dropdown-content {
+                display: none;
+                position: absolute;
+                background-color: #f9f9f9;
+                min-width: 160px;
+                box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+                padding: 12px 16px;
+                z-index: 1;
+            }
+
+            .dropdown:hover .dropdown-content {
+                display: block;
+            }
+        </style>
+
+        <script>
+            $('#fabbisogni_dropdown').add({
+                ajax: "/RelFabbisognoMansione/ajaxGetSpecTurno?turnoid=" + selectedTurno + "&asd",
+                p: [
+                    { "data": "descrizione" },
+                    { "data": "quantita" },
+                ]
+            });
+        </script>
+
+        <div class="dropdown">
+            <span>Lista Mansioni</span>
+            <div class="dropdown-content" id="mansioni_dropdown">
+                <p>Mansione 1!</p>
+                <p>Mansione 2!</p>
+                <p>Mansione 3!</p>
+            </div>
+        </div>
+        <div class="dropdown">
+            <span>Lista Fabbisogni</span>
+            <div class="dropdown-content" id="fabbisogni_dropdown">
+                <p>Fabbisogni 1!</p>
+                <p>Fabbisogni 2!</p>
+                <p>Fabbisogni 3!</p>
+            </div>
+        </div>
+        FINE LISTA MANSIONI E FABBISOGNI DEL TURNO
+                *@
+
+                <div class="modal-body">
+                    <div class="row">
+
+                        <div class="col-sm-6 col-12 d-none">
+                            <input type="hidden" id="dataInizio_del" name="dataInizio" />
+                            <input type="hidden" id="dataFine_del" name="dataFine" />
+                            @*
+                    <button id="RightMove" class="btn form-control btn-primary">Togli dal Cantiere &raquo;</button>
+                            *@
+                        </div>
+                        <div class="col-sm-6 col-12 d-none">
+                            <input type="hidden" id="dataInizio" />
+                            <input type="hidden" id="dataFine" />
+                            @*
+                    <div class="col-12">
+                        <div class="col-6">
+                            <label>Mansioni : </label>
+
+                            <select class="selectpicker" id="mansioni_drop" data-live-search="true">
+                                <option value="123">123</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label>Specializzazioni : </label>
+                            <select class="selectpicker" id="specializzazioni_drop" data-live-search="true">
+                                <option value="123">123</option>
+                            </select>
+                        </div>
+                    </div>
+                            *@
+
+                            @*
+
+
+                    <button id="LeftMove" class="btn form-control form-control btn-default">&laquo; Aggiungi al cantiere</button>
+                            *@
+                        </div>
+
+                        <div class="col-sm-6 col-12">
+                            <label>Assegnati</label>
+                            <table id="leftTable" class="table table-bordered table-hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Cognome</th>
+                                        <th>Nome</th>
+                                        @*
+                                        <th>Mansioni</th>
+                                        <th>Specializzazioni</th>
+                                            *@
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <label>Disponibili</label>
+                            <table id="rightTable" class="table table-bordered table-hover" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Cognome</th>
+                                        <th>Nome</th>
+                                        <th>Assegnato (N/Y)</th>
+                                        @*
+                                        <th>Mansioni</th>
+                                        <th>Specializzazioni</th>
+                                            *@
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+
+   
+
+
+
+    <script>
+        var selectedUser = "";
+        var delUser = "";
+
+
+        function updateSelect() {
+            var sl = $('#mansioni_drop');
+            sl.val(null);
+            sl.selectpicker();
+
+
+            var sc = $('#specializzazioni_drop');
+            sc.val(null);
+            sc.selectpicker();
+        }
+
+
+
+
+
+
+        //Aggiorna il salvataggio dei dati
+        function UpdateTimework(userId, isAdd = true) {
+
+
+
+            //
+            var dataStart = $("#dataInizio");
+            var dataEnd = $("#dataFine");
+
+
+
+
+            var url = '/RelTurnoUser/ajaxAssign';
+            if (!isAdd) {
+
+                url = '/RelTurnoUser/ajaxRemove';
+            }
+
+            $.ajax({
+                type: 'GET',
+                @*data: {
+                    userId: userId,
+                    turnoId: "@ViewBag.turnoId",
+                    workDate: @ViewBag.WorkDate
+                },*@
+                url: url + "?UserId=" + userId + "&TurnoId=@ViewBag.turnoId&WorkDate=@ViewBag.WorkDate&dataStart=" + dataStart.val() + "&dataEnd=" + dataEnd.val(),
+                success: function (data) {
+                    console.log(data);
+                }
+            });
+        }
+
+        function moveRows(fromTable, toTable, isAdd = true) {
+
+
+            console.log("table", fromTable);
+            var addRow;
+            var p = 0;
+            var listaSelezionate = [];
+            for (var k = 0; k < fromTable.rows().count(); k++) {
+                console.log(fromTable.row(k).data().id);
+                console.log(delUser);
+                if (isAdd) {
+                    if (fromTable.row(k).data().id == selectedUser) {
+                        addRow = fromTable.row(k).data();
+                        fromTable.row(k).remove();
+                        break;
+                    }
+                } else {
+                    if (fromTable.row(k).data().id == delUser) {
+                        addRow = fromTable.row(k).data();
+                        fromTable.row(k).remove();
+                        break;
+                    }
+                }
+
+            }
+
+            console.log(addRow);
+
+            fromTable.draw();
+            toTable.row.add(addRow).draw();
+
+            /*
+            console.log("sel", fromTable.data);
+
+            fromTable.data([]).draw();
+
+            /*
+
+
+            for (var k = 0; k < listaSelezionate.length; k++) {
+                listaSelezionate[k].rowElement.remove();
+            }
+            §
+
+            fromTable.draw();
+            /*
+            var userId = addRow.id;
+            UpdateTimework(userId, isAdd);
+            toTable.row.add(addRow).draw();
+            */
+            $.each(fromTable.rows(), function (k, v) {
+                /*
+                if (this !== null) {
+                    addRow = fromTable.fnGetData(this);
+                    console.log(addRow);
+                    var userId = addRow.id;
+                    //ajax call save date
+                    UpdateTimework(userId, isAdd);
+                    toTable.fnAddData(addRow);
+                    fromTable.fnDeleteRow(this);
+                }
+                */
+                p++;
+            });
+        }
+
+        $(document).ready(function () {
+
+            updateSelect();
+
+            var r = $("#reservation").val();
+            var t = parseDate(r, 'dd-mm-yyyy', '-');
+            console.log("@turno.Cantiere.EndDate");
+            var dataFineCantiere = parseDate("@turno.Cantiere.EndDate", 'dd-mm-yyyy', '-');
+            //var inizio = new Date();
+            //var fine = new Date();
+            var inizio = t;
+            var fine = dataFineCantiere;
+
+            $("#dataInizio").val((inizio.getMonth() + 1) + "-" + inizio.getDate() + "-" + inizio.getFullYear());
+            $("#dataFine").val((fine.getMonth() + 1) + "-" + fine.getDate() + "-" + fine.getFullYear());
+            /*
+            $("#dataInizio_del").val((inizio.getMonth() + 1) + "-" + inizio.getDate() + "-" + inizio.getFullYear());
+            $("#dataFine_del").val((fine.getMonth() + 1) + "-" + fine.getDate() + "-" + fine.getFullYear());
+
+
+            $("#text_range").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+
+            //$("#text_range_mansioni").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+            $("#text_range_mansioni").val($("#text_range").val());
+            //$("#text_range_del").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+            $("#text_range_del").val($("#text_range").val());
+
+            $('#date-range0').dateRangePicker(
+                {
+
+                    language: 'it',
+                    getValue: function () {
+                        return this.innerHTML;
+                    },
+                    setValue: function (s) {
+
+                    }
+                })
+
+                .on('datepicker-change', function (event, obj) {
+                    //This event will be triggered when second date is selected
+                    console.log('change', obj);
+
+                    var inizio = obj.date1;
+                    var fine = obj.date2;
+
+                    $("#dataInizio").val((inizio.getMonth() + 1) + "-" + inizio.getDate() + "-" + inizio.getFullYear());
+                    $("#dataFine").val((fine.getMonth() + 1) + "-" + fine.getDate() + "-" + fine.getFullYear());
+
+                    $("#text_range").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+                    // Se cambio primo livello cambio anche i due sotto
+                    $("#text_range_mansioni").val($("#text_range").val());
+                    $("#text_range_del").val($("#text_range").val());
+                });
+
+
+            $('#date-range_mansioni').dateRangePicker(
+                {
+                    language: 'it',
+                    getValue: function () {
+                        return this.innerHTML;
+                    },
+                    setValue: function (s) {
+
+                    }
+                })
+                .on('datepicker-change', function (event, obj) {
+                    //This event will be triggered when second date is selected
+                    console.log('change', obj);
+
+                    var inizio = obj.date1;
+                    var fine = obj.date2;
+
+                    $("#text_range_mansioni").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+                    $("#dataInizio").val((inizio.getMonth() + 1) + "-" + inizio.getDate() + "-" + inizio.getFullYear());
+                    $("#dataFine").val((fine.getMonth() + 1) + "-" + fine.getDate() + "-" + fine.getFullYear());
+
+                    //Non dovrebbe cambiare il sottostante
+                    //$("#text_range").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+                    //$("#text_range_del").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+                });
+
+
+            $('#date-range_del').dateRangePicker(
+                {
+                    language: 'it',
+                    getValue: function () {
+                        return this.innerHTML;
+                    },
+                    setValue: function (s) {
+
+                    }
+                })
+                .on('datepicker-change', function (event, obj) {
+                    // This event will be triggered when second date is selected
+                    console.log('change', obj);
+
+                    var inizio = obj.date1;
+                    var fine = obj.date2;
+
+                    $("#dataInizio").val((inizio.getMonth() + 1) + "-" + inizio.getDate() + "-" + inizio.getFullYear());
+                    $("#dataFine").val((fine.getMonth() + 1) + "-" + fine.getDate() + "-" + fine.getFullYear());
+                    $("#text_range_del").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+
+                    //$("#text_range").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+                    //$("#text_range_mansioni").val("Dal " + inizio.getDate() + "-" + (inizio.getMonth() + 1) + "-" + inizio.getFullYear() + " al " + fine.getDate() + "-" + (fine.getMonth() + 1) + "-" + fine.getFullYear());
+
+                }
+                );
+
+
+            */
+
+
+
+            $('#leftTable thead tr').clone(true).appendTo('#leftTable thead');
+            $('#leftTable thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (leftTable.column(i).search() !== this.value) {
+                            leftTable
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            $('#leftTable').on('click', 'tbody tr', function () {
+                var row = leftTable.row($(this)).data();
+                console.log(row);
+                delUser = row.id;
+
+                var mod = $('#myModal3');
+
+                mod.modal('show');
+            });
+
+            $('#rightTable').on('click', 'tbody tr', function () {
+                var row = rightTable.row($(this)).data();
+                console.log(row);   //full row of array data
+                console.log(row[1]);   //EmployeeId
+                $("#assigned_text").hide();
+                $("#assiegn_confirm").hide();
+                $("#add_user").show();
+                if (row.turnoId != null) {
+                    $.ajax({
+                        type: "GET",
+                        url: "/turni/getTurnoById?id=" + row.turnoId,
+                        success: function (data) {
+                            $("#assigned_text").html("Utente già assegnato ad un turno <br/>Cantiere : " + data.turno.nomeCantiere + "<br/>Turno: " + data.turno.nome);
+                            $("#assigned_text").show();
+                            $("#assiegn_confirm").show();
+                            $("#add_user").hide();
+                            console.log(data);
+                            selectedUser = row.id;
+
+                            setupTabMansioni();
+
+
+                            var empModal = $('#myModal2');
+
+                            empModal.modal('show');
+
+                            $("#customSwitch1").change(function () {
+                                if (this.checked) {
+                                    $("#add_user").show();
+                                } else {
+                                    $("#add_user").hide();
+                                }
+                            });
+
+                        }
+                    });
+                    return;
+                }
+
+                selectedUser = row.id;
+
+                setupTabMansioni();
+
+
+                var empModal = $('#myModal2');
+
+                empModal.modal('show');
+
+
+                @*
+                $.get('/RelFabbisognoMansione/getSpecTurno?turnoid=' + selectedTurno, function (mans) {
+                    var mansioni = mans.specializzazioni;
+                    $("#lista_mansioni").empty();
+
+
+
+                    /*
+                    $.get('/RelFabbisognoSicurezza/getSpecTurno?turnoid=' + selectedTurno, function (sics) {
+
+                        $("#lista_fabbisogni").empty();
+
+                        var sicurezze = sics.specializzazioni;
+
+
+
+                        for (var k = 0; k < sicurezze.length; k++) {
+                            $("#lista_fabbisogni").append('<li class="list-group-item">  ' + sicurezze[k].descrizione + '(' + sicurezze[k].quantita+')' +'</li>');
+                            //
+                        }
+
+
+
+                        var empModal = $('#myModal2');
+
+                        empModal.modal('show');
+
+                    })
+                    */
+                })
+                     *@
+
+
+
+
+
+
+
+
+
+
+            });
+
+
+
+
+
+            leftTable = $('#leftTable').DataTable({
+                ajax: "/RelTurnoUser/ajaxSelectCantiereUserTurno?TurnoId=@ViewBag.TurnoId&WorkDate=@dtenfull&isIncluded=1",
+                select: 'single',
+                columns: [
+                    /*
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, type, row) {
+                            return '<img src="/Users/getProfilePicture?id=' + row.id + '&v=' + row.dataModifica + '" style="height:50px;width:50px;border: 1px solid;border-radius:50%;" />';
+                        }
+                    },
+                    */
+                    { "data": "lastName" },
+                    { "data": "firstName" },
+                ],
+                sPaginationType: "full_numbers",
+                autoWidth: false,
+                responsive: true,
+                orderCellsTop: true,
+                fixedHeader: true
+            }); // Second table
+
+            $('#rightTable thead tr').clone(true).appendTo('#rightTable thead');
+            $('#rightTable thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (rightTable.column(i).search() !== this.value) {
+                            rightTable
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+
+
+            rightTable = $('#rightTable').DataTable({
+                ajax: '/RelTurnoUser/ajaxSelectCantiereUserTurno?TurnoId=@ViewBag.TurnoId&WorkDate=@dtenfull&isIncluded=0',
+                "columns": [
+                    /*
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, type, row) {
+                            return '<img src="/Users/getProfilePicture?id=' + row.id + '&v=' + row.dataModifica +'" style="height:50px;width:50px;border: 1px solid;border-radius:50%;" />';
+                        }
+                    },
+                    */
+                    { "data": "lastName" },
+                    { "data": "firstName" },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            if (row.turnoId != null) {
+                                return "Y";
+                               
+                            }
+                            return "N";
+                        }
+                    },
+
+                ],
+                "createdRow": function (row, data, dataIndex) {
+                    if (data.turnoId != null) {
+                        $(row).addClass('assigned');
+                    }
+
+                },
+                "sPaginationType": "full_numbers",
+                autoWidth: false,
+                responsive: true,
+                orderCellsTop: true,
+                fixedHeader: true,
+                select: 'single',
+            }); // Second table
+
+            leftTable.on('click', 'tbody tr', function () {
+                $(this).toggleClass('selected');
+            });
+            rightTable.on('click', 'tbody tr', function () {
+                $(this).toggleClass('selected');
+            });
+
+            $('#LeftMove').on('click', function () {
+                moveRows(rightTable, leftTable, true);
+            });
+
+            $('#RightMove').on('click', function () {
+                
+                moveRows(leftTable, rightTable, false);
+            });
+        });
+    </script>
+    <style>
+        .assigned {
+            background-color: lightgrey !important;
+           
+        }
+
+        /* Styles go here */
+
+        table.dataTable tbody tr.selected {
+            background-color: #b0bed9;
+        }
+
+        table.dataTable.display tbody tr.odd.selected > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_1 {
+            background-color: #a6b3cd;
+        }
+
+        table.dataTable.display tbody tr:hover.selected > .sorting_1, table.dataTable.display tbody tr.odd:hover.selected > .sorting_1, table.dataTable.display tbody tr.even:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.odd:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.even:hover.selected > .sorting_1 {
+            background-color: #a1aec7;
+        }
+
+        .modal-dialog .modal-content .modal-header {
+            background: #8d8d8d;
+            color: white;
+        }
+    </style>
+
+    <style>
+        .date-picker-wrapper {
+            z-index: 999999999;
+        }
+    </style>
+</div>

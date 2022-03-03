@@ -1,0 +1,177 @@
+﻿@model Turno
+
+@{
+    ViewData["Title"] = "Turno";
+    ViewData["activePage"] = "Turno";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<!-- CREATE MODAL -->
+@{
+    await Html.RenderPartialAsync("_create_modal_turni", @Model);
+}
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("editAssegnazioneTurno.cshtml");
+    }
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <a data-toggle="modal" data-target="#project-create">
+                        Crea <b>Turno</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                    <p class="col-12 p-0">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+
+
+                    <div class="col-12">
+                        <table id="turni" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Turno</th>
+                                    <th>Data Inizio</th>
+                                    <th>Data Fine</th>
+                                    <th>Fabbisogno</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+    <script>
+        var selectedTurno = null;
+
+        var turni = [];
+
+        function openModal(TurnoId) {
+            for (var k = 0; k < turni.length; k++) {
+                if (turni[k].id == TurnoId) {
+                    selectedTurno = turni[k];
+                    break;
+                }
+            }
+            loadFabSicurezza();
+            loadFabMansione();
+
+            var empModal = $('#empModal');
+            empModal = $('#empModal');
+            empModal.modal('show');
+
+
+        }
+        
+        $(document).ready(function () {
+
+            
+
+            $('#reservation').datepicker(
+                {
+                    //maxDate: '+1m',
+                    dateFormat: "dd-MM-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>'
+                },
+            )
+
+
+            var table = $('#turni').DataTable({
+                ajax: "/Turni/ajaxIndex?CantiereId=@ViewBag.IdCantiere",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "name" },
+                    {
+                        "data": "oraInizio",
+                        "render": function (data, type, row) {
+                            console.log(row);
+                            return moment(new Date(1, 1, 1, row.oraInizio.hours, row.oraInizio.minutes)).format("HH:mm");
+                        }
+                    },
+                    {
+                        "data": "oraFine",
+                        "render": function (data, type, row) {
+                            return moment(new Date(1, 1, 1, row.oraFine.hours, row.oraFine.minutes)).format("HH:mm");
+                        }
+                    },
+                    
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            console.log("row", row);
+                            turni.push(row);
+                            
+                            return '<button class="btn btn-modal" onClick="openModal(\'' + row.id + '\')"><i class="fa fa-id-card-alt"></i></button >';
+                        }
+                    },
+                    
+                ],
+                columnDefs: [
+                    { width: '30px', targets: 3 },                    
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>

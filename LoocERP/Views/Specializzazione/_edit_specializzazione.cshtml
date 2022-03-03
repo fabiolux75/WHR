@@ -1,0 +1,56 @@
+﻿@model LoocERP.Models.Specializzazione
+
+
+
+
+<div class="modal fade" id="modalSpecializzazioni" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modifica Specializzazione</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <form asp-controller="Specializzazione" asp-action="edit">
+                    <input asp-for="@Model.ID" id="Id_specializzazione" hidden />
+                    <div class="form-group">
+                        <div class="col-sm-12 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.Codice"></label>
+                                <input asp-for="@Model.Codice" class="form-control" placeholder="Codice" id="codice_specializzazione" />
+                                <span asp-validation-for="@Model.Codice" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Name"></label>
+                                <input asp-for="@Model.Name" class="form-control" placeholder="Name" id="nome_specializzazione"  />
+                                <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Descrizione"></label>
+                                <input asp-for="@Model.Descrizione" class="form-control" placeholder="Descrizione" id="descrizione_specializzazione" />
+                                <span asp-validation-for="@Model.Descrizione" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function openModalSpecializzazioniEdit(data) {
+        console.log(data.id);
+        var empModal = $('#modalSpecializzazioni');
+        $("#Id_specializzazione").val(data.id);
+        $("#codice_specializzazione").val(data.codice);
+        $("#nome_specializzazione").val(data.name);
+        $("#descrizione_specializzazione").val(data.descrizione);
+        empModal.modal('show');
+    }
+</script>

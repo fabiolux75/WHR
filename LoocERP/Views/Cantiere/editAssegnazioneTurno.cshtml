@@ -1,0 +1,108 @@
+﻿@*model List<Rel_CantiereUser>*@
+@{ LoocERP.Models.Cantiere cantiere = ViewData["Cantiere"] as LoocERP.Models.Cantiere; }
+@{
+    Layout = "";
+    ViewData["Title"] = "Cantiere-Dipendente";
+    //DateTime WorkDate = @ViewBag.WorkDate;
+}
+<!-- Modal -->
+<div id="empModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content"
+             style="position: fixed;top: 1%;left: 1%;width: 98%;height: 98%; overflow: auto;border: 1px solid white;">
+            <div class="modal-header">
+                <h4 class="modal-title">
+                    <b>Gestione assegnazione turno - @ViewBag.WorkDate</b>
+                </h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>                
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <section>
+                            <!-- Tab links -->
+                            <div class="tab" style="border:0">
+                                <button class="tablinks active" onclick="openTabAssegnazioni(event, 'FabbisognoMansioniPage')">Fabbisogno Mansioni</button>
+                                <button class="tablinks" onclick="openTabAssegnazioni(event, 'FabbisognoSicurezzaPage')">Fabbisogno Sicurezza</button>
+                            </div>
+
+                            <div id="dnd"></div>
+
+                            <div id="FabbisognoMansioniPage" class="tabcontentAssegnazioni">
+                                @{
+                                    await Html.RenderPartialAsync("_edit_fabbisogno");
+                                }
+                            </div>
+                            <div id="FabbisognoSicurezzaPage" class="tabcontentAssegnazioni">
+                                @{
+                                    await Html.RenderPartialAsync("_edit_fabbisogno_sicurezza");
+                                }
+                            </div>
+                            
+                        </section>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function openTabAssegnazioni(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontentAssegnazioni");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            if (event != null) {
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+
+                // Show the current tab, and add an "active" class to the button that opened the tab
+                evt.currentTarget.className += " active";
+            }
+            document.getElementById(tabName).style.display = "block";
+        }
+        openTabAssegnazioni(event, 'FabbisognoMansioniPage');
+
+    </script>
+    <style>
+
+        /* Styles go here */
+
+        table.dataTable tbody tr.selected {
+            background-color: #b0bed9;
+        }
+
+        table.dataTable.display tbody tr.odd.selected > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_1 {
+            background-color: #a6b3cd;
+        }
+
+        table.dataTable.display tbody tr:hover.selected > .sorting_1, table.dataTable.display tbody tr.odd:hover.selected > .sorting_1, table.dataTable.display tbody tr.even:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.odd:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.even:hover.selected > .sorting_1 {
+            background-color: #a1aec7;
+        }
+
+        .modal-dialog .modal-content .modal-header {
+            background: #8d8d8d;
+            color: white;
+        }
+
+
+        .tab_assegnazioni {
+            overflow: hidden;
+            border: 1px solid #ccc;
+            background-color: #f1f1f1;
+        }
+    </style>
+</div>

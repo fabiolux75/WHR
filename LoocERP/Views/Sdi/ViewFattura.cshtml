@@ -1,0 +1,292 @@
+@{
+    @model FatturaElettronica.Ordinaria.FatturaOrdinaria;
+    ViewData["Title"] = "Fatture ricevute";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+<style xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" type="text/css"></style>
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+
+<section class="content">
+<div class="header header-fattura noprint">
+    <div class="mt-4 mb-3">
+        <div class="send-buttons">
+            <div class="btn-group" role="group" aria-label="Azioni">
+                <a class="btn btn-default p-2 historyBack" href="/Sdi/FattureExtreme">
+                    <i class="fa fa-chevron-left"></i> TORNA ALL'ELENCO
+                </a>
+
+            </div>
+            @* <div class="float-right btn-group" role="group" aria-label="Azioni">
+                     <button class="btn btn-secondary p-2" style="min-width: 40px;" disabled="true">
+                        <i class="fa fa-chevron-left"></i>
+                    </button>
+                    <button class="btn btn-secondary p-2" style="min-width: 40px;" disabled="true">
+                        <i class="fa fa-chevron-right"></i>
+                    </button>
+            </div> *@
+            <div class="float-right mb-3">
+                <a class="btn btn-outline-primary ripple-surface ripple-surface-dark p-2 text-dark printInvoice" href="#" onclick="window:print();return false;">
+                    <i class="fas fa-print"></i>
+                </a>
+                <a download="Fattura-123.pdf" class="btn btn-outline-primary ripple-surface ripple-surface-dark p-2" href="/Sdi/getPdf?idPdf=@ViewBag.idFattura">
+                    <i class="fas fa-file-pdf text-red" data-toggle="tooltip" data-placement="bottom" title="Scarica PDF" data-original-title="Scarica PDF"></i>
+                </a>
+                <a class="btn btn-outline-primary ripple-surface ripple-surface-dark p-2 viewSdi" href="/api/FattureApi/download?id=@ViewBag.idFattura" target="_blank">
+                    <i class="far fa-file-code" data-toggle="tooltip" data-placement="bottom" title="Scarica XML" data-original-title="Scarica XML"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</div>
+@foreach (var doc in @Model.FatturaElettronicaBody)
+{
+    
+    var datiDocumento = doc.DatiGenerali.DatiGeneraliDocumento;    
+    var mittente = @Model.FatturaElettronicaHeader.CedentePrestatore.DatiAnagrafici.Anagrafica.Denominazione ?? @Model.FatturaElettronicaHeader.CedentePrestatore.DatiAnagrafici.Anagrafica.CognomeNome;
+    var destinatario = @Model.FatturaElettronicaHeader.CessionarioCommittente.DatiAnagrafici.Anagrafica.Denominazione ?? @Model.FatturaElettronicaHeader.CessionarioCommittente.DatiAnagrafici.Anagrafica.CognomeNome;
+
+<div class="container-fluid template-fattura my-5 mx-2 mx-md-auto" id="invoicePage">
+    <div xmlns:p="http://ivaservizi.agenziaentrate.gov.it/docs/xsd/fatture/v1.2" id="container">
+        <div class="testataFattura">
+            <div class="intestazione">
+                    <div class="titolo-documento">Fattura @doc.DatiGenerali.DatiGeneraliDocumento.Numero del  @datiDocumento.Data.ToShortDateString()
+                        <hr>
+                    </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="separa"><p></p></div>
+    <div class="row">
+            <div class="box mittente col-12 col-md-6">
+                    <div class="info">@mittente<br>
+                            <p class="info">@Model.FatturaElettronicaHeader.CedentePrestatore.Sede.Indirizzo - @Model.FatturaElettronicaHeader.CedentePrestatore.Sede.CAP -  @Model.FatturaElettronicaHeader.CedentePrestatore.Sede.Comune (@Model.FatturaElettronicaHeader.CedentePrestatore.Sede.Provincia)
+                            </p>
+                            <span>Partita IVA:<span>@Model.FatturaElettronicaHeader.CedentePrestatore.DatiAnagrafici.IdFiscaleIVA.IdCodice</span></span><br>
+                            @await Component.InvokeAsync("RegimeFiscale", new{codiceRegime = @Model.FatturaElettronicaHeader.CedentePrestatore.DatiAnagrafici.RegimeFiscale})
+                           
+                    </div>
+                </div>
+            </div>
+    <div class="row">
+        <div class="cessionario col-12 col-md-6 offset-md-6">
+            <div class="info text-right mt-3 mt-md-0 pr-5">
+                <strong>Spett.
+                    <br class="noprint">
+                    </strong>@destinatario<br>
+                    @Model.FatturaElettronicaHeader.CessionarioCommittente.Sede.Indirizzo - @Model.FatturaElettronicaHeader.CessionarioCommittente.Sede.CAP -  @Model.FatturaElettronicaHeader.CessionarioCommittente.Sede.Comune (@Model.FatturaElettronicaHeader.CessionarioCommittente.Sede.Provincia)
+                    <div>Codice Fiscale:  @Model.FatturaElettronicaHeader.CessionarioCommittente.DatiAnagrafici.CodiceFiscale</div>
+                    <div>Codice Destinatario:    @Model.FatturaElettronicaHeader.CessionarioCommittente.DatiAnagrafici.IdFiscaleIVA.IdCodice</div>
+            </div>
+        </div>
+    </div>        
+
+        <div class="separa"><p></p></div>
+     <div class="elementoLotto">
+        <div class="intestazioneElemLotto">
+            <div class="intestazione">
+            <div class="titolo-documento"></div>
+            </div>
+            <h2 class="title-left smaller2">Causale: @{ 
+                                                        var causale = String.Join("-",@Model.FatturaElettronicaBody[0].DatiGenerali.DatiGeneraliDocumento.Causale);
+                                                        } @causale </h2>
+        </div>
+        <div class="dettagli">
+            <div class="separa">
+                <p></p>
+            </div>
+            <table class="tableDettagli">
+            <thead>
+                <tr>
+                <th style="width: 25%;">Descrizione del prodotto/servizio</th>
+                <th>Importo unitario</th>
+                <th style="width: 75px">Quantità</th>
+                <th>Importo totale</th>
+                <th>IVA%</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var linea in @Model.FatturaElettronicaBody[0].DatiBeniServizi.DettaglioLinee)
+                {
+                    <tr>
+                        <td class="text-left">@linea.Descrizione</td>
+                        <td>@linea.PrezzoUnitario €</td>
+                        <td>@linea.Quantita</td>
+                        <td>@linea.PrezzoTotale €</td>
+                        <td>@linea.AliquotaIVA %</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot></tfoot>
+            </table>
+        </div>
+        <div class="separa">
+            <p></p>
+        </div>
+        <div class="riassunto">
+            <div class="datiGeneraliRaggrupati">
+            <div class="separa">
+                <p></p>
+            </div>
+            @if  ( (@Model.FatturaElettronicaBody[0].DatiGenerali.DatiOrdineAcquisto != null ) &&
+                   (@Model.FatturaElettronicaBody[0].DatiGenerali.DatiOrdineAcquisto.Any() ) ) {
+                   <table class="tableDettagli">
+                    <caption>Dati generali</caption>
+
+                    <thead>
+                    <tr>
+                        <th>Tipologia</th>
+                        <th>Nr. dettaglio doc.</th>
+                        <th>Documento</th>
+                        <th>Nr. linea riferita</th>
+                        <th>CIG</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var item in @Model.FatturaElettronicaBody[0].DatiGenerali.DatiOrdineAcquisto)
+                    {
+                        <tr>
+                            <td class="text-left">
+                            <strong>Ordine di acquisto</strong>
+                            </td>
+                            <td class="text-left">@item.RiferimentoNumeroLinea</td>
+                            <td class="text-left">@item.IdDocumento</td>
+                            <td>@item.NumItem</td>
+                            <td class="text-left">@item.CodiceCIG</td>
+                        </tr>
+                    }
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            }
+            <div class="separa">
+                <p></p>
+            </div>
+            @if (@Model.FatturaElettronicaBody[0].DatiGenerali.DatiDDT != null ) {
+                <table class="tableDettagli">
+                    <caption>Dati DDT</caption>
+
+                    <thead>
+                    <tr>
+                        <th>Data</th>
+                        <th>Nr. dettaglio doc.</th>
+                        <th>Nr. linea riferita</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var ddt in @Model.FatturaElettronicaBody[0].DatiGenerali.DatiDDT)
+                    {
+                        var lineeRif = String.Join("-",ddt.RiferimentoNumeroLinea);
+                        <tr>
+                            <td class="text-left">@ddt.DataDDT.ToShortDateString() </td>
+                            <td class="text-left">@ddt.NumeroDDT</td>
+                            <td class="text-left">@lineeRif</td>
+                        </tr>
+                    }
+                    </tbody>
+                    <tfoot></tfoot>
+                </table>
+            }            
+            </div>
+        </div>
+        <div class="riepilogo-aliquote-nature">
+            <br>
+            <table class="tableDettagli">
+            <caption>Dati riepilogo IVA</caption>
+            <thead>
+                <tr>
+                <th>IVA</th>
+                <th>Imponibile/Importo </th>
+                <th>Imposta </th>
+                <th>Esigibilità</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var iva in @Model.FatturaElettronicaBody[0].DatiBeniServizi.DatiRiepilogo)
+                {
+                    <tr>
+                        <td class="text-right">@iva.AliquotaIVA % </td>
+                        <td class="text-right">@iva.ImponibileImporto €</td>
+                        <td class="text-right">@iva.Imposta €</td>
+                        <td class="text-right">@await Component.InvokeAsync("Esigibilita", new{codiceEsigibilita = @iva.EsigibilitaIVA})</td>
+                </tr>
+                }
+            </tbody>
+            <tfoot></tfoot>
+            </table>
+            <div class="separa">
+            <p></p>
+            </div>
+        </div>
+        <div class="datiPagamentoCondizioni">
+            <div class="separa">
+            <p></p>
+            </div>
+            <table class="tableDettagli">
+            <caption>Modalità di pagamento</caption>
+            <thead>
+                <tr>
+                <th>Modalità</th>
+                <th>Importo</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var pag in @Model.FatturaElettronicaBody[0].DatiPagamento)
+                {
+                    @foreach (var dett in pag.DettaglioPagamento)
+                    {
+                        <tr>
+                            <td class="text-left">@await Component.InvokeAsync("ModPagamento", new{codiceModPagamento = @dett.ModalitaPagamento})</td>
+                            <td class="text-right">
+                                <span class="">@dett.ImportoPagamento</span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot></tfoot>
+            </table>
+            <div class="separa">
+            <p></p>
+            </div>
+            <div class="separa">
+            <p></p>
+            </div>
+        </div>
+        <table class="tableDettagli">
+            <caption>Altri dati</caption>
+            <thead>
+            <tr>
+                <th>Importo totale documento</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>@Model.FatturaElettronicaBody[0].DatiGenerali.DatiGeneraliDocumento.ImportoTotaleDocumento</td>
+            </tr>
+            </tbody>
+            <tfoot></tfoot>
+        </table>
+        </div>
+
+</div> 
+}
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            
+        });
+    </script>
+}

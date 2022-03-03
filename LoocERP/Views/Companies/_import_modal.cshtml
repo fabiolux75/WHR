@@ -1,0 +1,43 @@
+﻿
+<div class="modal fade show" id="importCompanies" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-file-download mr-2"></i>Importazione Aziende Datev</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="row">
+                <div class="col-12 text-center d-none mb-2" id="msg_import">
+                    <span id="msg" class="badge "></span>
+                </div>
+            </div>            
+            <div id="div_upld">
+
+            <form method="post" asp-controller="Companies" asp-action="ImportCSV"  runat="server" enctype="multipart/form-data" id="formUpld">                
+                <div class="modal-body row">
+
+                    <div class="form-group col-sm-12">
+                        <input type="file"  class="form-control" name ="file_csv" id ="file_csv" required="required" accept=".csv"/>
+                        <small class="form-text text-muted"> Solo file con estensione .CSV </small>
+                        <input class="btn btn-info mt-2" type="submit" value ="Invia" id="btn_invia"/>
+                    </div>
+                </div>
+            </form>
+            </div>
+            <div class="row d-none" id="spinner_div">
+                <div class="col-12 text-center">
+                    <button class="btn btn-primary" type="button" disabled>
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                            Importazione in corso....
+                    </button>
+
+                </div>
+                
+            </div>
+
+        </div>
+    </div>
+</div>
+

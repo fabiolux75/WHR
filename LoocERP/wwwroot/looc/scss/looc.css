@@ -1,0 +1,161 @@
+/*colori*/
+/*celeste-chiaro: #99bbe8;
+celeste-scuro: #0069b3;
+*/
+
+.c-green{
+    color: rgb(9, 143, 9);
+}
+/*
+body{
+  background-color: #99bbe8;
+}
+
+.page-item.active .page-link {
+  z-index: 3;
+  color: #fff;
+  background-color: #4E78B1;
+  border-color: #4E78B1;
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active, .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+  background-color: #4E78B1;
+  color: #fff;
+}
+
+
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #4E78B1;
+}
+*/
+
+.btn-primary {
+    color: white;
+    background-color: #4E78B1;
+    border-color: #4E78B1;
+    box-shadow: none;
+}
+.btn-default{
+    background-color: #ccc !important;
+    color: black !important;
+}
+
+a {
+    color: #4E78B1;
+    text-decoration: none;
+    background-color: transparent;
+}
+
+.hide_column {
+  display: none;
+}
+/*
+.card-header {
+    background-image: linear-gradient( #0069b3,#032c63);
+    color: white;
+}
+.card-primary.card-outline {
+    border:none;
+}
+[class*=sidebar-dark-] .nav-treeview > .nav-item > .nav-link {
+    color: white;
+    padding: 0px 5px 0 22px;
+}
+*/
+
+/* Style the tab */
+.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+/* Style the buttons that are used to open the tab content */
+.tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+}
+    /* Change background color of buttons on hover */
+    .tab button:hover {
+        background-color: #ddd;
+    }
+    /* Create an active/current tablink class */
+    .tab button.active {
+        background-color: #ccc;
+    }
+/* Style the tab content */
+.tabcontent {
+    display: none;
+}
+
+
+.table th {
+    font-weight: bold;
+    background-color:#ffffcc;
+}
+.table input:focus,
+.table input:active,
+.table input:hover,
+.table input {
+    border: none;
+    border-bottom: 1px solid  #747575;
+    background: transparent;
+    width: 100%;
+}    
+
+table.table td {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.dt-button {
+    padding: 5px 10px;
+    margin-right: 2px;
+    background: white;
+    border: 1px solid #ced4da;
+}
+
+body .wrapper aside[class*=sidebar-dark-] .sidebar a {
+    color: white;    
+}
+
+body > .wrapper aside[class*=sidebar-dark-] .nav-treeview > .nav-item > .nav-link {
+    color: white;
+    padding-bottom: 0;
+    font-size: 95%;
+}
+
+.c-white {
+    color: white;
+}
+
+body > .wrapper .content-wrapper {
+    background: linear-gradient(45deg, #f4f6f9, #c3c5c7);       
+    
+}
+body > .wrapper .content-wrapper .content{
+    padding-bottom: 150px;
+}
+footer.main-footer {
+    background: #1e416f;
+    color:white;
+}
+
+
+/* RIMOZIONE BARRA LATERALE */
+.sidebar-mini.sidebar-collapse .content-wrapper, 
+.sidebar-mini.sidebar-collapse .main-footer, 
+.sidebar-mini.sidebar-collapse .main-header {
+    margin: 0 !important;
+}
+.sidebar-mini.sidebar-collapse .main-sidebar, .sidebar-mini.sidebar-collapse .main-sidebar::before {
+    margin-left: 0;
+    width: 4.6rem;
+    display: none;
+}

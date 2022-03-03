@@ -1,0 +1,40 @@
+﻿@if (ViewBag.MessageType == "Error")
+{
+    <script>
+        $(document).ready(function () {
+            $('.alert').delay(5000).fadeOut(1000);
+        });
+    </script>
+    <div class="alert alert-danger alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-ban"></i> @ViewBag.MessageTitle</h5>
+        @ViewBag.Message
+    </div>
+}
+@if (ViewBag.MessageType == "Info")
+{
+    <script>
+        $(document).ready(function () {
+            $('.alert').delay(5000).fadeOut(1000);
+        });
+    </script>
+    <div class="alert alert-info alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-info"></i> @ViewBag.MessageTitle</h5>
+        @ViewBag.Message
+    </div>
+}
+@if (ViewBag.MessageType == "Success")
+{
+    <script>
+        $(document).ready(function () {
+            $('.alert').delay(5000).fadeOut(1000);
+        });
+    </script>
+
+    <div class="alert alert-success alert-dismissible">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+        <h5><i class="icon fas fa-check"></i> @ViewBag.MessageTitle</h5>
+        @ViewBag.Message
+    </div>
+}

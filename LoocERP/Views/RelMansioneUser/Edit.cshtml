@@ -1,0 +1,112 @@
+﻿@model LoocERP.ViewModels.RelMansioneUserViewModel
+@{
+    Layout = "";
+}
+
+<script type="text/javascript">
+    $('.selectmacchinaedit').find('.optionmacchinaedit').hide();
+    document.getElementById("testedit").onchange = changeListener;
+
+    function changeListener() {
+        $('.selectmacchinaedit').find('.optionmacchinaedit2').hide();
+        var temp = "";
+        console.log(this.value);
+        $(".selectmacchinaedit").val(temp);
+        $('.selectmacchinaedit').find('.optionmacchinaedit').hide();
+        var value = this.value;
+        $('.selectmacchinaedit').find('.' + value).show();
+    }
+</script>
+
+<div class="modal fade show" id="rel-mansione-update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiorna @ViewBag.Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>            
+            <form method="post" asp-controller="RelMansioneUser" asp-action="Edit">
+                <input type="hidden" asp-for="@Model.redirectUrl" class="form-control" />
+                <div class="modal-body row">
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.RelMansioneUser.MansioneId"></label>
+                        <select asp-for="@Model.RelMansioneUser.MansioneId" id="testedit" class="form-control">
+                            <option value= disabled selected>Seleziona una mansione...</option>
+                            @foreach (Mansione item in @Model.MansioneList)
+                            {
+                                <option value=@item.ID>@item.Descrizione</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.RelMansioneUser.MansioneMacchinaId"></label>
+                        <select asp-for="@Model.RelMansioneUser.MansioneMacchinaId" class="form-control selectmacchinaedit">
+                            <option value="null"></option>
+                            @foreach (MansioneMacchina item in @Model.MansioneMacchinaList)
+                            {
+                                if (item.MansioneId == Model.RelMansioneUser.MansioneId)
+                                {
+                                <option value=@item.Id class="@item.MansioneId optionmacchinaedit2">@item.Description</option>
+                                }
+                                else
+                                {
+                                <option value=@item.Id class="@item.MansioneId optionmacchinaedit" style="display:none;">@item.Description</option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.RelMansioneUser.DataInizioAttivita"></label>
+                        <input asp-for="@Model.RelMansioneUser.DataInizioAttivita" class="form-control" />
+                        <span asp-validation-for="@Model.RelMansioneUser.DataInizioAttivita" class="text-danger" placeholder="Data Inizio Attività"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.RelMansioneUser.DataFineAttivita"></label>
+                        <input asp-for="@Model.RelMansioneUser.DataFineAttivita" class="form-control" />
+                        <span asp-validation-for="@Model.RelMansioneUser.DataFineAttivita" class="text-danger" placeholder="Valido dal"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.RelMansioneUser.LivelloCompetenza"></label>
+                        <select asp-for="@Model.RelMansioneUser.LivelloCompetenza" class="form-control">
+                            <option selected="selected" value="">Selezionare livello di competenza</option>
+                            <option value=0>Affiancamento</option>
+                            <option value=1>Operatore</option>
+                            <option value=2>Capo Macchina</option>
+                        </select>
+                        <span asp-validation-for="@Model.RelMansioneUser.LivelloCompetenza" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label>Sempre valido?</label> <br>
+                        <input asp-for="@Model.RelMansioneUser.SempreValido" /> SI
+                        <span asp-validation-for="@Model.RelMansioneUser.SempreValido" class="text-danger"></span>
+                    </div>
+
+                    <input type="hidden" asp-for="@Model.RelMansioneUser.UserId">
+                    <input type="hidden" asp-for="@Model.RelMansioneUser.Id">
+                    <input type="hidden" asp-for="@Model.RelMansioneUser.MultiTenantId">
+                    <input type="hidden" asp-for="@Model.RelMansioneUser.DataAssegnazione">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+    
+        }
+    </script>        
+}

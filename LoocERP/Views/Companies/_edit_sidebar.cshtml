@@ -1,0 +1,293 @@
+﻿@model LoocERP.ViewModels.EditCompanyViewModel
+<!-- edit area sinistra -->
+<li class="card  group-location">
+    <div class="card-header">
+        <b>Dettagli Azienda</b>
+        <div class="float-right">
+            <a id="edit_company"><i class="fas fa-edit"></i></a>
+        </div>
+    </div>
+    <form asp-action="edit" method="post">
+        <ul class="list-group list-group-flush" id="edit_company_form">
+            <input type="hidden" class="form-control" placeholder="Id" asp-for="@Model.isExternal" disabled="disabled">
+            <input type="hidden" class="form-control" placeholder="Id" asp-for="@Model.Company.ID" disabled="disabled">
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Codice</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Codice interno dell'azienda" asp-for="@Model.Company.InternalCode" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Ragione Sociale*</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Ragione Sociale" asp-for="@Model.Company.RagioneSociale" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Partita IVA* </span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Partita IVA" asp-for="@Model.Company.PIva" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Codice Fiscale</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Codice Fiscale" asp-for="@Model.Company.FiscalCode" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Email PEC</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Email PEC" asp-for="@Model.Company.EmailPec" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Codice SDI</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Codice SDI" asp-for="@Model.Company.CodiceSdi" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Email Aziendale</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Email Aziendale" asp-for="@Model.Company.EmailAziendale" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Sito Web</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Sito Web" asp-for="@Model.Company.SitoWeb" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Telefono</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Telefono" asp-for="@Model.Company.Telefono" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Fax</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Fax" asp-for="@Model.Company.Fax" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item ">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Nazione</span>
+                    </div>
+                    <select id="nazione" asp-for="@Model.Company.Nazione" class="nazione form-control country-edit-wrapper d-none" onchange="setRegioni(this)" data-value="@Model.Company.Nazione"></select>
+                    <label class="form-control country-edit-wrapper" disabled />@Model.Company.Nazione</label>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Regione</span>
+                    </div>
+                    <select id="regione" asp-for="@Model.Company.Regione" class="region form-control country-edit-wrapper d-none" onchange="setProvince(this)" disabled data-value="@Model.Company.Regione"></select>
+                    <label class="form-control country-edit-wrapper" disabled />@Model.Company.Regione</label>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Provincia</span>
+                    </div>
+                    <select id="provincia" asp-for="@Model.Company.Provincia" class="provincia form-control country-edit-wrapper d-none" onchange="setComuni(this)" disabled data-value="@Model.Company.Provincia"></select>
+                    <label class="form-control country-edit-wrapper" disabled />@Model.Company.Provincia</label>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Città</span>
+                    </div>
+                    <select id="comune" asp-for="@Model.Company.Citta" class="city form-control country-edit-wrapper d-none" disabled data-value="@Model.Company.Citta"></select>
+                    <label class="form-control country-edit-wrapper" disabled />@Model.Company.Citta</label>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Indirizzo</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Indirizzo" asp-for="Company.Indirizzo" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">CAP</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Codice avviamento postale" asp-for="Company.CAP" disabled="disabled" maxlength="5">
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Banca</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Banca" asp-for="Company.Banca" disabled="disabled" />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">IBAN</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="IBAN" asp-for="Company.IBAN" disabled="disabled" />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Pagamento</span>
+                    </div>
+                    <select asp-for="Company.Pagamento" asp-items="Html.GetEnumSelectList<Pagamento>()" class="form-control country-edit-wrapper d-none" disabled data-value="@Model.Company.Pagamento"></select>
+                    <label class="form-control country-edit-wrapper" disabled />@Html.DisplayFor(e => Model.Company.Pagamento)</label>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Tipo Pagamento</span>
+                    </div>
+                    <select asp-for="Company.TipoPagamentoID" asp-items="Html.GetEnumSelectList<TipoPagamento>()" class="form-control country-edit-wrapper d-none" disabled data-value="@Model.Company.TipoPagamentoID"></select>
+                    <label class="form-control country-edit-wrapper" disabled />@Html.DisplayFor(e => Model.Company.TipoPagamentoID)</label>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Modalità Pagamento</span>
+                    </div>
+                    <select asp-for="Company.ModalitaPagamentoID" asp-items="Html.GetEnumSelectList<ModPagamento>()" class="form-control country-edit-wrapper d-none" disabled data-value="@Model.Company.ModalitaPagamentoID">
+                        <option selected="selected" value="">-- Seleziona --</option>
+                    </select>
+                    <label class="form-control country-edit-wrapper" disabled />@Html.DisplayFor(e => Model.Company.ModalitaPagamentoID)</label>
+                </div>
+            </li>
+            <div class="text-center font-italic">
+                <span class="badge badge-info"> Info esportazione RILPRE</span>
+            </div>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Codice Azienda</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Cod. Azienda (max 4 caratteri)" asp-for="@Model.Company.PagheCodAzienda" disabled="disabled" maxlength="4">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Codice Filiale</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Cod. Filiale (max 2 caratteri)" asp-for="@Model.Company.PagheCodFiliale" disabled="disabled" maxlength="2">
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 165px">Codice Datev</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Codice Datev" asp-for="@Model.Company.DatevCode" disabled="disabled">
+                </div>
+            </li>
+
+
+
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="custom-control custom-switch">
+                        <input type="checkbox" class="custom-control-input" id="customSwitch1" asp-for="Company.active" disabled="disabled">
+                        <label class="custom-control-label" for="customSwitch1">Disattiva/Attiva azienda</label>
+                    </div>
+                </div>
+            </li>
+            @if (Model.Company.isCustomer.Value || Model.Company.isSupplier.Value)
+            {
+                @if (!@Model.Company.isCopiedOnLooc)
+                {
+                    <li class="list-group-item">
+                        <div class="input-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" id="customSwitch2" asp-for="Company.isCopiedOnLooc" disabled="disabled" />
+                                <label class="custom-control-label" for="customSwitch2">Azienda importata nella Piattaforma di Logistica di supporto.</label>
+                            </div>
+                        </div>
+                    </li>
+                }
+                else
+                {
+                    <li class="list-group-item">
+                        <div class="input-group">
+                            <label>Azienda già presente nella Piattaforma di Logistica di supporto.</label>
+                            <input type="hidden" asp-for="Company.isCopiedOnLooc" />
+                        </div>
+                    </li>
+
+                }
+            }
+            <li class="list-group-item d-none" id="save_btn_edit">
+                <div class="input-group">
+                    <div class="float-right">
+                        <button type="submit" class="btn btn-primary waves-effect waves-light" data-toggle="button" aria-pressed="false" autocomplete="off">
+                            Salva    <i class="fa fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+
+
+    <script>
+        $(document).ready(function () {
+            $("#edit_company").click(function () {
+
+                if (!$("#edit_company").hasClass("editing")) {
+                    $("#edit_company_form :input").attr("disabled", false);
+                    $("#edit_company").html('<i class="fas fa-remove-format"></i>');
+
+                    $("#edit_company_form .country-edit-wrapper").toggleClass("d-none");
+                } else {
+                    $("#edit_company_form :input").attr("disabled", true);
+                    $("#edit_company").html('<i class="fas fa-edit"></i>');
+
+
+                    $("#edit_company_form .country-edit-wrapper").toggleClass("d-none");
+                }
+                $("#save_btn_edit").toggleClass("d-none");
+                $("#edit_company").toggleClass("editing");
+            });
+
+            $("input[data-bootstrap-switch]").each(function () {
+                $(this).bootstrapSwitch('state', $(this).prop('checked'));
+            });
+        });
+    </script>
+

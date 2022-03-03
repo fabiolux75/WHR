@@ -1,0 +1,45 @@
+﻿@model LoocERP.ViewModels.CreateRoleViewModel
+
+@{
+    ViewBag.Title = "Nuovo Ruolo";
+}
+<section class="content-header">
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12 p-0">
+                <a class="btn-sm" asp-controller="roles" asp-action="Index"><i class="fa fa-chevron-circle-left"></i> Torna ai <b>Ruoli</b></a>
+            </div>
+        </div>
+    </div>
+    <!-- /.container-fluid -->
+</section>
+<section class="content">
+    <form method="post">
+        <div class="row">
+            <div class="col-12">
+
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <div class="float-left">
+                            <h3 class="card-title">Creazione nuovo ruolo</h3>
+                        </div>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <label asp-for="RoleName"></label>
+                        <input asp-for="RoleName" class="form-control" />
+                        <span asp-validation-for="RoleName" class="text-danger"></span>
+
+                        <div asp-validation-summary="All" class="text-danger"></div>
+                    </div>
+                    <div class="card-footer">
+                        <div class="float-right">
+                            <input type="submit" value="Salva" class="btn btn-primary" />
+                        </div>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </div>
+        </div>
+    </form>
+</section>

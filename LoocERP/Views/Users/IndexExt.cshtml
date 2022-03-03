@@ -1,0 +1,338 @@
+@{
+    ViewData["Title"] = "Risorsa";
+    if (ViewBag.type == 0 || ViewBag.type == 1 || ViewBag.type == 2)
+    {
+        ViewData["Title"] = "Risorse Interne";
+    }
+    else if (ViewBag.type == 3 || ViewBag.type == 4 || ViewBag.type == 5)
+    {
+        ViewData["Title"] = "Risorse Esterne";
+    }
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-polyfill/7.10.1/polyfill.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/3.8.0/exceljs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+
+
+
+
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="col-12">
+
+                        @( 
+                            Html.DevExtreme().DataGrid() 
+                            //.Selection(s => s.Mode(SelectionMode.Multiple).ShowCheckBoxesMode(GridSelectionShowCheckBoxesMode.Always))
+                            .ID("userGridContainer")
+                            .Export(e => e.Enabled(true))
+                            .OnExporting("exporting")
+                            .ShowBorders(true)
+                            .RowAlternationEnabled(true)
+                            .ColumnChooser(c => c.Enabled(true))
+                            //.HeaderFilter(headerFilter => headerFilter.Visible(true)) 
+                            .AllowColumnReordering(true)
+                            .AllowColumnResizing(true)
+                            .ColumnAutoWidth(true)
+                            .HoverStateEnabled(true)
+                            //.Grouping(grouping => grouping.AutoExpandAll(true))
+                            //.GroupPanel(groupPanel => groupPanel.Visible(true))
+                            .Paging(paging => paging.PageSize(15))
+                            .Pager(pager => {
+                                pager.Visible(true);
+                                pager.DisplayMode(GridPagerDisplayMode.Full);
+                                pager.ShowPageSizeSelector(true);
+                                pager.AllowedPageSizes(new JS("[30, 50, 'all']"));
+                                pager.ShowInfo(true);
+                                pager.ShowNavigationButtons(true);
+                            })                            
+                            .FilterRow(filterRow => filterRow
+                                .Visible(true)
+                                .ApplyFilter(GridApplyFilterMode.Auto)
+                            )
+                            .SearchPanel(searchPanel => searchPanel
+                                .Visible(true)
+                                .Width(240)
+                                .Placeholder("Cerca...")
+                            )
+                            .DataSource(ds => ds.Mvc()
+                                .Controller("Users")
+                                .LoadAction("GetUsers")
+                                .Key("Id")
+                            )
+                            .RemoteOperations(true)
+                            .Columns(columns => {
+                                 columns.Add().Caption("Codice").Width(130)
+                                 .DataField("InternalCode").DataType(GridColumnDataType.String).AllowGrouping(false);
+
+                                 columns.Add().Caption("Cognome").SortOrder(SortOrder.Asc)
+                                 .DataField("LastName").DataType(GridColumnDataType.String).AllowGrouping(false);
+
+                                 columns.Add().Caption("Nome")
+                                 .DataField("FirstName").DataType(GridColumnDataType.String).AllowGrouping(false);
+
+                                 columns.Add().Caption("Telefono")
+                                 .DataField("PhoneNumber").DataType(GridColumnDataType.String).AllowGrouping(false);
+
+                                 columns.Add().Caption("Città")
+                                 .DataField("Citta").DataType(GridColumnDataType.String);
+                                
+                                columns.Add().Caption("Mansioni").DataField("Mansioni").DataType(GridColumnDataType.String)
+                                .CalculateCellValue("calculateMansioniCellValue").AllowSorting(false);
+
+
+                                 columns.Add().Caption("Contratto").Alignment(HorizontalAlignment.Center).Columns (col => {
+                                    col.Add().Caption("Stato").DataField("contract.Stato")
+                                    .DataType(GridColumnDataType.Number)
+                                    .Lookup(lookup => lookup.DataSource(new JS("statiContratto"))                
+                                                                        .ValueExpr("Value")
+                                                                        .DisplayExpr("Text")
+                                                                        )
+                                    .CellTemplate(new JS("checkStato"));
+
+                                    col.Add().Caption("Dal").DataField("contract.ValidFrom").Format("dd/M/yyyy")
+                                    .DataType(GridColumnDataType.Date);
+
+                                    col.Add().Caption("Al").DataField("contract.ValidTo").Format("dd/M/yyyy")
+                                    .DataType(GridColumnDataType.Date);
+                                 });
+
+
+                                 /*.CustomizeText(
+                                            @<text>
+                                                function(data, row){
+                                                    console.log(row);
+                                                    
+                                                }
+                                            </text>
+                                 )
+                                 .CalculateCellValue(
+                                            @<text>
+                                                function(data){
+                                                    if (data.contract) {
+                                                        if (data.contract.Stato == 1) {
+                                                            return "Eccomi";
+                                                        }
+                                                    }
+                                                    
+                                                }
+                                            </text>);*/
+
+                            })
+                            /*.Columns(columns => {
+                                columns.AddFor(m => m.InternalCode).Caption("Codice").AllowGrouping(false);   
+                                columns.AddFor(m => m.LastName).Caption("Cognome");
+                                columns.AddFor(m => m.FirstName).Caption("Nome");
+                                columns.AddFor(m => m.PhoneNumber).Caption("Telefono");
+                                columns.AddFor(m => m.).Caption("Telefono");
+                                columns.AddFor(m => m.Citta).Caption("Città");
+                                columns.AddFor(m => m.DataNascita).Caption("Data Nascita").DataType(GridColumnDataType.Date).Alignment(HorizontalAlignment.Right).Width(180);  
+                                columns.AddFor(m => m.ANA_Company.RagioneSociale).Caption("Mittente"); 
+                                columns.AddFor(m => m.DataCreazione).Caption("Data ricezione").Format("dd/M/yyyy").Alignment(HorizontalAlignment.Right).Width(180); 
+                                columns.AddFor(m => m.Importo).Caption("Importo"); 
+                                columns.Add()
+                                .Caption("Operazioni")
+                                        .Type(GridCommandColumnType.Buttons)
+                                            .Buttons(b => {
+                                                b.Add().Icon("far fa-file-alt").Hint("Apri documento").OnClick("viewInvoice");
+                                                b.Add().Icon("fas fa-file-pdf text-danger").Hint("Scarica PDF").OnClick("pdfDownload");
+                                                b.Add().Icon("far fa-file-code").Hint("Scarica XML").OnClick("xmlDownload");
+                                            });
+
+                                columns.Add()
+                                .Caption("XXXXXXXX")  
+                                .CellTemplate(@<text>
+                                                @(Html.DevExtreme().Button()
+                                                        .Icon("far fa-file-alt")
+                                                        .Type(ButtonType.Success)
+                                                        .Width(40)
+                                                        )
+                                                @(Html.DevExtreme().Button()
+                                                        .Icon("far fa-file-alt")
+                                                        .Type(ButtonType.Success)
+                                                        .Text("Apri DDT")
+                                                        .OnClick("function(e) { onDelete(e, data) }")  
+                                                        )
+                                                </text>);
+
+                            }
+                            )*/
+                               /*columns.Add()
+                                        .Caption("Tipologia")
+                                        .Width(230)
+                                        .CalculateCellValue(
+                                            @<text>
+                                                function(data){
+                                                    if (data.Suffisso == null) return '-';
+                                                    if (data.Suffisso == 'S') return " DDT di scarico";
+                                                    if (data.Suffisso == 'T') return " DDT di trasferimento";
+                                                }
+                               </text>);*/
+
+                          
+
+                        )
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<style>
+  
+    #gridContainer .dx-datagrid-headers .dx-header-row {
+        background-color: rgb(154 201 255 / 60%);
+    }
+       
+    /*.dx-header-row {
+        color: white;
+    }*/
+
+    #gridContainer .dx-datagrid-headers .dx-header-row {
+        background-color: #507CD1;
+    }
+
+    #gridContainer .dx-datagrid-header-panel {
+        padding: 0;
+        background-color: rgb(154 201 255 / 60%);
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar {
+        margin: 0;
+        padding-right: 20px;
+        background-color: transparent;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-items-container {
+        height: 70px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-before .dx-toolbar-item:not(:first-child) {
+        background-color: rgba(103, 171, 255, 0.6);
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-before .dx-toolbar-item:last-child {
+        padding-right: 10px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-selectbox {
+        margin: 17px 10px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-button {
+        margin: 17px 0;
+    }
+
+    #gridContainer .informer {
+        height: 70px;
+        width: 130px;
+        text-align: center;
+        color: #fff;
+    }
+
+    #gridContainer .count {
+        padding-top: 15px;
+        line-height: 27px;
+        font-size: 28px;
+        margin: 0;
+        font-weight: normal;
+        font-family: "Helvetica Neue", "Segoe UI", Helvetica, Verdana, sans-serif;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    ​
+    .address-form label {
+        font-weight: bold;
+    }
+</style>
+@section Scripts{ 
+    <script>
+
+        var prevGrid = null;
+
+        var statiContratto = [
+          {
+              "Value" : 0,
+              "Text"  : "Chiuso"
+          },
+            {
+              "Value" : 1,
+              "Text"  : "In corso"
+            }
+        ];
+
+
+    function calculateMansioniCellValue(data) {
+        var res = [];
+        for (var i = 0; i < data.Mansioni.length; i++)
+            res.push(data.Mansioni[i].Descrizione);
+        return res.join(', ');
+    }
+
+    function exporting(e) {
+        var workbook = new ExcelJS.Workbook();
+        var worksheet = workbook.addWorksheet('Risorse interne');
+
+        DevExpress.excelExporter.exportDataGrid({
+            component: e.component,
+            worksheet: worksheet,
+            autoFilterEnabled: true
+        }).then(function () {
+            workbook.xlsx.writeBuffer().then(function (buffer) {
+                saveAs(new Blob([buffer], { type: 'application/octet-stream' }), 'RisorseWHR.xlsx');
+            });
+        });
+        e.cancel = true;
+    }
+        function checkStato(cella,row,e){
+
+            if (row.data.contract !== null) {
+
+                var dal = "";
+                var al = "";
+                if (row.data.contract.Stato == 0)   cella.html('<span class="badge badge-warning">Contratto chiuso </span>');
+                if (row.data.contract.Stato == 1)   cella.html('<span class="badge badge-success">In corso </span>');
+                if (row.data.contract.ValidFrom !== null) {
+                    dal = new Date(row.data.contract.ValidFrom).toLocaleDateString('it-IT', {});
+                }   
+                if (row.data.contract.ValidTo !== null) {
+                    al = new Date(row.data.contract.ValidTo).toLocaleDateString('it-IT', {});
+                }  
+
+            }
+        }
+
+
+       function exportPDF() {
+            var doc = new jsPDF();
+            var dataGrid = $("#userGridContainer").dxDataGrid("instance");
+            DevExpress.pdfExporter.exportDataGrid({
+                jsPDFDocument: doc,
+                component: dataGrid
+            }).then(function() {
+                doc.save("Customers.pdf");
+        });
+    }
+
+    </script>
+}

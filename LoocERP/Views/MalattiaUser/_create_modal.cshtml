@@ -1,0 +1,130 @@
+﻿@model LoocERP.ViewModels.MalattiaUserViewModel
+<div class="modal fade show" id="malattiauser-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiungi @ViewBag.Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="MalattiaUser" asp-action="Create" runat="server" enctype="multipart/form-data">                
+                <input type="hidden" asp-for="@Model.redirectUrl" class="form-control"></input>
+                <div class="modal-body row">
+
+                        <div class="form-group col-6">
+                            <label asp-for="@Model.MalattiaUser.Tipologia"></label>
+                            <select asp-for="@Model.MalattiaUser.Tipologia" asp-items="Html.GetEnumSelectList<TipologiaMalattia>()" class="form-control"></select>
+                            <span asp-validation-for="@Model.MalattiaUser.Tipologia" class="text-danger" placeholder="Tipologia Malattia"></span>
+                        </div> 
+
+                        <div class="form-group col-6">
+                            <label asp-for="@Model.MalattiaUser.TipoEvento"></label>
+                            <select asp-for="@Model.MalattiaUser.TipoEvento" asp-items="Html.GetEnumSelectList<TipoEvento>()" class="form-control"></select>
+                            <span asp-validation-for="@Model.MalattiaUser.TipoEvento" class="text-danger" placeholder="Tipo Evento"></span>
+                        </div> 
+                                                      
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.ValidFrom"></label>
+                            <input asp-for="@Model.MalattiaUser.ValidFrom" class="form-control" />
+                            <span asp-validation-for="@Model.MalattiaUser.ValidFrom" class="text-danger" placeholder="Valido dal"></span>
+                        </div>    
+                                                                  
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.ValidTo"></label>
+                            <input asp-for="@Model.MalattiaUser.ValidTo" class="form-control" />
+                            <span asp-validation-for="@Model.MalattiaUser.ValidTo" class="text-danger" placeholder="Valido al"></span>
+                        </div>           
+                        <hr class="col-12"  />                 
+                        
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.Certificato" ></label>                            
+                            <input asp-for="@Model.MalattiaUser.Certificato" class="form-control" ></input>
+                            <span asp-validation-for="@Model.MalattiaUser.Certificato" class="text-danger"></span>                            
+                        </div>
+                        
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.CertificatoDiRiferimento" ></label>                            
+                            <input asp-for="@Model.MalattiaUser.CertificatoDiRiferimento" class="form-control" ></input>
+                            <span asp-validation-for="@Model.MalattiaUser.CertificatoDiRiferimento" class="text-danger"></span>                            
+                        </div>
+                        
+                         <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.DataRilascioCertificato"></label>
+                            <input asp-for="@Model.MalattiaUser.DataRilascioCertificato" class="form-control" />
+                            <span asp-validation-for="@Model.MalattiaUser.DataRilascioCertificato" class="text-danger" placeholder="Valido dal"></span>
+                        </div>    
+ 
+                                                                  
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.DataConsegnaCertificato"></label>
+                            <input asp-for="@Model.MalattiaUser.DataConsegnaCertificato" class="form-control" />
+                            <span asp-validation-for="@Model.MalattiaUser.DataConsegnaCertificato" class="text-danger" placeholder="Valido al"></span>
+                        </div>  
+                        <hr/>
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.DataPartoPresunta"></label>
+                            <input asp-for="@Model.MalattiaUser.DataPartoPresunta" class="form-control" />
+                            <span asp-validation-for="@Model.MalattiaUser.DataPartoPresunta" class="text-danger" placeholder="Data Parto presunta"></span>
+                        </div>    
+                                                                  
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.MalattiaUser.DataPartoEffettiva"></label>
+                            <input asp-for="@Model.MalattiaUser.DataPartoEffettiva" class="form-control" />
+                            <span asp-validation-for="@Model.MalattiaUser.DataPartoEffettiva" class="text-danger" placeholder="Data Parto effettivo"></span>
+                        </div>
+
+
+                <div class="form-group col-sm-12">
+                    @if (Model.MalattiaUser.FileName != null)
+                    {
+                        <label asp-for="@Model.FileUpload">Sovrascrivi certificato esistente - <a href="@ViewBag.fileDownload" download="@(DateTime.Now.ToString("dd-MM-yyyy"))-Certificato.pdf"><i class="fa fa-download"></i> Download</a></label>
+                    }
+                    else
+                    {
+                        <label asp-for="@Model.FileUpload">Carica certificato</label>
+                    }
+                    <input type="hidden" asp-for="@Model.MalattiaUser.FileName">
+                    <input asp-for="@Model.FileUpload" type="file" runat="server" accept=".pdf" class="form-control" />
+                    <span asp-validation-for="@Model.FileUpload" class="text-danger" placeholder="Nome file caricato"></span>
+                    <small class="text-danger">*Saranno caricati esclusivamente file PDF minori di 5MB.</small>
+                </div>
+
+                      
+                        <a class="btn " data-toggle="collapse" href="#altre-infomalattia-create" role="button" aria-expanded="false" aria-controls="collapseExample">
+                            Altre Informazioni
+                        </a>
+                        <div class="col-12 p-0 collapse" id="altre-infomalattia-create">
+                            <div class="row m-0">
+                                <div class="form-group col-sm-6">
+                                    <label asp-for="@Model.MalattiaUser.NomeFiglio" ></label>                            
+                                    <input asp-for="@Model.MalattiaUser.NomeFiglio" class="form-control" ></input>
+                                    <span asp-validation-for="@Model.MalattiaUser.NomeFiglio" class="text-danger"></span>                            
+                                </div>
+                                <div class="form-group col-sm-6">
+                                    <label asp-for="@Model.MalattiaUser.Medico" ></label>                            
+                                    <input asp-for="@Model.MalattiaUser.Medico" class="form-control" ></input>
+                                    <span asp-validation-for="@Model.MalattiaUser.Medico" class="text-danger"></span>                            
+                                </div>
+                            </div>
+                        </div>
+
+                        <input type="hidden" asp-for="@Model.MalattiaUser.UserId">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" >Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+    
+        }
+    </script>        
+}

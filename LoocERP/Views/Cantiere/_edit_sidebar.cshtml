@@ -1,0 +1,183 @@
+﻿@model Cantiere
+@{ List<AppUser> Employees = ViewData["Employees"] as List<AppUser>; }
+<!-- edit area sinistra -->
+<li class="card">
+    <div class="card-header">
+        Dettagli Cantiere
+        <div class="float-right d-none">
+            <a id="edit_company"><i class="fas fa-edit"></i></a>
+        </div>
+    </div>
+    <form asp-controller="Cantiere" asp-action="edit" method="post">
+        <ul class="list-group list-group-flush" id="edit_company_form">
+            <li class="list-group-item ">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px"><b>Responsabile Cantiere</b></span>
+                    </div>
+                    <select id="capocantiereID" asp-for="@Model.CapocantiereId" class="form-control">
+                        <option>Seleziona </option>
+                        @foreach (var v in Employees)
+                        {
+                            @if (v.Id != null && Model.CapocantiereId != null && Model.CapocantiereId.ToString().ToLower() == v.Id.ToString().ToLower())
+                            {
+                                <option selected="selected" value="@v.Id">@v.LastName @v.FirstName </option>
+                            }
+                            else
+                            {
+                                <option value="@v.Id">@v.LastName @v.FirstName </option>
+                            }
+                        }
+                    </select>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <input type="hidden" class="form-control" placeholder="Id" asp-for="@Model.Id">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Nome*</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Nome" asp-for="@Model.Name">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <input type="hidden" class="form-control" placeholder="Id" asp-for="@Model.Id">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Descrizione*</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Descrizione" asp-for="@Model.Description">
+                </div>
+            </li>
+
+            <li class="list-group-item ">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Nazione</span>
+                    </div>
+                    <select id="nazione" asp-for="@Model.Nazione" class="form-control country-edit-wrapper" onchange="setRegioni(this)" data-value="ITA"></select>
+                    <!--select id="nazione" asp-for="@Model.Nazione" class="form-control country-edit-wrapper d-none" onchange="setRegioni(this)" data-value="@Model.Nazione"></select-->
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Regione</span>
+                    </div>
+                    <select id="regione" asp-for="@Model.Regione" class="form-control country-edit-wrapper" onchange="setProvince(this)" data-value="@Model.Regione"></select>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Provincia</span>
+                    </div>
+                    <select id="provincia" asp-for="@Model.Provincia" class="form-control country-edit-wrapper" onchange="setComuni(this)" data-value="@Model.Provincia"></select>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Città</span>
+                    </div>
+                    <select id="comune" asp-for='@Model.Citta' class="form-control country-edit-wrapper" data-value="@Model.Citta"></select>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Indirizzo</span>
+                    </div>
+                    <input type="text" class="form-control" asp-for="@Model.Indirizzo">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Latitudine</span>
+                    </div>
+                    <input asp-for="@Model.Latitude" type="text" class="form-control" class="form-control" />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Longitudine</span>
+                    </div>
+                    <input asp-for="@Model.Longitude" type="text" class="form-control" class="form-control" />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Km di copertura</span>
+                    </div>
+                    <input asp-for="@Model.Round" type=number class="form-control" class="form-control" />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Data Apertura*</span>
+                    </div>
+                    <input class="form-control" placeholder="Descrizione" asp-for="@Model.StartDate" disabled="disabled">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">
+                            Data Fine Cantiere*
+                        </span>
+                    </div>
+                    <input class="form-control" placeholder="Descrizione" asp-for="@Model.EndDate" min="@Model.EndDate.ToString("yyyy-MM-dd")"    />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px" >
+                            Tipologia
+                        </span>
+                    </div>
+                    <select asp-for="@Model.isGeneric" asp-items="Html.GetEnumSelectList<TipologiaCantiere>()" class=" form-control"></select>
+                </div>
+            </li>
+
+            <li class="list-group-item" id="save_btn_edit">
+                <div class="input-group">
+                    <div class="float-right">
+                        <button type="submit" class="btn btn-primary waves-effect waves-light" data-toggle="button" aria-pressed="false" autocomplete="off">
+                            Salva    <i class="fa fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+
+
+    <script>
+        $(document).ready(function () {
+            /*
+            $("#edit_company").click(function () {
+
+                if (!$("#edit_company").hasClass("editing")) {
+                    $("#edit_company_form :input").attr("disabled", false);
+                    $("#edit_company").html('<i class="fas fa-remove-format"></i>');
+
+                    $("#edit_company_form .country-edit-wrapper").toggleClass("d-none");
+                } else {
+                    $("#edit_company_form :input").attr("disabled", true);
+                    $("#edit_company").html('<i class="fas fa-edit"></i>');
+
+
+                    $("#edit_company_form .country-edit-wrapper").toggleClass("d-none");
+                }
+                $("#save_btn_edit").toggleClass("d-none");
+                $("#edit_company").toggleClass("editing");
+            });
+            */
+        });
+    </script>
+

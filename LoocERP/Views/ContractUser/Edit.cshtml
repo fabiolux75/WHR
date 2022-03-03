@@ -1,0 +1,177 @@
+﻿@model LoocERP.ViewModels.ContractUserViewModel
+@{
+    Layout = "";
+    var myclass = "";
+    @if(@Model.ContractUser.Stato == 0) myclass = "disabled";
+}
+<style>
+    .disabled{
+
+    }
+</style>
+<div class="modal fade show" id="contract-user-update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiorna Contratto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>            
+
+            <form method="post" asp-controller="ContractUser" asp-action="Edit"  runat="server" enctype="multipart/form-data">
+                <div class="modal-body row">
+                    <input type="hidden" asp-for="@Model.redirectUrl"></input>
+                    <input type="hidden" asp-for="@Model.ContractUser.Id"></input>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.Code"></label>
+                        <input asp-for="@Model.ContractUser.Code" class="form-control @myclass"></input>
+                        <span asp-validation-for="@Model.ContractUser.Code" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.ContractTypeId"></label>
+                        <select asp-for="@Model.ContractUser.ContractTypeId" class="form-control @myclass">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.ContractTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    @* Se non esiste con il p{adre => faccio solo vedere i figli  *@
+                    @if (Model.hasParentLevel )
+                    {
+                        <div class="form-group col-sm-6">
+                            <label>CCNL</label>
+                            <select id="edit-LevelId-parent-@Model.ContractUser.Id"
+                                    class="form-control @myclass"
+                                    data-childId="edit-LevelId-@Model.ContractUser.Id"  
+                                    data-value="@Model.ContractUser.Level.ParentId"
+                                    onchange="setDomainChild(this, '@Model.ContractUser.Level.ParentId', 'edit-LevelId-@Model.ContractUser.Id')"
+                                >
+                            </select>
+                        </div>
+
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.ContractUser.LevelId"></label>
+                            <select id="edit-LevelId-@Model.ContractUser.Id" asp-for="@Model.ContractUser.LevelId" class="form-control @myclass" data-value="@Model.ContractUser.LevelId">
+                            </select>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group col-sm-12">
+                            <label asp-for="@Model.ContractUser.LevelId"></label>
+                            <select asp-for="@Model.ContractUser.LevelId" class="form-control @myclass">
+                                <option value="">-</option>
+                                @foreach (Domain item in @Model.LevelList)
+                                {
+                                    <option value=@item.Id>@item.Name</option>
+                                }
+                            </select>
+                        </div>
+                    }
+
+
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.RetribuzioneTypeId"></label>
+                        <select asp-for="@Model.ContractUser.RetribuzioneTypeId" class="form-control @myclass">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.RetribuzioneTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.OreDiLavoroTypeId"></label>
+                        <select asp-for="@Model.ContractUser.OreDiLavoroTypeId" class="form-control @myclass">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.OreDiLavoroTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.CategoryCodeId"></label>
+                        <select asp-for="@Model.ContractUser.CategoryCodeId" class="form-control @myclass">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.CategoryCodeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.LawNumberTypeId"></label>
+                        <select asp-for="@Model.ContractUser.LawNumberTypeId" class="form-control @myclass">
+                            <option value="">-</option>
+                            @foreach (Domain item in @Model.LawNumberTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.ValidFrom"></label>
+                        <input asp-for="@Model.ContractUser.ValidFrom" class="form-control @myclass" />
+                        <span asp-validation-for="@Model.ContractUser.ValidFrom" class="text-danger" placeholder="Valido dal"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.ValidTo"></label>
+                        <input asp-for="@Model.ContractUser.ValidTo" class="form-control @myclass" />
+                        <span asp-validation-for="@Model.ContractUser.ValidTo" class="text-danger" placeholder="Valido al"></span>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label asp-for="@Model.ContractUser.MesiRinnovo"></label>
+                        <input asp-for="@Model.ContractUser.MesiRinnovo" class="form-control @myclass" />
+                        <span asp-validation-for="@Model.ContractUser.MesiRinnovo" class="text-danger" placeholder="Valido al"></span>
+                    </div>
+
+
+
+                    <div class="form-group col-sm-12">
+                        @if (Model.ContractUser.FileName != null)
+                        {
+                            <label asp-for="@Model.FileUpload">Sovrascrivi contratto esistente - <a href="@ViewBag.fileDownload" download="@(DateTime.Now.ToString("dd-MM-yyyy"))-Contratto.pdf"><i class="fa fa-download"></i> Download</a></label>
+                        }
+                        else
+                        {
+                            @if (@Model.ContractUser.Stato != 0)
+                            {
+                                <label asp-for="@Model.FileUpload">Carica contratto</label>
+                            }
+                        }
+                        @if (@Model.ContractUser.Stato != 0)
+                        {
+                            <input type="hidden" asp-for="@Model.ContractUser.FileName">
+                            <input asp-for="@Model.FileUpload" type="file" runat="server" accept=".pdf" class="form-control" />
+                            <span asp-validation-for="@Model.FileUpload" class="text-danger" placeholder="Nome file caricato"></span>
+                            <small class="text-danger">*Saranno caricati esclusivamente file PDF minori di 5MB.</small>
+                        }
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" >Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementsByClassName("disabled").readOnly = true;
+    setDomainParent("edit-LevelId-parent-@Model.ContractUser.Id","contract_user_level");
+</script>

@@ -1,0 +1,149 @@
+﻿@model StazioniCantiere
+
+@{
+    ViewData["Title"] = "Stazioni";
+    ViewData["activePage"] = "Stazioni";
+    Model.CantiereId = new Guid(@ViewBag.IdCantiere);
+}
+
+
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<!-- CREATE MODAL -->
+@{
+    await Html.RenderPartialAsync("stazioni/_create_modal_stazioni", @Model);
+}
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        //await Html.RenderPartialAsync("editAssegnazioneTurno.cshtml");
+    }
+    @{
+        //await Html.RenderPartialAsync("../../CommonPartial/_message");
+    }
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <a data-toggle="modal" data-target="#stazioni-create">
+                        Crea <b>Stazione</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                    <p class="col-12 p-0">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="stazioni_table" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Stazione</th>
+                                    <th>Inizio Validità</th>
+                                    <th>Fine Validità</th>
+                                    <th>Km Copertura</th>
+                                    <th>Latitudine</th>
+                                    <th>Longitudine</th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+        var selectedTurno = null;
+
+        var turni = [];
+
+        function openModalEditStazioni(TurnoId) {
+            
+
+            var empModal = $('#stazioni-create');
+            empModal = $('#stazioni-create');
+            empModal.modal('stazioni-create');
+
+
+        }
+
+        $(document).ready(function () {
+
+            var table = $('#stazioni_table').DataTable({
+                ajax: "/Stazioni/ajaxIndex?CantiereId=@ViewBag.IdCantiere",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "stazione" },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            console.log(row);
+                            return new Date(row.startValidity).toDateString();// moment(new Date(row.startValidity.year, row.startValidity.month, row.startValidity.day, row.startValidity.hours, row.startValidity.minutes));//.format("HH:mm");
+                        }
+                    },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            console.log(row);
+                            return new Date(row.endValidity).toDateString();// moment(new Date(row.startValidity.year, row.startValidity.month, row.startValidity.day, row.startValidity.hours, row.startValidity.minutes));//.format("HH:mm");
+                        }
+                    },
+                    { "data": "kmCopertura" },
+                    { "data": "latitude" },
+                    { "data": "longitude" },
+
+                ],
+                columnDefs: [
+                    
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+</script>

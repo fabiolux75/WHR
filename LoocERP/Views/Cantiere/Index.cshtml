@@ -1,0 +1,185 @@
+﻿@model Cantiere
+@{ LoocERP.Models.Project project = ViewData["Project"] as LoocERP.Models.Project; }
+@{
+    ViewData["Title"] = "Gestione Commessa: "+project.Name;
+    ViewData["activePage"] = "Cantiere Page";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+<!-- CREATE MODAL -->
+@{
+    await Html.RenderPartialAsync("_create_modal");
+}
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+
+    <div class="col-12 row">
+
+        <div class="col-4">
+            <div class="card col-12 p-0">
+                <div class="card-body">
+                    <a class="btn-sm" asp-controller="Project" asp-action="Index">
+                        <i class="fa fa-chevron-circle-left" aria-hidden="true"></i> Torna alle <b>COMMESSE</b>
+                    </a>
+                </div>
+            </div>
+            <div class="card card-primary">
+                <div class="accordion" id="accordionExample">
+                    <div class="card-header" id="headingOne">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link" type="button" id="textVettore">
+                                @ViewBag.project.Name
+                            </button>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            @{
+                await Html.RenderPartialAsync("_edit_commessa", @project);
+            }
+        </div>
+
+        <div class="col-8">
+            <section>
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="col-12">
+
+                                <a data-toggle="modal" data-target="#project-create">
+                                    Crea <b>CANTIERE</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                                </a>
+                                <p class="col-12 p-0">
+
+                                </p>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="col-12 table-responsive p-0">
+                            <table id="company" class="table table-bordered table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Codice</th>
+                                        <th>Nome</th>
+                                        <th>Regione</th>
+                                        <th>Provincia</th>
+                                        <th>Citta</th>
+                                        <th>Indirizzo</th>
+                                        <th class="hide-search"></th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
+
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </section>
+        </div>
+
+        </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $('#project thead tr').clone(true).appendTo('#project thead');
+            $('#project thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var table = $('#company').dataTable({
+                ajax: "/Cantiere/ajaxIndex?IdProject=@ViewBag.ProjectId",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "codice" },
+                    { "data": "name" },
+                   // { "data": "nazione" },
+                    { "data": "regione" },
+                    { "data": "provincia" },
+                    { "data": "citta" },
+                    { "data": "indirizzo" },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            return '<span>' +
+                                '<a class="btn-sm" href="/Cantiere/edit?id=' + row.id + '"><i class="fa fa-edit"></i></a>' +
+                                '</span>';
+                        }
+                    },
+                ],
+                columnDefs: [
+                    { width: '30px', targets: 0 },
+                    { width: '30px', targets: 6 }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+            /*
+            $('#company').on('click', 'tbody td:not(:first-child)', function (e) {
+                tale.inline(this, {
+                    submit: 'allIfChanged'
+                });
+            });
+            */
+        });
+    </script>
+}

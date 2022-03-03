@@ -1,0 +1,27 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+
+@inject UserManager<AppUser> UserManager
+
+@{
+    AppUser layout_user = new AppUser();
+    try
+    {
+        layout_user = @UserManager.GetUserAsync(User).Result;
+    }
+    catch (Exception)
+    {
+        layout_user = new AppUser();
+    }
+    //.MultiTenantId
+}
+
+@{
+    ViewData["Title"] = "Magazzino";
+}
+@ViewBag.html
+<!-- END CREATE MODAL -->
+<section class="content">
+    <iframe src="https://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword" style='width:100%;height:1000px;'></iframe>
+    @*<iframe src="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword" style='width:100%;height:1000px;'></iframe>*@
+</section>

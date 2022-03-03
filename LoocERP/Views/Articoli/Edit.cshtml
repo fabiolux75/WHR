@@ -1,0 +1,55 @@
+﻿@model Articolo
+@{
+    Layout = "_DevExtremeLayout";
+}
+@{
+}
+
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="col-12">
+                        @(Html.DevExtreme().Form<LoocERP.Models.Articolo>()
+                                .ColCount(3)
+                                .Items(items => {
+                                    items.AddSimpleFor(m => m.CodiceMag);
+
+                                    items.AddSimpleFor(m => m.Descrizione);
+
+                                    items.AddSimpleFor(m => m.idUm)
+                                        .Editor(e => e
+                                            .Lookup()
+                                            .DataSource(ds => ds.WebApi().Controller("Articoli").LoadAction("C_UMLookup").Key("Value"))
+                                            .ValueExpr("Value")
+                                            .DisplayExpr("Text")
+                                        );
+
+                                    items.AddSimpleFor(m => m.ScortaMinima);
+
+                                    items.AddSimpleFor(m => m.Qty);
+
+                                    items.AddSimpleFor(m => m.IdMarca)
+                                        .Editor(e => e
+                                            .Lookup()
+                                            .DataSource(ds => ds.WebApi().Controller("Articoli").LoadAction("MARCHELookup").Key("Value"))
+                                            .ValueExpr("Value")
+                                            .DisplayExpr("Text")
+                                        );
+
+                                    items.AddSimpleFor(m => m.MultiTenantId);
+
+                                    items.AddSimpleFor(m => m.PrezzoVendita);
+                                })
+                                .FormData(Model)
+                            )
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

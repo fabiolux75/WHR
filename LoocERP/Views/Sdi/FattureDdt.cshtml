@@ -1,0 +1,271 @@
+@model LoocERP.ViewModels.Sdi.FatturaViewModel;
+@{
+    ViewData["Title"] = "Elenco dei DDT associati alla fattura";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+
+<div>&nbsp;</div>
+<section class="content">
+
+    <div class="row">
+        <div class="col-7">
+            <div class="callout callout-danger">
+                <h3>Fattura N. @Model.eFattura.FatturaElettronicaBody[0].DatiGenerali.DatiGeneraliDocumento.Numero</h3>
+                <br>
+                <div class="row">
+                   <div class="col-6">
+                        <dl class="row">
+                            <dt class="col-sm-4">Mittente</dt>
+                            <dd class="col-sm-8">
+                                @{
+                                    var mittente = @Model.eFattura.FatturaElettronicaHeader.CedentePrestatore.DatiAnagrafici.Anagrafica.Denominazione ?? @Model.eFattura.FatturaElettronicaHeader.CedentePrestatore.DatiAnagrafici.Anagrafica.CognomeNome;
+                                }
+                                    @mittente
+                            </dd>
+                            <dt class="col-sm-4">Data emissione</dt>
+                            <dd class="col-sm-8">@Model.eFattura.FatturaElettronicaBody[0].DatiGenerali.DatiGeneraliDocumento.Data.ToShortDateString()</dd>
+                            <dt class="col-sm-4 font-">Importo</dt>
+                            <dd class="col-sm-6 col-lg-3 badge font-weight-bolder" style =" font-size: large; background-color: #26A69A">@Model.eFattura.FatturaElettronicaBody[0].DatiGenerali.DatiGeneraliDocumento.ImportoTotaleDocumento €</dd>                            
+                        </dl>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="col-5">
+
+        </div>
+
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+               <div class="card-header" style="background-color: #5baaf5">
+                <h3 class="card-title">
+                    <i class="fas fa-truck mr-1"></i>
+                        <b>Documenti di trasporto associati</b>
+                </h3>
+              </div>
+                <div class="card-body">
+                    <div class="col-12">
+
+                        @( Html.DevExtreme().DataGrid()
+                            .ID("gridContainer")
+                            .ShowBorders(true)
+                            .Toolbar(toolbar => {
+                                toolbar.Items(items => {
+
+                                    items.Add()
+                                        .Location(ToolbarItemLocation.After)
+                                        .Widget(w =>
+                                            w.Button()
+                                                .Icon("plus")
+                                                .Type(ButtonType.Default)
+                                                .Text("Associa DDT")
+                                                .OnClick("openModalDDT")
+
+                                        );
+                                    items.Add()
+                                        .Location(ToolbarItemLocation.After)
+                                        .Widget(w =>
+                                            w.Button()
+                                                .Icon("refresh")
+                                                .OnClick("refreshButtonClicked")
+
+                                        );
+
+                                });
+                            })                            
+                            .AllowColumnReordering(true)
+                            .AllowColumnResizing(true)
+                            .Selection(s => s.Mode(SelectionMode.Multiple))
+                            .ColumnAutoWidth(true)
+                            .HoverStateEnabled(true)
+                            .Paging(paging => paging.PageSize(10))
+                            .Pager(pager => {
+                                pager.Visible(true);
+                                pager.DisplayMode(GridPagerDisplayMode.Full);
+                                pager.ShowPageSizeSelector(true);
+                                pager.AllowedPageSizes(new JS("[5, 10, 'all']"));
+                                pager.ShowInfo(true);
+                                pager.ShowNavigationButtons(true);
+                            })                            
+                            .FilterRow(filterRow => filterRow
+                                .Visible(true)
+                                .ApplyFilter(GridApplyFilterMode.Auto)
+                            )
+                            .DataSource(ds => ds.Mvc()
+                                .Controller("sdi")
+                                .LoadAction("getDdt")
+                                .LoadParams(new { idFattura = @Model.fattura.Id})
+                                .Key("Id")
+                            )
+                            .RemoteOperations(true)
+                            .Columns( columns => {
+                                    columns.Add().DataField("Numero").Caption("Num. DDT").Width("30%");
+                                    columns.Add().DataField("DataDDT")
+                                            .Caption("Data emissione")
+                                            .Format("dd/M/yyyy")
+                                            .Alignment(HorizontalAlignment.Right)
+                                            .DataType(GridColumnDataType.Date)
+                                            ;
+                                }
+                            )
+                            .MasterDetail(md => md
+                                            .Enabled(true)
+                                            .Template(@<text>
+                                                <div class="master-detail-caption">Dettaglio DDT:</div>
+                                                @(Html.DevExtreme().DataGrid<LoocERP.Models.DdtDettaglio>()
+                                                    .DataSource(d => d.Mvc()
+                                                        .Controller("sdi")
+                                                        .LoadAction("DdtDetails")
+                                                        .LoadParams(new { DdtId = new JS("data.Id") })
+                                                    )
+                                                    .ShowBorders(true)
+                                                    .Columns( columns => {
+                                                                columns.AddFor(m => m.Codice).Caption("Cod. articolo");
+                                                                columns.AddFor(m => m.Descrizione).Caption("Descrizione");
+                                                            }
+
+                                                    )
+                                                )
+
+                                            </text>)
+                            )
+
+                        )
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<!-- CREATE MODAL -->
+@{
+    Html.RenderPartial("modal_lista_ddt", @Model);
+}    
+</section>
+<style>
+    
+    #gridContainer .dx-datagrid-headers .dx-header-row {
+      /*  background-color: rgb(154 201 255 / 60%);*/
+    }
+       
+    #gridContainer .dx-header-row {
+        color: white;
+    }
+
+    #gridContainer .dx-datagrid-headers .dx-header-row {
+         background-color: #a9aaac 
+    }
+
+    #gridContainer .dx-datagrid-header-panel {
+        padding: 0;
+         /* background-color: rgb(154 201 255 / 60%); */
+        border-radius: 5px 5px 0px 0px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar {
+        margin: 0;
+        padding-right: 20px;
+        background-color: transparent;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-items-container {
+        height: 70px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-before .dx-toolbar-item:not(:first-child) {
+        background-color: rgba(103, 171, 255, 0.6);
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-toolbar-before .dx-toolbar-item:last-child {
+        padding-right: 10px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-selectbox {
+        margin: 17px 10px;
+    }
+
+    #gridContainer .dx-datagrid-header-panel .dx-button {
+        margin: 17px 0;
+    }
+
+    #gridContainer .informer {
+        height: 70px;
+        width: 130px;
+        text-align: center;
+        color: #fff;
+    }
+
+    #gridContainer .count {
+        padding-top: 15px;
+        line-height: 27px;
+        font-size: 28px;
+        margin: 0;
+        font-weight: normal;
+        font-family: "Helvetica Neue", "Segoe UI", Helvetica, Verdana, sans-serif;
+    }
+
+    .form-container {
+        padding: 20px;
+    }
+
+    }
+</style>
+@section Scripts{ 
+    <script>
+        var dataGrid;
+
+        function openModalDDT() {
+            $("#modal_lista_ddt").modal("show");
+        }
+        function refreshButtonClicked(e) {
+            $("#gridContainer").dxDataGrid("instance").refresh();
+        }        
+
+
+        $(document).ready(function () {
+
+            dataGrid = $("#DdtContainer").dxDataGrid("instance");
+
+            $("#btn-associaddt").on("click", function(){
+                var guidSelected = dataGrid.getSelectedRowKeys();
+                console.log(JSON.stringify(guidSelected));
+                var fattId = '@Model.fattura.Id';
+                var ids = JSON.stringify(guidSelected);
+                
+                $.ajax({
+                    type: "POST",
+                    data: { param : ids, fattID: fattId},
+                    dataType: 'JSON',
+                    url: "/sdi/associaDdt"
+
+                }).done(function(res){
+                    var type = res ? "success" : "error",
+                        text = res ? "Operazione completata correttamente!" : "Attenzione: si è verificato un errore!";
+                    $("#modal_lista_ddt").modal("hide");
+                    $("#gridContainer").dxDataGrid("instance").refresh();
+                    dataGrid.refresh();
+                    DevExpress.ui.notify( text, type, 6000);
+                });
+
+            })
+            
+        });
+
+    </script>
+}

@@ -1,0 +1,248 @@
+﻿@{
+    ViewData["Title"] = "Pianificazione cantiere";
+    ViewData["activePage"] = "Pianificazione cantiere";        
+    //DateTime WorkDate = @ViewBag.WorkDate.toString;        
+    DateTime wd = (ViewBag.WorkDate??DateTime.Now);
+    if(! DateTime.TryParse(ViewBag.WorkDate.ToString(), out wd)){ 
+        wd = DateTime.Now.Date;
+    }    
+    string dten = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year;
+    string dtenfull = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    string dtit = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year;
+    string dtitfull = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    ViewBag.dtenfull = @dten;        
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jquery-date-range-picker/daterangepicker.css">
+
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+<div>&nbsp</div>
+
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+    <div class="col-12">
+        <div class="row">                            
+            <div class="col-12" style="float-right">
+                <a class="btn btn-primary" asp-controller="RelTurnoUser" asp-action="Index" >Pianificazione per cantiere <i class="fa fa-eye"></i></a>                
+                <a class="btn btn-default" asp-controller="RelTurnoUserS" asp-action="Index" >Pianificazione per Risorsa <i class="fa fa-eye-slash"></i></a>                
+                <a class="btn btn-default" asp-controller="RelTurnoUser" asp-action="assignModalUserCantieri" >Aggiornamento Giornaliero Risorse <i class="fa fa-eye-slash"></i></a>
+            </div>                        
+        </div>
+    </div>
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-12">
+                        <form method="get" id="formreservation">
+                            <div class="form-group">
+                                <label>Seleziona la data di partenza <small>(saranno visualizzati tutti i turni dei cantieri attivi)</small></label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input id="reservation" value='@dtit' type="text" class="form-control">
+                                    <input id="reservationen" name="WorkDate" type="hidden" value='@dtenfull'>
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+                            <p class="col-12 p-0">
+
+                            </p>
+                        </form>
+                    </div>                    
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="table1" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Codice Commessa</th>
+                                    <th>Commessa</th>
+                                    <th>Codice Cantiere</th>
+                                    <th>Cantiere</th>
+                                    <th>Turno</th>
+                                    @*<th class="hide-search"><i class="fa fa-users"></i></th>*@
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+<div id="modal-print"></div>
+
+
+
+@section Scripts {
+    <!--Export stuff-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.16.0/moment.min.js" type="text/javascript"></script>
+    <script src="~/theme/plugins/jquery-date-range-picker/jquery.daterangepicker.js"></script>
+    <script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/js/bootstrap-select.min.js"></script>
+    <script src="~/theme/plugins/jquery-date-range-picker/jquery.daterangepicker.js"></script>
+    
+    <script>
+        var selectedTurno = "";
+        var leftTable;
+        var rightTable;
+        $(document).ready(function () {
+
+            //Date range as a button
+            $('#reservation').datepicker(
+                {
+                    format: "dd-mm-yyyy",
+                    //dateFormat: "dd-mm-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',                    
+                    changeMonth: true,
+                    changeYear: true,                    
+                    todayBtn: "linked",
+                    language: "it",
+                    autoclose: true,
+                    startDate: new Date(@wd.Day, @wd.Month, @wd.Year),
+                },
+            ).on('changeDate', function (e) {                                                
+                var year  = e.date.getFullYear();
+                var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                var day   = e.date.getDate().toString().padStart(2, "0");                
+                $('#reservationen').val(month+"-"+day+"-"+year);
+                $('#reservation').val(day+"-"+month+"-"+year);                
+                $('#formreservation').submit();
+            })
+            ;;
+            //$('#datetimepicker2').data("DateTimePicker").setda;
+            //$('#reservation').data('datetimepicker').setDate(new Date(@wd.Day, @wd.Month, @wd.Year));
+            //$('#reservation').data('datetimepicker').update();
+            //$("#reservation").data('DateTimePicker').setLocalDate(new Date(@wd.Year, @wd.Month, @wd.Day));
+
+            $('#table1 thead tr').clone(true).appendTo('#table1 thead');
+            $('#table1 thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var table = $('#table1').DataTable({
+                ajax: '/RelTurnoUser/ajaxProjectCantiereTurno?WorkDate=@dtenfull',
+                /*
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                */
+                columns: [
+                    { "data": "projectCode" },
+                    { "data": "projectName" },
+                    { "data": "cantiereCode" },
+                    { "data": "cantiereName" },
+                    { "data": "turnoName" },
+                    @*{ "data": "dipendentiAssegnati" },*@
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            //console.log(row);                            
+                            return '<button class="btn btn-primary btn-modal" onClick="openModal(\'' + row.turnoId + '\')"><i class="fa fa-calendar-check"></i></button >';
+                        }
+                    },
+                ],                
+                columnDefs: [
+                //    { width: '50px', targets: 0 },
+                    { width: '50px', targets: 0 },
+                    { width: '50px', targets: 2 }
+                ],
+                
+                language: {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                autoWidth: false,
+                responsive: true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+
+        function openModal(TurnoId) {
+            selectedTurno = TurnoId;
+            var url = '/RelTurnoUser/assignModalSelectCantiereUser?TurnoId=' + TurnoId +'&WorkDate=@dtenfull';
+            // AJAX request
+            $.ajax({
+                url: url, // + '&WorkDate=' + workDate,
+                //url: '/RelTurnoUser/assignModalSelectCantiereUser',
+                //type: 'get',
+                //data: { id: timesheet_id },
+                success: function (data) {
+                    //console.log(data);
+                    var empModal = $('#empModal');
+                    //empModal.find(".modal-header .modal-title").html(data.data.nomeOperatore);
+                    // Add response in Modal body
+                    if (empModal.length > 0) empModal.remove();
+                    $('#modal-print').html(data);
+                    empModal = $('#empModal');
+
+                    //initMap(data.data.nomeOperatore, data.data.latitude, data.data.longitude);
+                    // Display Modal
+                    empModal.modal('show');
+                }
+            });
+
+        }
+    </script>
+}
+
+@{
+    await Html.RenderPartialAsync("assignModalUserMansione");
+}

@@ -1,0 +1,352 @@
+﻿@model LoocERP.ViewModels.CreateCorsiViewModel
+
+@{
+    //Layout = "_LayoutEmpty";
+    ViewData["Title"] = "Corso "+@Model.Corso.Name+ " - Aggiornamento";
+
+}
+
+<style>
+    .list-group-inner{
+        border-left: 5px solid blue;
+    }
+    input.edit-input{
+        border: none;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+    span.select2-selection.select2-selection--single {
+        min-height: 40px;
+    }
+</style>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="Corsi" asp-action="Edit">
+        <div class="row">
+            <div class="col-12">                                
+                <!---------------------------------------------- general form elements------------------------ -->
+                <div class="row">
+
+                    <div class="col-12 col-sm-3">
+                        <div class="card col-12 p-0">
+                            <div class="card-body">
+                            <a class="btn-sm" href="/Corsi"><i class="fa fa-chevron-circle-left"></i> Torna a <b>Corsi</b></a>
+                            </div>
+                        </div>
+                        <div class="card col-12 p-0">
+                            <div class="card-body">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.Stato"></label>
+                                            <select asp-for="@Model.Corso.Stato" class="form-control">
+                                                <option value="1">Aperto</option>
+                                                <option value="2">In Corso</option>
+                                                <option value="0">Chiuso</option>
+                                            </select>
+                                            <span asp-validation-for="@Model.Corso.Stato" class="text-danger"></span>
+                                        </div>  
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.SpecializzazioneId"></label>
+                                            <select asp-for="@Model.Corso.SpecializzazioneId" class="form-control">
+                                                <option value="@Model.Corso.SpecializzazioneId">-</option>
+                                                @foreach (Specializzazione item in @Model.SpecializzazioneList)
+                                                {
+                                                    <option value=@item.ID dataSpecCodice=@item.Codice dataSpecDescription="@item.Descrizione">@item.Name</option>
+                                                }
+                                            </select>
+                                        </div>                              
+                            </div>
+                        </div>
+                        <div class="card card-top">
+                            <div class="card-body">
+                                <div class="row">                                    
+
+
+                                    <div class="col-sm-12 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.Description"></label>
+                                            <textarea asp-for="@Model.Corso.Description" class="form-control" placeholder="Descrizione Corso" ></textarea>
+                                            <span asp-validation-for="@Model.Corso.Description" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                </div> <!---ROW-->
+
+                            </div>
+                        </div>
+                        <!-- general form elements -->
+                        <div class="card card-primary">
+                            <div class="card-body">
+                                <div class="row">
+
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.StartDate"></label>
+                                            <input asp-for="@Model.Corso.StartDate" class="form-control" required />
+                                            <span asp-validation-for="@Model.Corso.StartDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.EndDate"></label>
+                                            <input asp-for="@Model.Corso.EndDate" class="form-control" required />
+                                            <span asp-validation-for="@Model.Corso.EndDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.ValidFrom"></label>
+                                            <input asp-for="@Model.Corso.ValidFrom" class="form-control" required />
+                                            <span asp-validation-for="@Model.Corso.ValidFrom" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.ValidTo"></label>
+                                            <input asp-for="@Model.Corso.ValidTo" class="form-control" required />
+                                            <span asp-validation-for="@Model.Corso.ValidTo" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.ReleasedFrom"></label>
+                                            <input asp-for="@Model.Corso.ReleasedFrom" class="form-control" placeholder="Rilasciato Da" />
+                                            <span asp-validation-for="@Model.Corso.ReleasedFrom" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.ReleasedAt"></label>
+                                            <input asp-for="@Model.Corso.ReleasedAt" class="form-control" required />
+                                            <span asp-validation-for="@Model.Corso.ReleasedAt" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+                                </div> <!--fine row-->                              
+                                
+                            </div> <!--fine card-body-->
+                            
+                        </div> <!--fine card-primary-->
+                        <div class="card text-right col-12 p-0">
+                            <div class="card-body">
+                                <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                                <input type="submit" value="Aggiorna Corso" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- general form elements -->
+                    <div class="col-12 col-sm-9">
+                        <div class="card col-12 p-0">
+                            <div class="card-body row">
+                                    <input type="hidden" asp-for="@Model.Corso.ID" />
+                                    <div class="col-2">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.Code"></label>
+                                            <input asp-for="@Model.Corso.Code" class="form-control" placeholder="Codice Corso" />
+                                            <span asp-validation-for="@Model.Corso.Code" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.Name">Titolo</label>
+                                            <input asp-for="@Model.Corso.Name" class="form-control" placeholder="Nome Corso" />
+                                            <span asp-validation-for="@Model.Corso.Name" class="text-danger"></span>
+                                        </div>
+                                    </div>                                   
+                                    
+                                    <div class="col-5">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Corso.Docente"></label>
+                                            <input asp-for="@Model.Corso.Docente" class="form-control" placeholder="Docente" />
+                                            <span asp-validation-for="@Model.Corso.Docente" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                            </div>
+                        </div>
+                        <div class="card card-primary" style="min-height: 1000px;">
+                            
+                            <div class="card-body">
+                                <div class="row">
+
+                                    <!--DIV LISTA UTENTI DEL CORSO-->
+
+                                    <div class="col-sm-12 col-12">
+                                        <div class="form-group">
+                                            <label>Lista Partecipanti</label>
+                                            <select class="js-data-example-ajax form-control">
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <ul class="col-12" id="intestazione">
+                                        <li class="list-group-item">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend row col-12">
+                                                    <span class="col-1 bold text-center"><b></b></span>
+                                                    <span class="col-6 bold"><b>Partecipante</b></span>
+                                                    <span class="col-2 bold text-center"><b>Voto</b></span>
+                                                    <span class="col-2 bold text-center"><b>Promosso</b></span>
+                                                    <span class="col-1 bold text-center"><b>Elimina</b></span>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                    <ul class="col-12" id="user-list">
+                                        @foreach (var item in Model.RelSpecializzazioneUserList)
+                                        {
+                                            <li class="list-group-item list-group-inner row-element-@item.Id">
+
+                                                <div class="input-group-prepend row col-12">
+                                                    <span class="" dataid="@item.Id" style="display: none">@item.Id</span>
+                                                    <a class="col-1" target="_blank" href="/Users/Edit?id=@item.UserId&isEmployee=@item.User.isEmployee"><i class="nav-icon fa fa-user"></i></a>
+                                                    <span class="col-6" dataid="@item.Id">@item.User.FirstName @item.User.LastName</span>
+                                                    <input type="number" min=0 max=100 class="edit-input col-2" datatype="Vote" dataid="@item.Id" dataprev="@item.Vote" value="@item.Vote" onchange='ChangeElement(this)' />
+                                                    <input type="checkbox" class="edit-input col-2" datatype="isPromosso" dataid="@item.Id" dataprev="@item.isPromosso" checked="@item.isPromosso" onchange='ChangeElement(this)' />
+                                                    <a class="col-1" onclick="DeleteRow('@item.Id')"><i class="nav-icon fa fa-trash"></i></a>                                                    
+                                                </div>
+
+                                            </li>
+                                        }
+                                    </ul>
+
+
+                                </div> <!--fine row-->
+                            </div> <!--fine card-body-->
+                        </div> <!--fine card-primary-->
+                    </div>
+
+                </div>
+
+
+                </div>
+            </div>
+
+    </form>
+</section>
+
+
+@section Scripts {
+    <script>
+
+        // $(".edit-input").on('change', function postinput(e) {
+        function ChangeElement(e) {
+            console.log(e);
+            var Id = e.getAttribute('dataid');
+            var datatype = e.getAttribute('datatype');
+            var dataprev = e.getAttribute('dataprev');
+            var value = e.value;
+
+            console.log("tipo: " + e.type);
+            console.log("Id: " + Id);
+            console.log(datatype + ": " + value);
+            console.log(e.checked);
+
+            if (e.type == "checkbox") {
+                value = e.checked
+            }
+
+            $.ajax({
+                type: "GET",
+                url: "/Corsi/ajaxEditPartecipanti",
+                data: "IdRelSpecUser=" + Id + "&" + datatype + "=" + value,
+                success: function (data) {
+                    e.className += ' alert-success';
+                    e.setAttribute('dataprev', e.value);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log(textStatus);
+                    console.log(errorThrown);
+                    e.className += ' alert-danger';
+                    e.value = dataprev;
+                }
+            });
+        }
+
+        function DeleteRow(id) {
+            $.ajax({
+                type: "GET",
+                url: "/Corsi/ajaxDeletePartecipante",
+                data: "id=" + id,
+                success: function (data) {
+                    console.log("data: " + data);
+                    console.log("dataid: " + id);
+                    $(".row-element-" + id).remove();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("error");
+                    $('.row-element-' + id).className += ' alert-danger';
+                }
+            });
+
+        }
+
+
+        $(document).ready(function () {
+
+            $('.js-data-example-ajax').select2({
+                placeholder: "Seleziona i partecipanti",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Users/ajaxUsersSelect2',
+                    dataType: 'json',
+                    data: function (params) {
+                        var query = {
+                            search: params.term
+                        }
+                        // Query parameters will be ?search=[term]&type=public
+                        return query;
+                    }
+                },
+            });
+
+            $('.js-data-example-ajax').on('select2:select', function (e) {
+                var data = e.params.data;
+                console.log("DATA: " + data);
+                //console.log("Corso id: " + modelIdCorso.value);
+                console.log("id spec: " + Corso_SpecializzazioneId.value);
+                console.log("nome spec: " + Corso_SpecializzazioneId.options[Corso_SpecializzazioneId.selectedIndex].text);
+                console.log("Utente id: " + data.id);
+                console.log("dataSpecCodice: " + Corso_SpecializzazioneId.options[Corso_SpecializzazioneId.selectedIndex].getAttribute('dataSpecCodice'));
+
+                $.ajax({
+                    type: "GET",
+                    url: "/Corsi/ajaxAddPartecipanti",
+                    data: "IdSpec=" + Corso_SpecializzazioneId.value + "&NomeSpec=" + Corso_SpecializzazioneId.options[Corso_SpecializzazioneId.selectedIndex].text + "&DescrSpec" + Corso_SpecializzazioneId.options[Corso_SpecializzazioneId.selectedIndex].getAttribute('dataSpecDescription') + "&CodSpec=" + Corso_SpecializzazioneId.options[Corso_SpecializzazioneId.selectedIndex].getAttribute('dataSpecCodice') + "&IdCorso=@Model.Corso.ID" + "&IdUser=" + data.id,
+                    success: function (data1) {
+                        console.log(data1);
+                        e.target.className += ' alert-success';
+                        e.target.setAttribute('dataprev', e.target.value);
+                        $('#user-list').append("<li class='list-group-item list-group-inner row-element-" + data1.data.result + "'><div class='input-group-prepend  row col-12'>" +
+                            "<span class='' dataid=" + data1.data.result + " style='display: none'>" + data1.data.result + "</span>" +
+                            "<a class='col-1' target='_blank' href='/Users/Edit?id=" + data1.data.result1 + "&isEmployee='><i class='nav-icon fa fa-user'></i></a>" +
+                            "<span class='col-6' dataid=" + data1.data.result + ">" + e.params.data.text + "</span>" +
+                            "<input type='number' min=0 max=100 class='edit-input col-2' datatype='Vote' dataid=" + data1.data.result + " dataprev='0' onchange='ChangeElement(this)'></span>" +
+                            "<input type='checkbox' class='edit-input col-2' datatype='isPromosso' dataid=" + data1.data.result + " dataprev='0'  onchange='ChangeElement(this)' />" +
+                            "<a class='col-1' onclick=DeleteRow('" + data1.data.result + "')><i class='nav-icon fa fa-trash'></i></a>" +
+                            "</div></li>");
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }
+                });
+
+
+            });
+
+
+        });
+
+    </script>
+}

@@ -1,0 +1,211 @@
+﻿@{ List<Mansione> Mansioni = ViewData["Mansioni"] as List<Mansione>; }
+@{ List<Rel_FabbisognoMansione> FabbisognoMansione = ViewData["FabbisognoMansione"] as List<Rel_FabbisognoMansione>; }
+
+@{
+    ViewData["Title"] = "Turno";
+    ViewData["activePage"] = "Turno";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        
+                        <button type="button" id="btn-add-fabbisogno-sicurezza" class="btn btn-primary" onclick="CloneRow()"><i class="fa fa-plus"></i></button>
+                        @*
+                        <span><b>Regole: </b></span>
+                        @if (FabbisognoMansione.Count() > 0)
+                        {
+                            <div class="col-12"><b><span>@FabbisognoMansione.Count()</span></b> regole settate</div>
+                        }
+                        *@
+                        <div class="col-12"><b><span id="counter-fabbisogno">0</span></b> Nuove regole</div>
+                        <div class="d-none">
+                            <!-- campo nascosto da clonare -->
+                            <select id="mansioni-list">
+                                <option value="">Seleziona ...</option>
+                                @foreach (var m in Mansioni)
+                                {
+                                    <option value="@m.ID">@m.Descrizione</option>
+                                }
+                            </select>
+                        </div>
+                        <table class="dataTable">
+                            <tbody id="table_mansioni_used">
+                                @{ var index = 0;}
+                                @foreach (var c in FabbisognoMansione)
+                                {
+                                    <tr id="@c.Id">
+                                        <td>
+                                            <input type="hidden" value="@ViewBag.IdCantiere" name="FabbisognoMansione[@index].CantiereId" disabled />
+                                            <input type="hidden" value="@c.Id" name="FabbisognoMansione[@index].Id" required />
+                                            <select class="form-control" name="FabbisognoMansione[@index].SpecializzazioneId" disabled>
+                                                @foreach (var m in Mansioni)
+                                                {
+                                                    @if (c.MansioneId.ToString().ToLower() == m.ID.ToString().ToLower())
+                                                    {
+                                                        <option value="@m.ID" selected>@m.Descrizione</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@m.ID">@m.Descrizione</option>
+                                                    }
+                                                }
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <input type='number' min="0" class='form-control' placeholder='Numero di persone necessarie' name="FabbisognoMansione[@index].Quantita" value="@c.Quantita" disabled />
+                                        </td>
+                                    </tr>
+                                    { index = index + 1; }
+                                }
+                            </tbody>
+                        </table>
+                        <form asp-controller="RelFabbisognoMansione" asp-action="assignFabbisognoMansione">
+                            <input type="hidden" value="@ViewBag.IdCantiere" name="cantiereId" required />
+                            <input type="hidden" id="mansione_turnoId" name="turnoId" required />
+                            <table id="fabbisogno" class="dataTable">
+                                <tbody>
+                                </tbody>
+
+                            </table>
+                            <input type="submit" class="btn btn-primary" value="Salva" />
+                        </form>
+                        <br>
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+<script>
+
+    function loadFabMansione() {
+        $("#mansione_turnoId").val(selectedTurno.id);
+        $.get('/RelFabbisognoMansione/getSpecTurno?turnoid=' + selectedTurno.id, function (res) {
+            $("#table_mansioni_used").empty();
+
+            var cantiere = [];
+            var k = 0;
+
+
+
+            for (var k = 0; k < res.specializzazioni.length; k++) {
+                cantiere = res.specializzazioni[k];
+                console.log(cantiere);
+                var add = '<tr id="id">'
+                                +'<td>'
+                                    + '<input type="hidden" value="@ViewBag.IdCantiere" name="FabbisognoMansione['+k+'].CantiereId" required />'
+                                    + '<input type="hidden" value="' + cantiere.id +'" name="FabbisognoMansione[' + k +'].Id" required />'
+                                    + '<select class="form-control" name="FabbisognoMansione[' + k + '].SpecializzazioneId" required disabled>'
+                                    + '<option value="' + cantiere.id + '" selected>' + cantiere.descrizione + '</option>'
+                                    + '</select>'
+                                    + '</td>'
+                    + '<td>'
+                    + '<input type="number" min="0" class="form-control" placeholder="Numero di persone necessarie" name="FabbisognoMansione[' + k + '].Quantita" value="' + cantiere.quantita + '" required disabled />'
+                    + '</td>'
+
+                    /*
+                    + '<td>'
+                    + '<i class="fa fa-trash" aria-hidden="true" id="delete_mansione"></i>'
+                    + '</td>'
+                    */
+                    + '</tr>';
+                $("#table_mansioni_used").append(add);
+            }
+
+
+
+
+
+
+        })
+
+
+    }
+
+
+
+    function deleteMansione(man) {
+
+    }
+
+    function CloneRow() {
+        var guid = createGuid();
+
+        var table = document.getElementById("fabbisogno");
+        var c = document.getElementById("counter-fabbisogno");
+        var counter = Number(c.innerHTML);
+        if (c.innerHTML == null || c.innerHTML == undefined || c.innerHTML == "") counter = 0
+        var row = table.insertRow(0);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var timestamp = Date.now(); //serve per avere unicità della riga
+        var cantiere = '<input type="hidden" value="@ViewBag.IdCantiere" name="FabbisognoMansione['+counter+'].CantiereId" required />';
+        var idRow = '<input type="hidden" value="' + guid + '" name="FabbisognoMansione[' + counter +'].Id" required />';
+        row.id = timestamp;
+        var mansioni =
+            '<select class="form-control" name="FabbisognoMansione[' + counter +'].MansioneId" required>' +
+                document.getElementById("mansioni-list").innerHTML +
+            '</select>';
+
+        cell1.innerHTML = cantiere + idRow + mansioni;
+        cell2.innerHTML = '<input min="1" type="number" value="1" class="form-control" name="FabbisognoMansione[' + counter +'].Quantita" placeholder="Numero di persone necessarie" required />';
+        //cell3.innerHTML = "<a onclick='DeleteFunction(" + timestamp + ")'><i class='fa fa-minus'></i></a>";
+
+        counter++;
+        c.innerHTML = counter;
+    }
+    function DeleteRow() {
+        var c = document.getElementById("counter-fabbisogno");
+        var counter = Number(c.innerHTML);
+        if (c.innerHTML == null || c.innerHTML == undefined || c.innerHTML == "") counter = 0
+        if (counter > 0) {
+            document.getElementById("fabbisogno").deleteRow(0);
+            counter--;
+        }
+        c.innerHTML = counter;
+    }
+
+    $(document).ready(function () {
+        /*
+        $('#mansioni-list').select2({
+            ajax: {
+                url: '/Mansione/ajaxIndex?type=select2',
+                dataType: 'json',
+                // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                data: function (params) {
+                    var query = {
+                        search: params.term,
+                        type: 'public'
+                    }
+                    // Query parameters will be ?search=[term]&type=public
+                    $("#btn-add-fabbisogno").removeClass("d-none");
+                    return query;
+                },
+            }
+        });
+        */
+    });
+</script>

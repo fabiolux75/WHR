@@ -1,0 +1,19 @@
+﻿<div class="card card-primary">
+    <div class="tab" style="border:0" id="tabs_list">
+        <button class="tablinks active" onclick="reloadTable(this,@((int)StatoRequest.bozza))"><i class="fab fa-firstdraft"></i> Bozze</button>
+        <button class="tablinks" onclick="reloadTable(this,@((int)StatoRequest.inviata))"><i class="fas fa-paper-plane"></i>    Richieste inviate</button>
+        <button class="tablinks" onclick="reloadTable(this,@((int)StatoRequest.inCarico))"><i class="far fa-hand-pointer"></i>    Richieste prese in carico</button>
+        <button class="tablinks" onclick="reloadTable(this,@((int)StatoRequest.completata))"><i class="fas fa-check"></i>    Richieste completate</button>
+    </div>
+    <div class="card-body">
+        <div class="tab-content">
+            @{
+                await Html.RenderPartialAsync("Index/List/_index_list", StatoRequest.bozza);
+            }
+        </div>
+    </div>
+</div>
+
+<script>
+    
+</script>

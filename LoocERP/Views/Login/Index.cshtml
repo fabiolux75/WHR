@@ -1,0 +1,143 @@
+﻿@model LoocERP.ViewModels.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Looc | Log in</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/theme/plugins/fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- icheck bootstrap -->
+    <link rel="stylesheet" href="~/theme/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/theme/dist/css/adminlte.min.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+</head>
+<body class="hold-transition login-page">
+    <div class="gray-container"></div>
+    <div class="login-box">        
+        <!-- /.login-logo -->
+        <div class="card" style="background: transparent">
+            <div class="card-body login-card-body" style="background: rgba(240,240,240,0.8);">
+                <!--p class="login-box-msg">@ViewData["loginText"]</p-->
+
+                @if (ViewData["error"] != null)
+                {
+                    <div class="col-md-12">
+                        <div class="card bg-gradient-danger">
+                            <div class="card-header">
+                                <h3 class="card-title">@ViewData["errorTitle"]</h3>
+                            </div>
+                            <div class="card-body">
+                                @ViewData["error"]
+                            </div>
+                            <!-- /.card-body -->
+                        </div>
+                        <!-- /.card -->
+                    </div>
+                }
+                <div class="col-xs-12 text-center p-5">
+                    <img style="background:white; padding: 10px;max-width:200px;" src="@ViewBag.logo" />
+                </div>
+
+                <form method="post">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Username" asp-for="Email">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Password" asp-for="Password">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3" hidden>
+                        <input type="text" class="form-control" placeholder="Password" asp-for="ReturnUrl">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-8">
+                            @*
+                    <div class="icheck-primary">
+                        <input type="checkbox" asp-for="RememberMe">
+                        <label for="remember">
+                            @ViewData["rememberMe"]
+                        </label>
+                    </div>
+                            *@
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-4">
+                            <button type="submit" class="btn btn-primary btn-block">@ViewData["logInButton"]</button>
+                        </div>
+                        <!-- /.col -->
+                    </div>
+                </form>
+
+                <!--
+    <p class="mb-1">
+        <a asp-action="forgot">@ViewData["loginForgotText"]</a>
+    </p>
+    -->
+
+
+</div>
+
+            </div>
+            <!-- /.login-card-body -->
+
+        </div>
+        <!--div class="card-body login-card-body">
+            <center>
+                <a asp-action="language" asp-route-lang="it-IT">
+                    <img src="~/theme/images/icon_IT.png">
+                </a>
+                <a asp-action="language" asp-route-lang="en-US">
+                    <img src="~/theme/images/icon_EN.png">
+                </a>
+            </center>
+        </div-->
+    </div>
+    <!-- /.login-box -->
+    <!-- jQuery -->
+    <script src="~/theme/plugins/jquery/jquery.min.js"></script>
+    <!-- Bootstrap 4 -->
+    <script src="~/theme/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/theme/dist/js/adminlte.min.js"></script>
+    <style>
+        .login-page {
+            background: url(@ViewBag.banner) no-repeat fixed center center;
+            background-size: cover;
+        }
+        .gray-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: rgba(3,3,3,0.2);
+        }
+    </style>
+</body>
+</html>

@@ -1,0 +1,474 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+
+@model List<TimeSheet>
+@{
+    ViewData["Title"] = "Assegnazione mezzo a cantiere";
+    ViewData["activePage"] = "Vector Page";
+
+    DateTime today = DateTime.Now.Date;
+    string todaystring = @today.Year + "-" + @today.Month.ToString("0#") + "-" + @today.Day.ToString("0#");
+    /*
+    DateTime wd = DateTime.Now;
+    if (!DateTime.TryParse(wd.ToString(), out wd))
+    {
+        wd = DateTime.Now.Date;
+    }
+    string dten = @wd.Month.ToString("0#") + "-" + @wd.Day.ToString("0#") + "-" + @wd.Year;
+    string dtenfull = @wd.Month.ToString("0#") + "-" + @wd.Day.ToString("0#") + "-" + @wd.Year + " 00:00:00";
+    string dtit = @wd.Day.ToString("0#") + "-" + @wd.Month.ToString("0#") + "-" + @wd.Year;
+    string dtitfull = @wd.Day.ToString("0#") + "-" + @wd.Month.ToString("0#") + "-" + @wd.Year + " 00:00:00";
+    ViewBag.dtenfull = @dten;
+    */
+}
+<div>&nbsp;</div>
+<section class="content">
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="form-group">
+                    <label>Assegnazione in data:</label>
+                    <div class="col-xs-12">
+                        <div class="input-group">
+                            <div class="form-group col-3">
+                                <input type="date" value="@todaystring" id="dateSearch" data-date="" data-date-format="DD-MM-YYYY" class="form-control" name="EndDate" placeholder="Data di consegna" onchange="reloadTable()" required>
+                            </div>
+                        </div>
+                        @if ((await AuthorizationService.AuthorizeAsync(User, "Parking.Create")).Succeeded)
+                        {
+                            <button onclick="openModalCreate()" class="btn btn-primary">Aggiungi Parcheggio</button>
+                        }
+
+                    </div>
+                    <!-- /.input group -->
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="vettori" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nome</th>
+                                    <th>Coordinate</th>
+                                    <th>N* vettori nel garage</th>
+                                    @if ((await AuthorizationService.AuthorizeAsync(User, "Parking.Edit")).Succeeded)
+                                    {
+                                        <th class="hide-search"></th>
+                                    }
+                                    
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+
+
+<div class="modal-body"></div>
+
+
+
+<div class="modal fade" id="empModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="insertParcheggio">
+                    <label>Nome parcheggio*</label>
+                    <input type="text" class="form-control" name="name" placeholder="Nome parcheggio" required>
+                    <label>Coordinate</label>
+                    <input type="text" class="form-control" name="coordinate" placeholder="Coordinate">
+
+
+
+
+                    <button type="submit" class="btn btn-primary">Aggiungi parcheggio</button>
+
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="addCarModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignVettoreParcheggioForm">
+                    <input class="parkId" type="hidden" name="parkId" />
+                    <div class="form-group">
+                        <label>Vettura da assegnare*</label><br>
+                        <select style="width:100%" name="CodiceVettore" class="select2-parcheggiovettore form-control" required></select>
+                        <small class="form-text text-muted">Inserisci la targa e seleziona il vettore da selezionale</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Data di consegna*</label>
+                        <input type="date" value="@todaystring" data-date="" data-date-format="DD-MM-YYYY" class="form-control" name="workDate" placeholder="Data di consegna" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .list-group-inner {
+        border-left: 5px solid blue;
+    }
+
+    input.edit-input {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+
+    span.select2-selection.select2-selection--single {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    span.select2-selection.select2-selection--default {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    span.select2-selection {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    .targa {
+        color: black;
+        font-weight: bold;
+        border-bottom: 2px solid #3846d9;
+        padding: 0px 2px;
+        //border-radius: 5px;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        function format(d) {
+            var newLine = '<div class="col-12"><div class="col-4"><table id="row_info_' + d.id + '" class="table table-bordered table-hover"><thead><tr><th>Targa</th><th>Data Consegna</th></tr>';
+
+
+            for (var k = 0; k < d.vettori.length; k++) {
+                newLine += '<tr>' +
+                    '<td>' + d.vettori[k].targa + '</td>' +
+                    '<td>' + d.vettori[k].workDate + '</td>' +
+                    '</tr>';
+            }
+
+            newLine += '</thead><tbody></tbody></table></div></div>';
+
+            return newLine;
+
+        }
+
+        function openModalCreate() {
+            var empModal = $('#empModal');
+            empModal.modal('show');
+        }
+        function openModalAdd(parkid) {
+            var empModal = $('#addCarModal');
+            empModal.find(".parkId").val(parkid);
+            empModal.modal('show');
+        }
+
+        function reloadTable() {
+
+            var date = $("#dateSearch").val();
+
+
+            var url = "/Vettore/ajaxCantiereParcheggio?startTime=" + date;
+            $('#vettori').DataTable().clear();
+            $('#vettori').DataTable().destroy();
+            $('#vettori thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            table = $('#vettori').DataTable({
+                ajax: url,
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "name" },
+                    { "data": "coordinates" },
+                    {
+                        "className": 'details-control',
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent": '',
+                        "name": "cc",
+                        "render": function (data, type, row) {
+                            return row.vettori.length;
+                        }
+                    },
+                    {
+                         @if (!(await AuthorizationService.AuthorizeAsync(User, "Parking.Edit")).Succeeded)
+                         {
+                             @Html.Raw(@"""visible"": false, ")
+                         }
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent": '',
+                        "name": "cc",
+                        "render": function (data, type, row) {
+                            return '<a onclick="openModalAdd(\'' + row.id + '\')"><i class="fa fa-plus"></i><i class="fa fa-car"></i></a>';
+                        }
+                    },
+
+
+
+                    {
+                        "className": 'details-control',
+                        "orderable": false,
+                        "data": null,
+                        "defaultContent": '',
+                        "name": "cc",
+                        "render": function (data, type, row) {
+                            if (row.vettori.length > 0)
+                                return '<a><i class="fa fa-eye"></i></a>';
+                            return "";
+                        }
+                    },
+                ],
+                columnDefs: [
+                    //{ width: '50px', targets: 0 },
+                    //  { width: '60px', targets: 5 },
+                    //  { targets: 2,render: $.fn.dataTable.render.moment('Do MMM YYYY') }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                initComplete: function () {
+                    // Apply the search
+                    this.api().columns().every(function () {
+                        var that = this;
+                        $('input', this.header()).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that
+                                    .search(this.value)
+                                    .draw();
+                            }
+                        });
+                    });
+                },
+                "paging": true,
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+
+            table.off('click', 'td.details-control');
+            table.on('click', 'td.details-control', function () {
+                var tr = $(this).closest('tr');
+                var row = table.row(tr);
+
+                console.log(row.data());
+                console.log(row.data().vettori.length);
+
+                if (row.data().vettori.length > 0) {
+                    if (row.child.isShown()) {
+                        row.child.hide();
+                        tr.removeClass('shown');
+                    }
+                    else {
+                        // Open this row
+                        row.child(format(row.data())).show();
+                        tr.addClass('shown');
+                    }
+                }
+
+
+            });
+
+
+        }
+
+
+
+        $(document).ready(function () {
+            $('.select2-uservettore').select2({
+                placeholder: "Inserisci la targa",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Vettore/ajaxVettoreCantiere',
+                    dataType: 'json',
+                },
+            });
+
+            $('.select2-parcheggiovettore').select2({
+                placeholder: "Inserisci la targa",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Vettore/ajaxVettoreUser',
+                    dataType: 'json',
+                },
+            });
+
+
+            $('#insertParcheggio').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+
+
+
+                console.log(data);
+
+
+
+
+                $.ajax({
+                    url: '/Vettore/ajaxInsertParcheggio',
+                    type: 'post',
+                    data: { name: data['name'], coordinate: data['coordinate'] },
+                    success: function (data) {
+                        console.log(data.data);
+
+                        $('#empModal').modal('hide');
+
+                        reloadTable();
+                    }
+                });
+            });
+            $('#vettori thead tr').clone(true).appendTo('#vettori thead');
+            $('#vettori thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            reloadTable();
+
+
+            $('#assignVettoreParcheggioForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+
+
+                console.log(data);
+
+                $.ajax({
+                    url: '/Vettore/ajaxVettoreParcheggioAssign',
+                    type: 'post',
+                    data: { parkId: data['parkId'], CodiceVettore: data['CodiceVettore'], workDate: data['workDate'] },
+                    success: function (data) {
+                        console.log(data.data);
+
+                        // Add response in Modal body
+                        //Svuoto modale
+                        var empModal = $('#addCarModal');
+                        empModal.find(".modal-header .modal-title").html("");//.html(data.data.nomeOperatore);
+                        $(".select2-uservettore").select2("val", ""); //svuoto valore selezionato
+                        $('#addCarModal').modal('hide');
+
+                        reloadTable();
+                    }
+                });
+
+            });
+
+
+        });
+
+
+    </script>
+
+}

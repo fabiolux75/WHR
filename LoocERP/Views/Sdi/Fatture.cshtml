@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"] = "Fatture ricevute";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+
+<section class="content">
+
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="fatture" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data ricezione</th>
+                                    <th>Data Fattura</th>
+                                    <th>Mittente</th>
+                                    <th class="dt-body-right">Totale Fattura</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            var table = $('#fatture').DataTable({
+               
+                processing: true,
+                serverSide: true,
+                filter: true,
+                searching: { regex: true },
+                ajax: {
+                    "url" : "/api/fattureapi/fatturedue",
+                    "type": "POST",
+                    "dataType": 'json', 
+                    "contentType": "application/json",
+                    "data": function (d) {
+                        return JSON.stringify(d);
+                    }
+                },
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+
+                    { "data": "dataCreazione",
+                        render: function (data, type, row) {
+                            // If display or filter data is requested, format the date
+                                if (type === "display" || type === "filter") {
+                                    return moment(data).format("DD/MM/YYYY HH:mm:ss");
+                                }
+                                // Otherwise the data type requested (`type`) is type detection or
+                                // sorting data, for which we want to use the raw date value, so just return
+                                // that, unaltered
+                                return data;                            
+                        }
+                     },
+                    { "data": "dataDoc",
+                        render: function (data, type, row) {
+                            // If display or filter data is requested, format the date
+                                if (type === "display" || type === "filter") {
+                                    return moment(data).format("DD/MM/YYYY");
+                                }
+                                // Otherwise the data type requested (`type`) is type detection or
+                                // sorting data, for which we want to use the raw date value, so just return
+                                // that, unaltered
+                                return data;                            
+                        }
+                     },
+                    { "data": "companyName" },
+                    { "data": "importo",
+                        render: $.fn.dataTable.render.number( '.', ',', 2,'€ ' ),
+                        className: "text-right"
+                    },
+                    { data: "id",
+                        "orderable": false,
+                        "searchable": false,
+                        "render": function (data,row) { 
+                            
+                            var url = "/api/FattureApi/download?id="+data;
+                            return "<a href='"+url+"' ><i class='far fa-file-code fa-2x' data-toggle='tooltip' data-placement='top' title='Scarica file XML'></i></a><a href='#'><i class='fas fa-file-pdf red fa-2x ml-2' data-toggle='tooltip' data-placement='top' title='Scarica file XML'></i></a>";   
+                            } 
+                    },
+                   
+
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+}

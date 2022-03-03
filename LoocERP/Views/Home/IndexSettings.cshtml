@@ -1,0 +1,91 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+ViewData["Title"] = "Home";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+<!--
+<div class="col">
+    <button id="add-row">Add Blank Row to bottom</button>
+    <button id="del-row">Remove Row "Oli Bob"</button>
+    <button id="clear">Empty the table</button>
+    <button id="reset">Reset</button>
+</div>
+-->
+
+<section class="content-header">
+    <div class="container-fluid">
+        
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Roles" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-user-cog"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Gestione Permessi</span>
+                        <small class="info-box-number">Crea e aggiungi nuovi permessi</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Users" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Gestione Utenti</span>
+                        <small class="info-box-number">Crea e aggiungi </small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="RemoteSetup" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-mobile-alt"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Gestione RemoteSetup</span>
+                        <small class="info-box-number">Gestisce le approvazioni mobile</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="LogAuditHr" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-list"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Lista Log</span>
+                        <small class="info-box-number">
+                            Gestione Log Accessi
+                        </small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+    </div>
+    
+</section>

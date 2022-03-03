@@ -1,0 +1,323 @@
+@{
+    ViewData["Title"] = "DDT emessi";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+
+<section class="content">
+
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <form method="get" id="formreservation">
+
+                        <div class="row m-0">
+                            <div class="form-group col-4">
+                                <label>Data DDT - Da:</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input id="reservation" value='' type="text" class="form-control" >
+                                    <input id="reservationen" name="startDate" type="hidden" value=''>
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+
+                            <div class="form-group col-4">
+                                <label>Data DDT - A:</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input id="reservationend" value='' type="text" class="form-control" >
+                                    <input id="reservationenden" name="endDate" type="hidden" value=''>
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+                            <div class="col-4 align-self-center">
+                                <div class="mt-3">
+                                    <a href="#" class="btn btn-success btn-sm text-bold"  id="btnFilter"><span><i class="fas fa-search mr-2"></i>Cerca</span> </a>
+                                    <a href="#" class="btn btn-info btn-sm ml-2 text-bold disabled"  id="btnExport"><span><i class="fas fa-file-download mr-2"></i>Esporta</span> </a>
+                                    <a href="#" class="btn btn-secondary btn-sm ml-2 text-bold"  id="btnClear"><span><i class="fas fa-calendar-times mr-2"></i>Azzera date</span> </a>
+                                    <a href="/ddt/ExportMagazzinoDatev" id="btnExpMag" class="btn btn-default btn-sm ml-2 text-bold waves-effect waves-light"><span><i class="fas fa-retweet mr-2"></i>Export Mag/Datev</span> </a>                                    
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                        <div class="row m-0">
+                            <div class="form-group col-2">
+                            <div class="input-group">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="" id="ddtExport" name="ddtExport">
+                                    <label class="form-check-label" for="ddtExport"><i>Solo DDT non esportati</i></label>
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="fatture" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="d-none">ID</th>
+                                    <th>Data</th>
+                                    <th>Numero</th>
+                                    <th>Mittente</th>
+                                    <th>Tipologia</th>
+                                    <th >Destinatario</th>
+                                    <th class="text-right">Data ultima esportazione </th> 
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+
+            table = $('#fatture').DataTable({
+               
+                select: {
+                   style: 'multi'
+                },
+                order: [[ 2, "asc" ]],
+                processing: true,
+                serverSide: true,
+                filter: true,
+                searching: { regex: true },
+                ajax: {
+                    "url" : "/api/ddt/in",
+                    "type": "POST",
+                    "dataType": 'json', 
+                    "contentType": "application/json",
+                    "data": function (d) {
+                        var startDate = $('#reservationen').val();
+                        var endDate = $('#reservationenden').val();
+                        var ddtExp = $('#ddtExport').is(':checked') ? "1" : "0";
+
+                        
+                        d.AdditionalValues = new Array;
+                        if ((startDate.length !==0) && (endDate.length !==0)) {
+                            d.AdditionalValues[0] = startDate;
+                            d.AdditionalValues[1] = endDate;
+                        }
+                        d.AdditionalValues[2] = ddtExp;
+
+                        return JSON.stringify(d);
+                    }
+                },
+                dom: 'frtip',//dom: 'Bftp',
+                /*buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],*/
+                "columns": [
+                    { "data": "id", "autoWidth": true, "visible":false },
+                    { "data": "dataDDT", "autoWidth": true,
+                        render: function (data, type, row) {
+                            // If display or filter data is requested, format the date
+                                if (type === "display" || type === "filter") {
+                                    return moment(data).format("DD/MM/YYYY");
+                                }
+                                // Otherwise the data type requested (`type`) is type detection or
+                                // sorting data, for which we want to use the raw date value, so just return
+                                // that, unaltered
+                                return data;                            
+                        }
+                     },
+                    { "data": "numeroProgressivoDocumento", "autoWidth": true},
+                    { "data": "mittente.ragioneSociale", "autoWidth": true },
+                    { "data": "suffisso", 
+                      "autoWidth": true,
+                       render : function (data, type ,row) {
+                           if (data == null) return '-';
+                           if (data == 'S') return " DDT di scarico";
+                           if (data == 'T') return " DDT di trasferimento";
+                       }
+                    },
+                    
+                    { "data": "nomeDestinatario", "autoWidth": true, 
+                        render: function(data, type, row) {
+                            if (data == null) return "-";
+                            return data;
+                            }
+                        },
+                    { "data": "dataExpDatev", "autoWidth": true, className: "text-right",
+                              render: function (data, type, row) {
+                            // If display or filter data is requested, format the date
+                                if (data == null) return "-";
+                                if (type === "display" || type === "filter") {
+                                    return moment(data).format("DD/MM/YYYY - HH:mm:ss");
+                                }
+                                return data;                            
+                        }
+                     },
+                    
+                   
+
+                ],
+                language: {
+                            url: "https://cdn.datatables.net/plug-ins/1.10.25/i18n/Italian.json"
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+
+            $('#btnFilter').click(function () {  
+                     table.draw();
+
+            });
+
+            //Date range as a button
+            $('#reservation').datepicker(
+                {
+                    format: "dd-mm-yyyy",
+                    //dateFormat: "dd-mm-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',
+                    changeMonth: true,
+                    changeYear: true,
+                    todayBtn: "linked",
+                    language: "it",
+                    autoclose: true,
+
+                },
+            ).on('changeDate', function (e) {
+
+                if (e.date != null) {
+
+                    var year  = e.date.getFullYear();
+                    var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                    var day   = e.date.getDate().toString().padStart(2, "0");
+                    $('#reservationen').val(month+"-"+day+"-"+year);
+                    $('#reservation').val(day+"-"+month+"-"+year);
+
+                    var minDate = new Date(e.date.valueOf());
+                    $('#reservationend').datepicker('setStartDate', minDate);
+                }
+            });
+
+            //Date range as a button
+            $('#reservationend').datepicker(
+                {
+                    format: "dd-mm-yyyy",
+                    //dateFormat: "dd-mm-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',
+                    changeMonth: true,
+                    changeYear: true,
+                    todayBtn: "linked",
+                    language: "it",
+                    autoclose: true,
+
+                },
+            ).on('changeDate', function (e) {
+                if (e.date != null) {
+                    var year  = e.date.getFullYear();
+                    var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                    var day   = e.date.getDate().toString().padStart(2, "0");
+                    $('#reservationenden').val(month+"-"+day+"-"+year);
+                    $('#reservationend').val(day+"-"+month+"-"+year);
+
+                    var maxDate = new Date(e.date.valueOf());
+                    $('#reservation').datepicker('setEndDate', maxDate);
+                }
+                
+            });       
+
+
+        table.on('draw', function (data) {
+            if ( ! table.data().any() ) {
+                $('#btnExport').addClass('disabled');
+            } else {
+              $('#btnExport').removeClass("disabled");
+            }            
+        });
+
+
+
+        });
+
+
+        $('#btnClear').on('click',function(){
+            var $dates = $('#reservation, #reservationend').datepicker();
+            $dates.datepicker('setDate', null);
+            $dates.datepicker('setEndDate', null);
+            $dates.datepicker('setStartDate', null);
+            $('#reservationen').val("");
+            $('#reservationenden').val("");
+            table.draw();
+             });
+
+        $('#btnExport').on('click',function(){
+
+            var rows = table.rows({selected:true}).indexes();
+            var selectedData = table.cells(rows, 0).data().toArray();
+
+            //parameters = JSON.stringify(selectedData); 
+            param = {};
+            param.ids = selectedData;
+            param.fromDate = $("#reservationen").val();
+            param.toDate = $("#reservationenden").val();
+            param.exported  = $('#ddtExport').is(':checked') ? "1" : "0";
+            
+
+            $.ajax({
+                type: "POST",
+                url: "/api/ddt/export",
+                data: JSON.stringify(param),
+                //dataType: "json",
+                contentType: "application/json",                
+                success: function (data) {
+                    const a = document.createElement("a");
+                    document.body.appendChild(a);
+                    a.style = "display: none";
+                    const blob = new Blob([atob(data.fileContents)], {type: "text/octet-stream", encoding: "UTF-8"}),
+                    url = window.URL.createObjectURL(blob);
+                    a.href = url;
+                    a.download = data.fileDownloadName;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+             });
+
+        });
+
+    </script>
+}

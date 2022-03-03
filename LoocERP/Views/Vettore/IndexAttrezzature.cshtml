@@ -1,0 +1,922 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+
+@{
+    ViewData["Title"] = "Vettori";
+    ViewData["activePage"] = "Vector Page";
+    DateTime today = DateTime.Now.Date;
+    string todaystring = @today.Year + "-" + @today.Month.ToString("0#") + "-" + @today.Day.ToString("0#") + "T" + @today.Hour.ToString("0#") + ":" + @today.Minute.ToString("0#");
+    string rand = Guid.NewGuid().ToString();
+
+}
+<div>&nbsp;</div>
+
+<section class="content">
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-12 col-sm-4">
+                        <div class="form-group">
+                            <label>Assegnazione in data:</label>
+                            <div class="col-xs-12">
+                                <div class="input-group">
+                                    <div class="form-group col-12">
+                                        <input type="datetime-local" value="@todaystring" id="dateSearch" data-date="" data-date-format="DD-MM-YYYY" class="form-control" name="EndDate" placeholder="Data di consegna" onchange="reloadTable()" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="charts" class="col-12 col-sm-8">
+                        <p style="text-align: center;
+                                vertical-align: middle;" id="loadingSummary">
+                            <i class="fas fa-2x fa-sync fa-spin "></i><br />
+                            <label>Caricamento sommario</label>
+                        </p>
+                        <div class="row" id="chartsList" style="display: none;">
+                            <div class="col-6 col-md-3 text-center">
+                                TOTALE VETTORI:<br>
+                                <label id="totVettori" style="font-size: 50px;"></label>
+                            </div>
+                            <div class="col-6 col-md-3 text-center">
+                                <input type="text" class="knob" value="30" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-max="30"
+                                       data-readonly="true"
+                                       id="inManutenzioneInput">
+                                <div class="knob-label">Vettori in Manutenzione</div>
+                            </div>
+                            <div class="col-6 col-md-3 text-center">
+                                <input type="text" class="knob" value="30" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-max="30"
+                                       data-readonly="true"
+                                       id="assegnatiInput">
+                                <div class="knob-label">Vettori Assegnati</div>
+                            </div>
+                            <div class="col-6 col-md-3 text-center">
+                                <input type="text" class="knob" value="30" data-width="90" data-height="90" data-fgColor="#3c8dbc" data-max="30"
+                                       data-readonly="true"
+                                       id="inParcheggioInput">
+                                <div class="knob-label">Vettori in parcheggio</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="vettori" class="table table-bordered table-hover">
+                            <thead>
+                                @*
+                                    <tr class="rowheader text-center">
+                                        <th colspan="7">Vettore</th>
+                                        <th colspan="4">Assegnazione Cantieri</th>
+                                        <th colspan="5">Assegnazione Utente</th>
+                                        <th colspan="3">Assegnazione Parcheggio</th>
+                                    </tr>
+                                *@
+                                <tr class="rowclone">
+                                    <th>Proprietà</th>
+                                    <th>Semaforo <br>(V/G/R)</th>
+                                    <th>Targa</th>
+                                    <th>Marca</th>
+                                    <th>Descrizione</th>
+                                    <th>Settore</th>
+                                    <th>Numero Posti</th>
+                                    <th>Codice Cantiere</th>
+                                    <th>Cantiere</th>
+                                    <th>Associata fino al</th>
+                                    <th>Storico</th>
+                                    @*<th>Settore</th>*@
+                                    <th>Noleggio o Leasing</th>
+                                    @*<th>Y/N</th>*@
+                                    <th>Parcheggio</th>
+                                    <th>Y/N</th>
+                                    <th>Storico</th>
+                                    @*
+                                        <th>Associata fino al</th>
+                                        <th>Cantiere</th>
+                                    *@
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<style>
+    .map-content {
+        height: 300px;
+        width: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    table.table-bordered.dataTable tbody th,
+    table.table-bordered.dataTable tbody td {
+        padding: 3px !important;
+    }
+
+        table.table-bordered.dataTable tbody td a {
+            font-size: 13px;
+        }
+
+    span.select2-selection.select2-selection--single {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    span.select2-selection.select2-selection--default {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    span.select2-selection {
+        min-height: 40px;
+        width: 100% !important;
+    }
+    /*
+    .tag-element {
+        color: black;
+        font-weight: bold;
+        border-bottom: 2px solid #3846d9;
+        padding: 0px 2px;
+        //border-radius: 5px;
+    }
+    */
+</style>
+
+
+<div class="modal-body"></div>
+
+<!-- Modal -->
+<div class="modal fade" id="empModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignVettoreCantiereForm">
+                    <input class="CodiceVettore" type="hidden" name="CodiceVettore" />
+                    <div class="form-group">
+                        <label>Cantiere da assegnare*</label><br>
+                        <select style="width:100%" name="UserId" class="select2-listCantiere form-control" required></select>
+                        <small class="form-text text-muted">Inserisci la targa e seleziona il vettore da selezionale</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Data di assegnazione*</label>
+                        <input type="datetime-local" class="imp form-control" name="workdate" placeholder="Data di workdate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="card-body">
+    <div class="chart">
+        <div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+        <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block; width: 739px;" width="739" height="250" class="chartjs-render-monitor"></canvas>
+    </div>
+</div>
+
+<div class="modal fade" id="empModalUser" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignVettoreUserForm">
+                    <input class="CodiceVettore" type="hidden" name="CodiceVettore" />
+                    <div class="form-group">
+                        <label>Utente da assegnare*</label><br>
+                        <select style="width:100%" name="UserId" class="select2-uservettore form-control" required></select>
+                        <small class="form-text text-muted">Inserisci il nome dell' utente</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Data di assegnazione*</label>
+                        <input type="datetime-local" value="@todaystring" class="imp form-control" name="StartDate" placeholder="Data di assegnazione" data-date-format="MM-dd-yyyy HH:mm" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Data di consegna*</label>
+                        <input type="datetime-local" value="@todaystring" data-date="" data-date-format="MM-dd-yyyy HH:mm" class="imp form-control" name="EndDate" placeholder="Data di consegna" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="addCarParkModal" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignVettoreParcheggioForm">
+                    <input class="CodiceVettore" type="hidden" name="CodiceVettore" />
+                    <div class="form-group">
+                        <label>Parcheggio da assegnare*</label><br>
+                        <select style="width:100%" name="parkId" class="select2-parcheggiovettore form-control" required></select>
+                        <small class="form-text text-muted">Inserisci nome parcheggio</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Data di consegna*</label>
+                        <input type="date" value="@todaystring" data-date="" data-date-format="DD-MM-YYYY" class="imp form-control" name="workDate" placeholder="Data di consegna" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@{
+    await Html.RenderPartialAsync("_edit_numeri_posti");
+}
+@{
+    await Html.RenderPartialAsync("_storicoVettore");
+    await Html.RenderPartialAsync("_edit_property");
+    await Html.RenderPartialAsync("_edit_noleggioleasing");
+}
+
+@section Scripts {
+
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/fixedheader/3.1.4/css/fixedHeader.dataTables.css" />
+
+    <script type="text/javascript" src="https://cdn.datatables.net/fixedheader/3.1.4/js/dataTables.fixedHeader.js"></script>
+    <script src="~/theme/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <!-- Sparkline -->
+    <script src="~/theme/plugins/sparkline/jquery.sparkline.min.js"></script>
+    <script>
+        var isEdit = 1 ;
+
+        function openModal(CodiceVettore = null) {
+            var empModal = $('#empModal');
+            empModal.find(".CodiceVettore").val(CodiceVettore);
+            $(".imp").val("");
+            empModal.modal('show');
+        }
+
+        function openModalUser(CodiceVettore = null) {
+            var empModal = $('#empModalUser');
+            empModal.find(".CodiceVettore").val(CodiceVettore);
+            $(".imp").val("");
+            empModal.modal('show');
+        }
+        function openModalParcheggio(CodiceVettore = null) {
+            var empModal = $('#addCarParkModal');
+            empModal.find(".CodiceVettore").val(CodiceVettore);
+            $(".imp").val("");
+            empModal.modal('show');
+        }
+
+        var filters = [];
+
+
+        function applyOldFilters() {
+            filters.forEach((element, index) => {
+                if (element != null) {
+                    $('#vettori').DataTable()
+                        .column(index)
+                        .search(element)
+                        .draw();
+                    $($('#vettori thead tr.rowclone:eq(1) th')[index]).find("input").val(element)
+                }
+            }
+            );
+        }
+
+        function reloadTable() {
+
+
+
+            var settore = '@ViewBag.settore';
+            var sottoSettore = '@ViewBag.sottosettore';
+            var targa = '@ViewBag.targa';
+
+            var date = $("#dateSearch").val();
+
+
+            reloadSummary();
+
+
+            $('#vettori').DataTable().clear();
+            $('#vettori').DataTable().destroy();
+
+            $('#vettori thead tr.rowclone:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            filters[i] = this.value;
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            var table = $('#vettori').DataTable({
+                ajax: "/Vettore/ajaxIndex?startTime=" + date + "&settore=" + settore + "&sottosettore=" + sottoSettore + "&targa=" + targa,
+
+                dom: 'Bifrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    {  //proprietà
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            if (row.company != null) {
+                                return row.company.ragioneSociale
+                                    + '</br><div class="row"><div class="col-6"><a onclick="openModalPropertyVettore(' + row.codice + ' )"><i class="fas fa-edit"></i></a></div><div class="col-6"><a onclick="removeCompany(' + row.codice + ' )"><i class="fas fa-trash"></i></a></div></div>';
+                            }
+                            return '<a onclick="openModalPropertyVettore(' + row.codice + ' )"><i class="fa fa-plus"></i><i class="fas fa-building"></i></a>';
+                        }
+                    },
+                    /*
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, isEmployee, row) {
+
+                            return '<img src="/loocUK/PackageGovernance/ServiziModellazione/ModellazioneVettori/ImgModelliVettore/' + row.img + '" style="height:50px;width:50px;margin: auto;" />';
+                        }
+                    },
+                    */
+                    {  //semaforo
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, isEmployee, row) {
+
+                            if (row.scheda == null) {
+                                //wwwroot/looc/images/various/semaforoVerde32.png
+                                //console.log(row);
+                                return '<img src="/looc/images/various/semaforoVerde32.png" style="height:50px;width:50px;margin: auto;" /><span class="d-none">V</span>';
+                            }
+                            if (row.scheda.stato == 1) {
+                                return '<img src="/looc/images/various/semaforoRosso32.png" style="height:50px;width:50px;margin: auto;" /><span class="d-none">R</span>';
+                            } else {
+                                return '<img src="/looc/images/various/semaforoGiallo32.png" style="height:50px;width:50px;margin: auto;" /><span class="d-none">G</span>';
+                            }
+                        }
+                    },
+
+                    { "data": "targa" },
+                    { "data": "marca" },
+                    { "data": "descr" },
+                    { "data": "codSettoreDesc" },
+                    {
+                        "data": "",
+                        "render": function (data, isEmployee, row) {
+                            var posti = 0;
+                            if (row.posti != null) {
+                                posti = row.posti;
+                            }
+                            return 'Posti: ' + posti + '</br><a class="tag-element" onclick="openModalNPosti(' + row.codice + ', ' + posti + ')" ><i class=\"fas fa-edit\"></i></a>';
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var ret = "";
+
+                            if (row.cantieri != null && row.cantieri.length > 0) {
+                                ret += row.cantieri[0].codice;
+                            }
+
+
+                            return ret;
+                        }
+                    },
+                    {
+                         @if (!(await AuthorizationService.AuthorizeAsync(User, "VettoreCantiere.Edit")).Succeeded) {
+                            @Html.Raw(@"""visible"": false, ")
+                         }
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var html = "";
+
+                            for (i = 0; i < row.cantieri.length; i++) {
+                                html += '<a class="tag-element" onclick="openModal(' + row.codice + ' )" >'
+                                    + row.cantieri[i].name + "</br><i class=\"fas fa-edit\"></i></a>";
+
+                            }
+                            if(isEdit==1){
+                                if (row.cantieri.length == 0) html += '<a onclick="openModal(' + row.codice + ' )"><i class="fa fa-plus"></i><i class="fa fa-wrench" aria-hidden="true"></i></a>';
+                            }
+
+                            return html;
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            if (row.cantieri.length > 0) {
+
+
+                                return new Date(row.cantieri[0].endDate).toLocaleDateString('it-IT', {});//Date.parse(row.cantieri[0].endDate.toISOString()).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            }
+                            return "";
+                        }
+                    },
+                    @*
+                    { "data": "codSettoreDesc" },
+                    *@
+
+
+
+                    @*
+                    {   //codice cantiere
+                         @if (!(await AuthorizationService.AuthorizeAsync(User, "VettoreCantiere.Edit")).Succeeded) {
+                            @Html.Raw(@"""visible"": false, ")
+                         }
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var html = "";
+                            if (row.cantieri[0] != null)
+                                html += row.cantieri[0].codice;
+
+                            return html;
+                        }
+                    },
+
+                    { //cantiere
+                         @if (!(await AuthorizationService.AuthorizeAsync(User, "VettoreCantiere.Edit")).Succeeded) {
+                            @Html.Raw(@"""visible"": false, ")
+                         }
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var html = "";
+
+                            for (i = 0; i < row.cantieri.length; i++) {
+                                html += '<a class="tag-element" onclick="openModal(' + row.codice + ' )" >'
+                                    + row.cantieri[i].name + "</br><i class=\"fas fa-edit\"></i></a>";
+
+                            }
+                            if(isEdit==1){
+                                if (row.cantieri.length == 0) html += '<a onclick="openModal(' + row.codice + ' )"><i class="fa fa-plus"></i><i class="fa fa-wrench" aria-hidden="true"></i></a>';
+                            }
+
+                            return html;
+                        }
+                    },
+                        *@
+
+
+                    /*
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            if (row.cantieri.length > 0) {
+                                return "Y";
+                            }
+                            return "N";
+                        }
+                    },
+                    */
+
+                    /*
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            if (row.cantieri.length > 0) {
+
+
+                                return new Date(row.cantieri[0].endDate).toLocaleDateString('it-IT', {});//Date.parse(row.cantieri[0].endDate.toISOString()).toLocaleDateString('it-IT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                            }
+                            return "";
+                        }
+                    },
+                    */
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var html = '';
+                            html += '<a onclick="openVectorHistory(\'' + row.codice + '\',0)" class="tag-element" ><i class="fa fa-list" aria-hidden="true"></i></a>';
+                            return html;
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            if (row.vettoreAssegnazione != null) {
+                                console.log("row.vettoreAssegnazione");
+                                console.log(row.vettoreAssegnazione);
+                                console.log(row.vettoreAssegnazione.noleggio);
+
+                                if (row.vettoreAssegnazione.leasing != "")
+                                    return "Leasing : " + row.vettoreAssegnazione.leasing + '</br><a onclick="removeFromLeasing(\'' + row.vettoreAssegnazione.id + '\')" ><i class="fas fa-trash"></i></a>';
+
+                                if (row.vettoreAssegnazione.noleggio != "")
+                                    return "Noleggio : " + row.vettoreAssegnazione.noleggio + '</br><a  onclick="removeFromNoleggio(\'' + row.vettoreAssegnazione.id + '\')"><i class="fas fa-trash"></i></a>';
+                            }
+                            return '<a onclick="openModalProperty(' + row.codice + ' )"><i class="fa fa-plus"></i><i class="fas fa-info-circle"></i></a>';
+                        }
+                    },
+
+
+
+
+
+                    @*
+                    {
+                        @if (!(await AuthorizationService.AuthorizeAsync(User, "VettoreUser.Edit")).Succeeded) {
+                            @Html.Raw(@"""visible"": false, ")
+                         }
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var html = "";
+
+                            for (i = 0; i < row.users.length; i++) {
+                                if (row.users[i].cantiere != null)
+                                    html += "<a class=\"targa\" >" + row.users[i].cantiere+", "+row.users[i].cantiere+ "</a>";
+
+                            }
+
+
+                            return html;
+                        }
+                    },
+
+                        *@
+
+
+                    {
+                         @if (!(await AuthorizationService.AuthorizeAsync(User, "Parking.Edit")).Succeeded) {
+                            @Html.Raw(@"""visible"": false, ")
+                         }
+
+                        "data": null,
+                        "name": "park",
+                        "render": function (data, type, row) {
+                            var html = "";
+                            if(isEdit==1){
+                                if (row.parcheggi.length == 0) {
+                                     html += '<a onclick="openModalParcheggio(' + row.codice + ')"><i class="fa fa-plus"></i><i class="fa fa-stop-circle" aria-hidden="true"></i></a>';
+                                }
+                            }
+
+                            for (i = 0; i < row.parcheggi.length; i++) {
+                                html += "<a class=\"targa\" >" + row.parcheggi[i].name + "</a>  ";
+                            }
+
+                            return html;
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "isPark",
+                        "render": function (data, type, row) {
+                            if (row.parcheggi.length > 0) {
+                                return "Y";
+                            }
+                            return "N";
+                        }
+                    },
+
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+                            var html = '';
+                            html += '<a onclick="openVectorHistory(\'' + row.codice + '\',1)" class="tag-element" ><i class="fa fa-list" aria-hidden="true"></i></a>';
+                            return html;
+                        }
+                    },
+
+
+                ],
+                columnDefs: [
+                    //  { targets: 2,render: $.fn.dataTable.render.moment('Do MMM YYYY') }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                initComplete: function () {
+                    // Apply the search
+                    this.api().columns().every(function () {
+                        var that = this;
+                        $('input', this.header()).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that
+                                    .search(this.value)
+                                    .draw();
+                            }
+                        });
+                    });
+                    applyOldFilters();
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+
+        }
+
+
+
+        function reloadSummary() {
+
+            $("#loadingSummary").show();
+            $("#chartsList").hide();
+            var date = $("#dateSearch").val();
+            var settore = '@ViewBag.settore';
+            var sottoSettore = '@ViewBag.sottosettore';
+            var targa = '@ViewBag.targa';
+
+
+            $.get("/Vettore/ajaxGetVettoriSintex?startTime=" + date + "&settore=" + settore + "&sottosettore=" + sottoSettore + "&targa=" + targa, function (data, status) {
+                console.log(data);
+                $('#totVettori').text(data.data.tot);
+                $("#inManutenzioneInput").attr({
+                    "value": data.data.inManutenzione,
+                    "data-max": data.data.tot,
+                });
+                $("#inParcheggioInput").attr({
+                    "value": data.data.inParcheggio,
+                    "data-max": data.data.tot,
+                });
+                $("#assegnatiInput").attr({
+                    "value": data.data.assegnati,
+                    "data-max": data.data.tot,
+                });
+
+                $('.knob').knob({
+
+                    draw: function () {
+
+                        if (this.$.data('skin') == 'tron') {
+
+                            var a = this.angle(this.cv)  // Angle
+                                ,
+                                sa = this.startAngle          // Previous start angle
+                                ,
+                                sat = this.startAngle         // Start angle
+                                ,
+                                ea                            // Previous end angle
+                                ,
+                                eat = sat + a                 // End angle
+                                ,
+                                r = true
+
+                            this.g.lineWidth = this.lineWidth
+
+                            this.o.cursor
+                                && (sat = eat - 0.3)
+                                && (eat = eat + 0.3)
+
+                            if (this.o.displayPrevious) {
+                                ea = this.startAngle + this.angle(this.value)
+                                this.o.cursor
+                                    && (sa = ea - 0.3)
+                                    && (ea = ea + 0.3)
+                                this.g.beginPath()
+                                this.g.strokeStyle = this.previousColor
+                                this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sa, ea, false)
+                                this.g.stroke()
+                            }
+
+                            this.g.beginPath()
+                            this.g.strokeStyle = r ? this.o.fgColor : this.fgColor
+                            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth, sat, eat, false)
+                            this.g.stroke()
+
+                            this.g.lineWidth = 2
+                            this.g.beginPath()
+                            this.g.strokeStyle = this.o.fgColor
+                            this.g.arc(this.xy, this.xy, this.radius - this.lineWidth + 1 + this.lineWidth * 2 / 3, 0, 2 * Math.PI, false)
+                            this.g.stroke()
+
+                            return false
+                        }
+                        $("#charts").show();
+                    }
+                })
+                $(".knob").each(function () {
+                    this.value = Math.round(this.getAttribute('value'));
+                }).knob({
+
+                    'dynamicDraw': true,
+
+                });
+                $("#loadingSummary").hide();
+                $("#chartsList").show();
+            });
+
+        }
+
+        $(document).ready(function () {
+
+
+
+
+            $('#vettori thead tr.rowclone').clone(true).appendTo('#vettori thead');
+            reloadTable();
+            var date = $("#dateSearch").val();
+
+            //reloadSummary();
+
+
+            $('.select2-listCantiere').select2({
+                placeholder: "Inserisci nome cantiere.",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Vettore/ajaxCantiereVettoreList?dateTime='+date,
+                    dataType: 'json',
+                },
+            });
+            $('.select2-uservettore').select2({
+                placeholder: "Inserisci nome utente",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Vettore/ajaxUserVettoreList',
+                    dataType: 'json',
+                },
+            });
+
+
+            $('.select2-parcheggiovettore').select2({
+                placeholder: "Inserisci nome parcheggio",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Vettore/ajaxParkVettoreList?dateTime='+date,
+                    dataType: 'json',
+
+                },
+            });
+
+
+            $('#assignVettoreCantiereForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+
+
+
+                console.log(elements);
+
+
+
+
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+
+                $.ajax({
+                    url: '/Vettore/ajaxVettoreCantiereAssign',
+                    type: 'post',
+                    data: { CantiereId: data['UserId'], CodiceVettore: data['CodiceVettore'], WorkDate: data['workdate'] },
+                    success: function (data) {
+                        console.log(data.data);
+
+                        // Add response in Modal body
+                        //Svuoto modale
+                        var empModal = $('#empModal');
+                        empModal.find(".modal-header .modal-title").html("");//.html(data.data.nomeOperatore);
+                        $(".select2-uservettore").select2("val", ""); //svuoto valore selezionato
+                        $('#empModal').modal('hide');
+
+                        reloadTable();
+                    }
+                });
+
+            });
+
+            $('#assignVettoreUserForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+
+
+                $.ajax({
+                    url: '/Vettore/ajaxVettoreUserAssign',
+                    type: 'post',
+                    data: { UserId: data['UserId'], CodiceVettore: data['CodiceVettore'], StartDate: data['StartDate'], EndDate: data['EndDate'] },
+                    success: function (data) {
+                        console.log(data.data);
+
+                        // Add response in Modal body
+                        //Svuoto modale
+                        var empModal = $('#empModalUser');
+                        empModal.find(".modal-header .modal-title").html("");//.html(data.data.nomeOperatore);
+                        $(".select2-uservettore").select2("val", ""); //svuoto valore selezionato
+                        $('#empModalUser').modal('hide');
+                        reloadTable();
+                    }
+                });
+            });
+
+            $('#assignVettoreParcheggioForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+                console.log(data);
+
+                $.ajax({
+                    url: '/Vettore/ajaxVettoreParcheggioAssign',
+                    type: 'post',
+                    data: { parkId: data['parkId'], CodiceVettore: data['CodiceVettore'], workDate: data['workDate'] },
+                    success: function (data) {
+                        console.log(data.data);
+
+                        // Add response in Modal body
+                        //Svuoto modale
+                        var empModal = $('#addCarModal');
+                        empModal.find(".modal-header .modal-title").html("");//.html(data.data.nomeOperatore);
+                        $(".select2-uservettore").select2("val", ""); //svuoto valore selezionato
+                        $('#addCarModal').modal('hide');
+
+                        reloadTable();
+                    }
+                });
+
+            });
+
+        });
+
+
+    </script>
+
+
+}

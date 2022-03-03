@@ -1,0 +1,459 @@
+﻿@model LoocERP.ViewModels.AssignUserCantieriViewModel
+@{    
+    ViewData["Title"] = "Assegnazione";
+    DateTime wd = (ViewBag.WorkDate??DateTime.Now);
+    if(!DateTime.TryParse(wd.ToString(), out wd)){ 
+        wd = DateTime.Now.Date;
+    }    
+    string dten = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year;
+    string dtenfull = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    string dtit = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year;
+    string dtitfull = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    ViewBag.dtenfull = @dten;
+}
+<style>
+    input{
+        height: 100%;
+        width: 100%;
+        border: none;
+        text-align: center;
+    }
+    .bg-th-table{
+        background: #ffffcc;
+    }
+    .select-wrapper button{
+        margin: 0
+    }
+    .turno-info .turno-detail{
+        display: none;        
+    }
+    .turno-info:hover .turno-detail{
+        display: block;
+        position: absolute;
+        top: -20px;
+        left: 10px;
+        background: #616161;
+        padding: 3px 5px;
+        border-radius: 5px;
+        color: white;
+        border: 1px solid white;
+        z-index: 1;
+        min-width: 300px;
+    }
+.select2-selection__rendered {
+    line-height: 31px !important;
+}
+.select2-container .select2-selection--single {
+    height: 100% !important;
+    padding: 4px;
+}
+.select2-selection__arrow {
+    height: 100% !important;
+}
+.row-success{
+    border: 2px solid green;
+}
+.row-danger{
+    border: 2px solid red;
+}
+</style>
+<div>&nbsp</div>
+<div class="col-12">
+    <div class="row">                            
+        <div class="col-12" style="float-right">
+            <a class="btn btn-default" asp-controller="RelTurnoUser" asp-action="Index" >Pianificazione per cantiere <i class="fa fa-eye-slash"></i></a>
+            <a class="btn btn-default" asp-controller="RelTurnoUserS" asp-action="Index" >Pianificazione per Risorsa <i class="fa fa-eye-slash"></i></a>
+            <a class="btn btn-primary" asp-controller="RelTurnoUser" asp-action="assignModalUserCantieri" >Aggiornamento Giornaliero Risorse <i class="fa fa-eye"></i></a>
+        </div>                        
+    </div>
+</div>
+<section class="content">
+    <div class="card col-12 p-0">
+        <div class="card-body">
+            <div class="col-12">                        
+                <div class="row">
+                    <div class="col-sm-8 col-12">
+                        <form method="get" id="formreservation">                            
+                            <div class="form-group">
+                                <label>Seleziona la data di partenza</label>
+                                <div class="input-group">                                    
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>                                    
+                                    <input id="reservation" value='@dtit' type="text" class="form-control" >                                
+                                    <input id="reservationen" name="WorkDate" type="hidden" value='@dtenfull'>                                    
+                                </div>
+                                <small><b>Importante:</b> Aggiornando le assognazione per il giorno selezionato, verranno automaticamente aggiornate anche le assegnazioni successive</small>
+                                <!-- /.input group -->
+                            </div>
+                            <p class="col-12 p-0">
+
+                            </p>
+                        </form>
+                    </div>                       
+                    <div class="col-sm-4 col-12">
+                        <div class="col-12 p-0 text-right">
+                            <a  class="btn btn-default" onclick="location.reload();">Ricarica e verifica <i class="fa fa-sync" aria-hidden="true"></i></a>   
+                        </div>                        
+                    </div> 
+                </div>    
+            </div>
+        </div>
+    </div>        
+    <div class="card card-primary">
+        <div class="col-12 p-0">            
+            <div class="row m-0">                    
+                    <div class="col-12 p-0"> 
+                        <div class="row m-0">
+                            <div class="col-1 p-0"> 
+                            </div>
+                            <div class="col-11 p-0"> 
+                                <div class="row m-0">
+                                    <input type="text" class="col-2 border text-center p-0" id="searchInput0" onkeyup="searchFunction()" placeholder="Ricerca Commessa..">                            
+                                    <input type="text" class="col-2 border text-center p-0" id="searchInput1" onkeyup="searchFunction()" placeholder="Ricerca Cantiere">                                                        
+                                    <input type="text" class="col-2 border text-center p-0" id="searchInput2" onkeyup="searchFunction()" placeholder="Ricerca Turno">                                                        
+                                    <input type="text" class="col-6 border text-center p-0" id="searchInput3" onkeyup="searchFunction()" placeholder="Ricerca Nome">                            
+                                </div>
+                            </div>
+                        </div>                                                                
+                    </div>
+                    <div class="col-12 p-0"> 
+                        <div class="row m-0">                                                                       
+                                <div class="col-1 p-0"> 
+                                </div>
+                                <div class="col-11 p-0"> 
+                                    <div class="row m-0">
+                                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Commessa</b></div>
+                                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Cantiere</b></div>            
+                                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Turno</b></div>
+                                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Risorsa</b></div>                                
+                                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Mansioni</b></div>
+                                        <div class="col-2 border text-center bg-th-table bold p-0"><b>Specializzazioni</b></div>                            
+                                    </div>
+                                </div>                           
+                        </div>                                            
+                    </div>                 
+            </div>
+        </div>                                
+        <div id="table-area" class="col-12 p-0 m-0"></div>                                  
+    </div>   
+</section>
+
+
+@section Scripts {    
+
+    <script>                
+        function searchFunction() {
+            // Declare variables
+            var txtValue0 = "";
+            var input0 = document.getElementById('searchInput0');
+            var filter0 = input0.value.toUpperCase();
+            var txtValue1 = "";
+            var input1 = document.getElementById('searchInput1');
+            var filter1 = input1.value.toUpperCase();
+            var txtValue2 = "";
+            var input2 = document.getElementById('searchInput2');
+            var filter2 = input2.value.toUpperCase();
+            var txtValue3 = "";
+            var input3 = document.getElementById('searchInput3');
+            var filter3 = input3.value.toUpperCase();
+                        
+            li = document.getElementsByClassName('searchrow');
+            console.log(filter0);
+
+            // Loop through all list items, and hide those who don't match the search query
+            for (i = 0; i < li.length; i++) {                
+                txtValue0 = li[i].getAttribute("datasearch0");
+                txtValue1 = li[i].getAttribute("datasearch1");
+                txtValue2 = li[i].getAttribute("datasearch2");
+                txtValue3 = li[i].getAttribute("datasearch3");
+                console.log(txtValue0);
+
+                if (txtValue0.toUpperCase().indexOf(filter0) > -1
+                    && txtValue1.toUpperCase().indexOf(filter1) > -1
+                    && txtValue2.toUpperCase().indexOf(filter2) > -1
+                    && txtValue3.toUpperCase().indexOf(filter3) > -1
+                ){
+                    li[i].style.display = ""; 
+                }                      
+                else {
+                    li[i].style.display = "none";                       
+                }                
+            }
+        }
+             
+        function updateTurno(row){             
+            var rowelem= $("#currentRow-"+row);
+            var turnoid = $("#currentRow-"+row+' .select2-turno').val();                                                                        
+            var userid = $("#currentRow-"+row+' input.userid').val();
+            var workdate = $("#currentRow-"+row+' input.workdate').val();                
+            var mansioni = $("#currentRow-"+row+' .selectpicker-mansione').val();
+            var specializzazioni = $("#currentRow-"+row+' .selectpicker-specializzazione').val();   
+            /*                     
+            console.log(row);
+            console.log(turnoid);
+            console.log(userid);
+            console.log(workdate);
+            console.log(mansioni);
+            console.log(specializzazioni);
+            */
+            
+            $.ajax({
+                    //beforeSend: function() { textreplace(description); },
+                    type: "GET",  
+                    url: "/RelTurnoUser/ajaxUpdateTurnoUser",
+                    data: { 
+                        "turnoid": turnoid,
+                        "userid": userid, 
+                        "workdate": workdate,
+                        "mansioniJson": JSON.stringify(mansioni),
+                        "specializzazioniJson": JSON.stringify(specializzazioni)
+                    },                        
+                    success: function(data){   
+                        console.log("success");
+                        var c = ' row-danger';
+                        if(data.results != "ko"){
+                           c = ' row-success';
+                        }
+                        rowelem[0].className += c;
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) { 
+                        console.log("error");
+                        console.log(textStatus);
+                        console.log(errorThrown);                            
+                        rowelem[0].className += ' row-danger';
+                    }       
+                }); 
+            
+        }
+        function EnableRow(row){
+            var rowelem= $("#currentRow-"+row);
+            var save = $("#currentRow-"+row+' .btn-save').toggleClass('d-none');
+            var edit = $("#currentRow-"+row+' .btn-edit').toggleClass('d-none');
+            var disabled_start_bootstrap = $("#currentRow-"+row+' .disabled_start').toggleClass('disabled');            
+            $("#currentRow-"+row+' select.select2-project:first-of-type').prop('disabled', false);                        
+        }
+
+        function SaveRow(row){
+            var rowelem= $("#currentRow-"+row);
+            var save = $("#currentRow-"+row+' .btn-save').toggleClass('d-none');
+            var edit = $("#currentRow-"+row+' .btn-edit').toggleClass('d-none');
+            var disabled_start_bootstrap = $("#currentRow-"+row+' .disabled_start').toggleClass('disabled');            
+            $("#currentRow-"+row+' select.select2-project:first-of-type').prop('disabled', true); 
+            updateTurno(row);                    
+        }
+
+        $(document).ready(function () {    
+                   
+            //Date range as a button
+            $('#reservation').datepicker(
+                {
+                    format: "dd-mm-yyyy",
+                    //dateFormat: "dd-mm-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',                    
+                    changeMonth: true,
+                    changeYear: true,                    
+                    todayBtn: "linked",
+                    language: "it",
+                    autoclose: true,
+                    startDate: new Date(@wd.Day, @wd.Month, @wd.Year),
+                },
+            ).on('changeDate', function (e) {                                                
+                var year  = e.date.getFullYear();
+                var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                var day   = e.date.getDate().toString().padStart(2, "0");                
+                $('#reservationen').val(month+"-"+day+"-"+year);
+                $('#reservation').val(day+"-"+month+"-"+year);                
+                $('#formreservation').submit();
+            })
+            ;;
+            
+            $.ajax({
+                url: '/RelTurnoUser/ajaxUserIndex?WorkDate=@dtenfull',
+                dataType: 'json',
+                success: function(data) {                    
+                    var items = [];
+                    var html = "";                                                  
+                    $.each(data.data, function(key, val){                                       
+                        var mansionistring = ";";
+                        val.data.mansioniUserTurnoList.forEach(
+                            element => (element != null?mansionistring += element.id+";":"")
+                        );
+                        var specializzazionistring = ";";
+                        val.data.specializzazioniUserTurnoList.forEach(
+                            element => (element != null?specializzazionistring += element.id+";":"")
+                        );
+                        items.push(
+                            '<div id="currentRow-'+key+'" class="col-12 p-0 searchrow"'+
+                                ' datasearch0="'+val.data.projectName +'"' +
+                                ' datasearch1="'+val.data.cantiereCode + val.cantiereName +'"' +
+                                ' datasearch2="'+val.data.turnoName +'"' +
+                                ' datasearch3="'+val.data.fullName +'"' +                                
+                            '><div class="row m-0">'+
+                            '<input type="hidden" class="userid" value="'+val.data.userId+'">'+
+                            '<input type="hidden" class="workdate" value="'+val.data.workDate+'">'                            
+                        );
+
+                        items.push(
+                            '<div class="col-1"><div class="row m-0">' 
+                        );
+                        /*
+                        items.push(  
+                                '<div class="turno-info" style="font-size: 16px;margin-top: 6px;">'+
+                                    '<span style="border: 1px solid;padding: 5px 10px;border-radius: 50%;"><b>M</b></span>'+
+                                    '<div class="turno-detail text-left">'
+                        );
+
+                        // M DETAIL
+                       // $.each(val.data.mansioniTurnoList, function(key1, val1){  items.push( val1.quantita+" "+val1.mansioneName+'<br>'); });
+
+                        items.push(  
+                                    '</div>'+
+                                '</div>'+   
+                                '<div class="turno-info" style="font-size: 16px;margin-top: 6px;">'+
+                                    '<span style="border: 1px solid;padding: 5px 10px;border-radius: 50%;"><b>S</b></span>'+
+                                    '<div class="turno-detail text-left">'
+                        );
+
+                        // S DETAIL
+                       // $.each(val.data.specializzazioniTurnoList, function(key1, val1){  items.push( val1.quantita+" "+val1.specializzazioneName+'<br>');});
+                                                
+
+                        items.push(  
+                                    '</div>'+
+                                '</div>'
+                        );
+                        */
+
+                        items.push('<div class="col-12 p-0 text-right"><button class="btn m-0 btn-edit" style="margin-left: 2px;" onclick="EnableRow('+key+')"><i class="fa fa-edit"></i></button>');
+                        items.push('<button class="btn m-0 btn-primary d-none btn-save" onclick="SaveRow('+key+')" style="margin-left: 2px;"><i class="fa fa-save"></i></button></div>');
+
+                        items.push(
+                                '</div>'+ 
+                            '</div>'+  //end col-1 row
+                            '<div class="col-11 p-0" >' +                                                                
+                                '<div class="row m-0">'+                                                                     
+                                    '<div class="col-2 border text-center p-0">' +                                                                               
+                                        //'<input readonly class="form-control" value="'+val.data.projectName+'" style="padding-left: 50px"/>'+
+                                        '<select disabled class="select2-project form-control disabled_start"  data-row="'+key+'">'+
+                                            '<option selected value="'+val.data.projectId+'">'+val.data.projectName+'</option>'+
+                                        '</select>'+
+                                    '</div>'+
+                                    '<div class="col-2 border text-center p-0">' +                                        
+                                        //'<input readonly class="form-control" value="'+val.data.cantiereCode+'"/>'+
+                                        '<select class="select2-cantiere form-control" disabled data-row="'+key+'">'+
+                                            '<option selected value="'+val.data.cantiereId+'">'+val.data.cantiereCode+'('+val.data.cantiereName+')'+'</option>'+
+                                        '</select>'+
+                                    '</div>'+
+                                    '<div class="col-2 border text-center p-0">' +                                                                                
+                                        '<select class="turno select2-turno form-control" disabled data-row="'+key+'">'+
+                                            '<option selected value="'+val.data.turnoId+'">'+val.data.turnoName+'</option>'+
+                                        '</select>'+
+                                    '</div>'+
+                                    '<div class="col-2 border text-center p-0">' +
+                                        '<input readonly class="form-control" value="'+val.data.fullName+'" data-row="'+key+'"/>'+
+                                    '</div>'+
+                                    '<div class="select-wrapper col-2 border text-center p-0">' +                                          
+                                        '<select class="disabled disabled_start p-0 selectpicker selectpicker-mansione selectpicker-ms form-control p-0" multiple data-live-search="true" data-container="body" '+                                            
+                                            ' data-row="'+key+'"'+
+                                        '>'
+                                        //'<option>Select...</option>'+                                        
+                        );
+                        
+                        //Mansioni list
+                        $.each(val.data.rel_MansioneUser, function(key1, val1){  
+                            items.push( '<option '+(mansionistring.indexOf(val1.mansioneId) == -1?'':'selected')+' data-mansioneid="'+val1.mansioneId+'" value="'+val1.mansioneId+'">'+val1.mansioneName+'</option>');
+                        });               
+
+                        items.push( 
+                                        '</select>'+                                                                                   
+                                    '</div>'+
+                                    '<div class="select-wrapper col-2 border text-center p-0">' +
+                                        '<select class="disabled disabled_start p-0 selectpicker selectpicker-specializzazione selectpicker-ms form-control p-0" multiple data-live-search="true" data-container="body" '+
+                                        ' data-row="'+key+'">'
+                        );
+
+                        //Specializzaizioni list
+                        $.each(val.data.rel_SpecializzazioneUser, function(key1, val1){   
+                            items.push('<option '+(specializzazionistring.indexOf(val1.specializzazioneId) == -1?'':'selected')+' value="'+val1.specializzazioneId+'">'+val1.specializzazioneName+'</option>');
+                        }); 
+
+                        items.push(                       
+                                        '</select>'+                                         
+                                    '</div>'+                                    
+                                '</div>' +
+                            '</div>'                            
+                        );    
+                        items.push(                                                    
+                                '</div>' +
+                            '</div>'                            
+                        );                      
+                     },
+                    );//--each                    
+                    $('<div/>', {
+                        'Id': 'search-area-content',
+                        'class': 'row m-0',
+                        html: items.join('')
+                    }).appendTo('#table-area');       
+                  
+                    $('.select2-project').select2({
+                        ajax: {
+                            url: '/RelTurnoUser/ajaxProjectList',
+                            dataType: 'json'
+                            // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                        }
+                    })
+                    .on('change', function(e){
+                        //var row = $('.selectpicker-ms option:selected').val();
+                        var row=e.target.attributes["data-row"].value;
+                        var projectval = e.target.value;                        
+                        var cantiere = $("#currentRow-"+row+' .select2-cantiere');                        
+                        cantiere.prop('disabled', false);                        
+                        cantiere.select2({
+                            ajax: {
+                                url: '/RelTurnoUser/ajaxCantiereList?projectId='+projectval,
+                                dataType: 'json'
+                                // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                            }
+                        })
+                        .on('change', function(f){
+                            //var row=e.target.attributes["data-row"].value;
+                            var turno = $("#currentRow-"+row+' .select2-turno');   
+                            var cantiereval = f.target.value;                     
+                            turno.prop('disabled', false);
+                            turno.select2({
+                                ajax: {
+                                    url: '/RelTurnoUser/ajaxTurnoList?cantiereId='+cantiereval,
+                                    dataType: 'json'
+                                    // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                                }
+                            })
+                            .on('change', function(g){
+                                var row = g.target.attributes["data-row"].value;
+                                //updateTurno(row);                                  
+                            });
+                        });
+                    });
+
+                    
+                    $("select.selectpicker-ms").selectpicker();
+                    //on change function i need to control selected value
+                    $('.selectpicker')
+                        .on('change', function(e){ //AGGIORNAMENTO MANSIONI E SPECIALIZZAZIONE                              
+                            var row = e.target.attributes["data-row"].value;
+                            //updateTurno(row);
+                        });
+                },
+                statusCode: {
+                    404: function() {
+                    alert('There was a problem with the server.  Try again soon!');
+                    }
+                }
+                });              
+                
+                
+        });
+        
+    </script>
+}

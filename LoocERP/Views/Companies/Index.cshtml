@@ -1,0 +1,225 @@
+﻿@model List<ANA_Company>
+@{
+    ViewData["Title"] = "Aziende Interne";
+    if (ViewBag.isExternal)
+    {
+        ViewData["Title"] = "Aziende Esterne";
+    }
+    ViewData["activePage"] = "CompanyPage";
+
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+@{
+    await Html.RenderPartialAsync("_import_modal.cshtml");
+}
+<section class="content">
+    <div class="col-12 p-0">
+        <div class="row">
+            <div class="col-12 p-0" style="float-right">
+                @if (@ViewBag.isExternal == false)
+                {
+                    <a class="btn btn-primary" asp-action="create" asp-route-isExternal="@ViewBag.isExternal">Crea <b>@ViewData["Title"] </b><i class="fa fa-plus-circle"></i></a>
+                }
+                @if (@ViewBag.isExternal == true)
+                {
+                    <a class="btn btn-primary" asp-action="create" asp-route-isExternal="@ViewBag.isExternal" asp-route-isSupplier="true">Crea <b>@ViewData["Title"] Fornitore </b><i class="fa fa-plus-circle"></i></a>
+                    <a class="btn btn-primary" asp-action="create" asp-route-isExternal="@ViewBag.isExternal" asp-route-isCustomer="true">Crea <b>@ViewData["Title"] Cliente </b><i class="fa fa-plus-circle"></i></a>
+                    <a class="btn btn-primary" data-toggle="modal" data-target="#importCompanies">Importazione CSV aziende<i class="fas fa-file-download ml-2"></i></a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="company" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th class="hide-search"></th>
+                                    <th>Ragione Sociale</th>
+                                    <th>Partita Iva</th>
+                                    <th>Città</th>
+                                    <th>Fornitrice</th>
+                                    <th>Cliente</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $("#importCompanies").on('shown.bs.modal', function () {
+                $('#file_csv').val('');
+                $("#msg_import").addClass('d-none');
+                $('#div_upld').removeClass('d-none');                        
+            });
+
+            $('#importCompanies').on('submit', function(e){
+                e.preventDefault();
+                $('#btn-invia').attr("disabled", true);
+                $('#spinner_div').toggleClass('d-none');
+                //$('#div_upld').toggleClass('d-none');
+                $('#msg_import').toggleClass('d-none');
+                $.ajax({
+                    url: '/Companies/ImportCsv',
+                    type: 'POST',
+                    contentType: false,
+                    processData: false,                    
+                    data: new FormData($('#formUpld')[0]),
+                    success : function (resp) {
+                        $('#btn-invia').attr("disabled", false);
+                        $('#spinner_div').toggleClass('d-none');
+                        $('#div_upld').addClass('d-none');                        
+                        if (resp.success){
+                            msg = 'Importazione conclusa con successo';
+                            classeCss ="badge-success";
+                            $('#company').DataTable().ajax.reload();
+                        } else {
+                            msg = 'Attenzione: si è verificato un errore';
+                            if (resp.msg) {
+                                msg = resp.msg;
+                            }
+                            classeCss ="badge-warning";
+                        }
+                        $("#msg_import").removeClass('d-none');
+                        $("#msg").addClass(classeCss);
+                        $("#msg").text(msg);
+                        
+                    }
+                });
+            });
+
+
+
+            var isExternal = true;
+            if("@ViewBag.isExternal" == "False"){
+                isExternal = false;
+            }
+            $('#company thead tr').clone(true).appendTo('#company thead');
+            $('#company thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var table = $('#company').DataTable({
+                ajax: "/Companies/ajaxIndex?active=@ViewBag.active&isExternal=@ViewBag.isExternal",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, type, row) {
+                            return '<img class="circle_icon" src="/Companies/getCompanyPicture?id=' + row.id + '&v=' + Date.now() + '" style="height:20px;width:20px;" />';
+                        }
+                    },
+                    { "data": "ragioneSociale" },
+                    { "data": "pIva" },
+                    { "data": "citta" },
+                    { "data": "isSupplier",
+                        "render": function (data, type, row) {
+                            if (row.isSupplier) {
+                                return '<i class="fa fa-check c-green"></i>'
+                            }
+                            return '-';
+                        }
+                    },
+                    { "data": "isCustomer",
+                        "render": function (data, type, row) {
+                            if (row.isCustomer) {
+                                return '<i class="fa fa-check c-green"></i>'
+                            }
+                            return '-';
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            return '<span>' +
+                                '<a class="btn-sm" href="/Companies/edit?id=' + row.id + '&isExternal='+row.isExternal+'"><i class="fa fa-edit"></i></a>' +
+                                '</span>';
+                        }
+                    },
+                ],
+                columnDefs: [
+                    { width: '30px', targets: 0 },
+                    { width: '30px', targets: 4 },
+                    { width: '30px', targets: 5 },
+                    { width: '30px', targets: 6 },
+                     {
+                        "targets": [ 4,5 ],
+                        "visible": isExternal,
+                        "searchable": false
+                    },
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+}

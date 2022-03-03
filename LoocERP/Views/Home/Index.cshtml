@@ -1,0 +1,167 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6 c-white">
+                <h1>@ViewData["Title"]</h1>
+            </div>
+            <!--div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active">HR</li>
+                </ol>
+            </!-div-->
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-info">
+                <div class="inner">
+                    <h3>@ViewBag.NumeroCommesse</h3>
+
+                    <p>Commesse Attuali</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-cube"></i>
+                </div>
+                <a asp-controller="Project" asp-action="Index" class="small-box-footer">Info Commesse <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-success">
+                <div class="inner">
+                    <h3>@ViewBag.NumeroCantieri<sup style="font-size: 20px"></sup></h3>
+
+                    <p>Cantieri Attuali</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-cog"></i>
+                </div>
+                <a  class="small-box-footer"><i style="color:transparent" class="fas fa-check"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-warning">
+                <div class="inner">
+                    <h3>@ViewBag.NumeroUtentiInterni</h3>
+
+                    <p>Risorse Interne</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-people"></i>
+                </div>
+                <a asp-controller="Users" asp-action="Index" asp-route-type=0 class="small-box-footer" target="_blank">Info Risorse Interne <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+        <div class="col-lg-3 col-6">
+            <!-- small box -->
+            <div class="small-box bg-danger">
+                <div class="inner">
+                    <h3>@ViewBag.NumeroUtentiEsterni</h3>
+
+                    <p>Risorse Esterne</p>
+                </div>
+                <div class="icon">
+                    <i class="ion ion-ios-people"></i>
+                </div>
+                <a asp-controller="Users" asp-action="Index" asp-route-type=4 class="small-box-footer" target="_blank">Info Risorse Esterne <i class="fas fa-arrow-circle-right"></i></a>
+            </div>
+        </div>
+        <!-- ./col -->
+    </div>
+    <div class="card card-success">
+        <div class="card-header">
+            <h3 class="card-title">Report</h3>
+
+            <!-- div class="card-tools">
+                <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+            </div-->
+        </div>
+        <div class="card-body">
+            <div class="chart">
+                <div class="chartjs-size-monitor"><div class="chartjs-size-monitor-expand"><div class=""></div></div><div class="chartjs-size-monitor-shrink"><div class=""></div></div></div>
+                <canvas id="barChart" style="min-height: 250px; height: 250px; max-height: 250px; max-width: 100%; display: block; width: 739px;" width="739" height="250" class="chartjs-render-monitor"></canvas>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>    
+
+</section>
+@section Scripts {
+<script>
+
+    var areaChartData = {
+        labels: ['Agosto', 'Setttembre', 'Ottobre', 'Novembre'],
+        datasets: [
+            {
+                label: 'Progetti Aperti',
+                backgroundColor: 'rgba(60,141,188,0.9)',
+                borderColor: 'rgba(60,141,188,0.8)',
+                pointRadius: false,
+                pointColor: '#3b8bba',
+                pointStrokeColor: 'rgba(60,141,188,1)',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(60,141,188,1)',
+                data: [28, 48, 40, 19, 86, 27, 90]
+            },
+            {
+                label: 'Progetti chiusi',
+                backgroundColor: 'rgba(210, 214, 222, 1)',
+                borderColor: 'rgba(210, 214, 222, 1)',
+                pointRadius: false,
+                pointColor: 'rgba(210, 214, 222, 1)',
+                pointStrokeColor: '#c1c7d1',
+                pointHighlightFill: '#fff',
+                pointHighlightStroke: 'rgba(220,220,220,1)',
+                data: [65, 59, 80, 81, 56, 55, 40]
+            },
+        ]
+    }
+
+    //-------------
+    //- BAR CHART -
+    //-------------
+    var barChartCanvas = $('#barChart').get(0).getContext('2d')
+    var barChartData = jQuery.extend(true, {}, areaChartData)
+    var temp0 = areaChartData.datasets[0]
+    var temp1 = areaChartData.datasets[1]
+    barChartData.datasets[0] = temp1
+    barChartData.datasets[1] = temp0
+
+    var barChartOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        datasetFill: false
+    }
+
+    var barChart = new Chart(barChartCanvas, {
+        type: 'bar',
+        data: barChartData,
+        options: barChartOptions
+    })
+</script>
+}

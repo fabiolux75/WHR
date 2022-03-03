@@ -1,0 +1,210 @@
+﻿<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="Noleggi" asp-action="Create">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Modifica impostazioni per <b>Contratto Noleggio</b></small></h4>
+                        <a class="btn btn-primary" onclick="openModalAddOption()">Crea nuova <b>Opzione </b><i class="fa fa-plus-circle"></i></a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card card-primary">
+                            <!-- /.card-header -->
+                            <div class="card-body">
+                                <div class="col-12">
+                                    <table id="settings" class="table table-bordered table-hover">
+                                        <thead>
+                                            <tr class="rowclone">
+                                                <th>Nome</th>
+                                                <th>Opzioni</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>                
+            </div>
+        </div>
+
+    </form>
+</section>
+
+
+@{
+    await Html.RenderPartialAsync("_add_options");
+}
+
+@section Scripts {
+    <script>
+
+        var table;
+
+        function DeleteRow(id,self) {
+            
+            
+            //reloadTable();
+            /*
+            $.ajax({
+                type: "GET",
+                url: "/Noleggi/ajaxRemoveOption",
+                data: "idOption=" + id,
+                success: function (data) {
+                    console.log("data: " + data);
+                    console.log("dataid: " + id);
+                    
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("error");
+                    $('.row-element-' + id).className += ' alert-danger';
+                }
+            });
+            */
+
+        }
+
+        function reloadTable() {
+
+            $('#settings').DataTable().clear();
+            $('#settings').DataTable().destroy();
+
+            $('#settings thead tr.rowclone:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            filters[i] = this.value;
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+
+
+
+            table = $('#settings').DataTable({
+                ajax: "/noleggi/ajaxOptions",
+                dom: 'Bifrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "name" },
+                    {
+                        "data": null,
+                        "render": function (data, type, row) {
+
+                            return '<a  class="deleteBtn"><i class="fas fa-trash"></i></a>';
+                        }
+                    },
+                ],
+                columnDefs: [
+                    //  { targets: 2,render: $.fn.dataTable.render.moment('Do MMM YYYY') }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                initComplete: function () {
+                    // Apply the search
+                    this.api().columns().every(function () {
+                        var that = this;
+                        $('input', this.header()).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that
+                                    .search(this.value)
+                                    .draw();
+                            }
+                        });
+                    });
+                    //applyOldFilters();
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+
+            });
+            $('#settings').on('click', '.deleteBtn', function () {
+                var table = $('#settings').DataTable();
+                var row = $(this).parents('tr');
+
+                if ($(row).hasClass('child')) {
+                    table.row($(row).prev('tr')).remove().draw();
+                } else {
+                    table
+                        .row($(this).parents('tr'))
+                        .remove()
+                        .draw();
+                }
+
+
+                console.log(table.row($(row).prev('tr')));
+                console.log(table.row($(this)).row());
+                return;
+                $.ajax({
+                    type: "GET",
+                    url: "/Noleggi/ajaxDeleteOption",
+                    data: "id=" + id,
+                    success: function (data) {
+                       
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log("error");
+                        $('.row-element-' + id).className += ' alert-danger';
+                    }
+                });
+            });
+        }
+        $(document).ready(function () {
+            reloadTable();
+
+
+        });
+            //
+
+    </script>
+
+}

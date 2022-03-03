@@ -1,0 +1,141 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Gestione Commesse";
+}
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<section class="content">
+    <div class="row">
+        <div class="col-12 mt-3 mb-3"><b>Menu </b></div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Project" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Commesse</span>
+                        <small class="info-box-number">Contiene la lista delle commesse</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="RelTurnoUser" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Pianificazione Risorse</span>
+                        <small class="info-box-number">Pianificazione Risorse per cantiere</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        @if ((await AuthorizationService.AuthorizeAsync(User, "ResourceRequest.view")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="ResourceRequest" asp-action="Index" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Richiesta Risorse</span>
+                            <small class="info-box-number">Invia e gestisci richieste di risorse</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        
+        <div class="col-12 mt-5 mb-3"><b>Report </b></div>
+        @if ((await AuthorizationService.AuthorizeAsync(User, "report.timesheet")).Succeeded)
+        {
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Timesheet" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-user-clock"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Timesheet</span>
+                        <small class="info-box-number">Ore Lavorate</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "report.giornaliero")).Succeeded)
+        {
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="TimesheetsDailyReport" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-user-clock"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Report Giornalieri</span>
+                        <small class="info-box-number">Ore Lavorate</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "report.mensile")).Succeeded)
+        {
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="TimesheetsDailyReport" asp-action="IndexMontly" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-user-clock"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Report Mensile</span>
+                        <small class="info-box-number">Ore Lavorate</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        }
+
+        @*
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Users" asp-action="Index" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Cantieri</span>
+                            <small class="info-box-number">Area dedicata alla gestione dell'utente</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Home" asp-action="IndexProject" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">AP</span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Anagrafica progetti</span>
+                            <small class="info-box-number">Lista aziende</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        *@
+    </div>
+</section>

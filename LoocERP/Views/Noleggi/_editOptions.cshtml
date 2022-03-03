@@ -1,0 +1,159 @@
+﻿@using LoocERP.Controllers
+<div class="modal fade bd-example-modal-lg" id="modalEditOptions" role="dialog" >
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Dettagli contratto</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="formoptionAssign">
+                    <div id="optionAssignForm" class="row">
+
+                    </div>
+                    <button onclick="updateEclose()" class="btn btn-primary">Aggiungi</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@using (Html.BeginScripts())
+{ 
+<script>
+    var selectedOptions = [];
+    var currentId = '';
+
+
+    function updateEclose() {
+        var data = {};
+        data["Id"] = currentId;
+        for (var k = 0; k < selectedOptions.length; k++) {
+            data["options[" + k + "]"] = selectedOptions[k];
+        }
+        console.log(data);
+        console.log({"ciao" : "miao","ciao2":"boh"});
+        $.post('/Noleggi/ajaxUpdateOptions',
+            data,
+            function (data, status) {
+                refreshUsed(currentId, function () {
+                    var empModal = $('#modalEditOptions');
+                    empModal.modal('hide');
+                });
+            });        
+    }
+
+    function openmodalEditOptions(id) {
+        selectedOptions = [];
+        $("#optionAssignForm").html("");
+        currentId = id;
+        var empModal = $('#modalEditOptions');
+        $.ajax({
+            url: '/Noleggi/ajaxGetOptions?id='+id,
+            success: function (data) {
+
+                for (var k = 0; k < data.data.length; k++) {
+                    var selected = "";
+
+                    if (data.data[k].selected) {
+                        selected = 'checked="checked"';
+                    }
+
+                    $("#optionAssignForm").html($("#optionAssignForm").html() +
+                        '<div class="col-sm-6">' +
+                            '<div class="custom-control custom-switch">'+
+                        '<input type="checkbox" class="custom-control-input" id="switch[' + k + ']" name="options[]" value="' + data.data[k].id +'" onclick="onCheckClick(this)" ' + selected+'>' +
+                                '<label class="custom-control-label" for="switch[' + k + ']">' + data.data[k].name + '</label>' +
+                            '</div>'+
+                        '</div>');
+
+                    if (selected != "") {
+                        selectedOptions.push(data.data[k].id);
+                    }
+                }
+                empModal.modal('show');
+            }
+        });
+    }
+
+
+    function onCheckClick(self) {
+        var val = $(self).is(":checked");
+        var id = $(self).val();
+        console.log(id);
+        if (val) {
+            if (!selectedOptions.includes(id)) {
+                selectedOptions.push(id);
+            }
+        } else {
+            if (selectedOptions.includes(id)) {
+                selectedOptions.splice(selectedOptions.indexOf(id),1);
+            }
+        }
+
+
+
+    }
+
+    function refreshUsed(id,onFinish) {
+        $("#listOptionsUsed").html("");
+
+        $.ajax({
+            url: '/Noleggi/ajaxGetOptions?id=' + id,
+            success: function (data) {
+
+                for (var k = 0; k < data.data.length; k++) {
+                    var selected = "";
+
+                    if (data.data[k].selected) {
+                        $("#listOptionsUsed").html($("#listOptionsUsed").html() +
+                            '<div class="col-sm-12">' +
+                            '<div class="custom-control custom-switch">' +
+                            '<input type="checkbox" class="custom-control-input" id="switch[' + k + ']" name="options[]" value="' + data.data[k].id + '" onclick="onCheckClick(this)" checked="checked"  disabled="disabled">' +
+                            '<label class="custom-control-label" for="switch[' + k + ']">' + data.data[k].name + '</label>' +
+                            '</div>' +
+                            '</div>');
+                    }
+                }
+                onFinish();
+            }
+        });
+    }
+       
+
+    $(document).ready(function () {
+
+        $('#formoptionAssign').on("submit", function (e) {
+            e.preventDefault(); // cancel the actual submit
+
+            var elements = $(this).serializeArray();
+            var data = [];
+
+            jQuery.each(elements, function (i, elem) {
+                data[elem.name] = elem.value;
+            });
+
+            $.ajax({
+                url: '/Noleggi/ajaxAddOption',
+                type: 'post',
+                data: { Name: data["Name"], },
+                success: function (data) {
+                    console.log(data.data);
+
+                    // Add response in Modal body
+                    //Svuoto modale
+                    var empModal = $('#modalproperyedit');
+                    $('#modalproperyedit').modal('hide');
+
+
+                    reloadTable();
+                }
+            });
+        }
+        );
+        }
+    );
+</script>
+
+}

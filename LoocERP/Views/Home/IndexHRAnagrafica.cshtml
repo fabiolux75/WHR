@@ -1,0 +1,102 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Dashboard HR - Anagrafica";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<section class="content-header">
+    <!--
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6 c-white">
+                <h1>@ViewData["Title"]</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="IndexHR">HR</a></li>
+                    <li class="breadcrumb-item active">Anagrafica</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    -->
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Companies" asp-action="Index" asp-route-isExternal="false" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Aziende Interne</span>
+                        <small class="info-box-number">Lista aziende interne</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Users" asp-action="Index" asp-route-type=0 style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Risorse Interne</span>
+                        <small class="info-box-number">Area dedicata alla gestione dell'utente</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Users" asp-action="IndexExt" asp-route-type=0 style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-id-badge"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Report risorse interne</span>
+                        <small class="info-box-number">Area dedicata alla gestione dell'utente</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Companies" asp-action="Index" asp-route-isExternal="true" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Aziende Esterne</span>
+                        <small class="info-box-number">Lista aziende esterne</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Users" asp-action="Index" asp-route-type=4 style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Risorse Esterne</span>
+                        <small class="info-box-number">Area dedicata alla gestione dell'utente</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>
+    </div>
+</section>

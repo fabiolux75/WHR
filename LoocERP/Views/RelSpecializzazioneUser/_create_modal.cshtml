@@ -1,0 +1,123 @@
+﻿@model LoocERP.ViewModels.RelSpecializzazioneUserViewModel
+
+<div class="modal fade show" id="rel-specializzazione-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiungi @ViewBag.Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="RelSpecializzazioneUser" asp-action="Create" runat="server" enctype="multipart/form-data">                
+                <input type="hidden" asp-for="@Model.redirectUrl" class="form-control"></input>
+                <div class="modal-body row">
+                        <div class="form-group col-sm-12">
+                            <label asp-for="@Model.RelSpecializzazioneUser.SpecializzazioneId"></label>
+                            <select asp-for="@Model.RelSpecializzazioneUser.SpecializzazioneId" class="form-control">
+                                <option value="">-</option>
+                                @foreach (Specializzazione item in @Model.SpecializzazioneList)
+                                {
+                                    <option value=@item.ID>@item.Descrizione</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.Code" ></label>                            
+                            <input asp-for="@Model.RelSpecializzazioneUser.Code" class="form-control" required></input>
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.Code" class="text-danger"></span>                            
+                        </div>
+                        
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.Name"></label>                            
+                            <input asp-for="@Model.RelSpecializzazioneUser.Name" class="form-control" required/>
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.Name" class="text-danger"></span>                            
+                        </div>                                                
+                        <div class="form-group col-sm-12">
+                            <label asp-for="@Model.RelSpecializzazioneUser.Description"></label>
+                            <textarea asp-for="@Model.RelSpecializzazioneUser.Description" class="form-control" ></textarea>
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.Description" class="text-danger"></span>
+                        </div>   
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.StartDate"></label>
+                            <input asp-for="@Model.RelSpecializzazioneUser.StartDate" class="form-control" />
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.StartDate" class="text-danger" placeholder="Valido dal"></span>
+                        </div>    
+                                                                  
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.EndDate"></label>
+                            <input asp-for="@Model.RelSpecializzazioneUser.EndDate" class="form-control" />
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.EndDate" class="text-danger" placeholder="Valido al"></span>
+                        </div>                            
+                                                      
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.ValidFrom"></label>
+                            <input asp-for="@Model.RelSpecializzazioneUser.ValidFrom" class="form-control" />
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.ValidFrom" class="text-danger" placeholder="Valido dal"></span>
+                        </div>    
+                                                                  
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.ValidTo"></label>
+                            <input asp-for="@Model.RelSpecializzazioneUser.ValidTo" class="form-control" />
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.ValidTo" class="text-danger" placeholder="Valido al"></span>
+                        </div>                            
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.ReleasedFrom"></label>                            
+                            <input asp-for="@Model.RelSpecializzazioneUser.ReleasedFrom" class="form-control"/>
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.ReleasedFrom" class="text-danger"></span>                            
+                        </div>  
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.ReleasedAt"></label>
+                            <input asp-for="@Model.RelSpecializzazioneUser.ReleasedAt" class="form-control" />
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.ReleasedAt" class="text-danger" placeholder="Valido al"></span>
+                        </div>  
+                        
+                        <div class="form-group col-sm-6">
+                            <label>Il corso è stato superato con esito positivo ?</label> <br>                           
+                            <input asp-for="@Model.RelSpecializzazioneUser.isPromosso" /> SI
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.isPromosso" class="text-danger"></span>                            
+                        </div> 
+                        <div class="form-group col-sm-6">
+                            <label asp-for="@Model.RelSpecializzazioneUser.Vote"></label>                            
+                            <input asp-for="@Model.RelSpecializzazioneUser.Vote" class="form-control"/>
+                            <span asp-validation-for="@Model.RelSpecializzazioneUser.Vote" class="text-danger"></span>                            
+                        </div>
+
+
+                        <div class="form-group col-sm-12">
+                            @if (Model.RelSpecializzazioneUser.FileName != null)
+                            {
+                                <label asp-for="@Model.FileUpload">Sovrascrivi specializzazione esistente - <a href="@ViewBag.fileDownload" download="@(DateTime.Now.ToString("dd-MM-yyyy"))-Specializzazione.pdf"><i class="fa fa-download"></i> Download</a></label>
+                            }
+                            else
+                            {
+                                <label asp-for="@Model.FileUpload">Carica specializzazione</label>
+                            }
+                            <input type="hidden" asp-for="@Model.RelSpecializzazioneUser.FileName">
+                            <input asp-for="@Model.FileUpload" type="file" runat="server" accept=".pdf" class="form-control" />
+                            <span asp-validation-for="@Model.FileUpload" class="text-danger" placeholder="Nome file caricato"></span>
+                            <small class="text-danger">*Saranno caricati esclusivamente file PDF minori di 5MB.</small>
+                        </div>
+
+
+                     
+                        
+                        <input type="hidden" asp-for="@Model.RelSpecializzazioneUser.UserId">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary"  onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+    
+        }
+    </script>        
+}

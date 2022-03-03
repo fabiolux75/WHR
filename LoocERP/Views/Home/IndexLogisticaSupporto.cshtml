@@ -1,0 +1,152 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+@{
+    AppUser layout_user = new AppUser();
+    try
+    {
+        layout_user = @UserManager.GetUserAsync(User).Result;
+    }
+    catch (Exception)
+    {
+        layout_user = new AppUser();
+    }
+    //.MultiTenantId
+}
+@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6 c-white">
+                <h1>@ViewData["Title"]</h1>
+            </div>
+            <!--div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active">HR</li>
+                </ol>
+            </!-div-->
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+    <div class="row">
+        @if ((await AuthorizationService.AuthorizeAsync(User, "GestioneMovimento.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Home" asp-action="IndexGestioneMovimento" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">GM</span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Gestione movimento</span>
+                            <small class="info-box-number">Area gestionale dedicata alla movimentazione della flotta</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "TracciamentoFlotta.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a href="https://gsh27.net/id18/" target="_blank" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">TF</span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Tracciamento flotta</span>
+                            <small class="info-box-number">Tracciamento Flotta</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Magazzino.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                @if (LoocERP.Controllers.Startup.CONNECTION_TYPE == "TEST")
+                {
+                    <a target="_blank" href="http://test.looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/packageadvanced/GestioneMagazzinoHR.aspx&uid=@layout_user.Id" style="color: inherit;">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info">MAG</span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Gestione Magazzino</span>
+                                <small class="info-box-number">Area dedicata alla gestione del magazzino</small>
+                            </div>
+                            <!-- /.info-box-content -->
+                        </div>
+                    </a>
+                }
+                else
+                {
+                    <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/packageadvanced/GestioneMagazzinoHR.aspx&uid=@layout_user.Id" style="color: inherit;">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info">MAG</span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">Gestione Magazzino</span>
+                                <small class="info-box-number">Area dedicata alla gestione del magazzino</small>
+                            </div>
+                            <!-- /.info-box-content -->
+                        </div>
+                    </a>
+                }
+                <!-- /.info-box -->
+            </div>
+        }
+
+        @if ((await AuthorizationService.AuthorizeAsync(User, "PianiDiManutenzione.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Home" asp-action="IndexManutenzione" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">MT</span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Manutenzione</span>
+                            <small class="info-box-number">Area dedicata alla manutenzione</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @*
+            <div class="col-md-3 col-sm-6 col-12">
+                <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=ventura&passwd=test" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-truck"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Logistica di supporto</span>
+                            <small class="info-box-number">Gestione della tua flotta</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        *@
+    </div>
+
+</section>

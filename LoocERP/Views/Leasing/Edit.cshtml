@@ -1,0 +1,284 @@
+﻿@model LoocERP.ViewModels.LeasingViewModel
+
+@{
+    //Layout = "_LayoutEmpty";
+    ViewData["Title"] = "Aggiornamento Leasing";
+
+}
+
+<style>
+    .list-group-inner {
+        border-left: 5px solid blue;
+    }
+
+    input.edit-input {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+
+    span.select2-selection.select2-selection--single {
+        min-height: 40px;
+    }
+</style>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="Leasing" asp-action="Edit">
+        <div class="row">
+            <div class="col-12">
+                <!---------------------------------------------- general form elements------------------------ -->
+                <div class="row">
+
+                    <div class="col-12 col-sm-3">
+                        <div class="card col-12 p-0">
+                            <div class="card-body">
+                                <a class="btn-sm" href="/Leasing"><i class="fa fa-chevron-circle-left"></i> Torna a <b>Leasing</b></a>
+                            </div>
+                        </div>
+                        <div class="card card-top">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6 col-12">
+                                        <input asp-for="@Model.leasing.Id" class="form-control" hidden />
+                                        <div class="form-group">
+                                            <label asp-for="@Model.leasing.ProtocolNumber"></label>
+                                            <input asp-for="@Model.leasing.ProtocolNumber" class="form-control" required />
+                                            <span asp-validation-for="@Model.leasing.ProtocolNumber" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.leasing.StartDate"></label>
+                                            <input asp-for="@Model.leasing.StartDate" class="form-control" required />
+                                            <span asp-validation-for="@Model.leasing.StartDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.leasing.EndDate"></label>
+                                            <input asp-for="@Model.leasing.EndDate" class="form-control" required />
+                                            <span asp-validation-for="@Model.leasing.EndDate" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+
+
+                                </div> <!---ROW-->
+
+                            </div>
+                        </div>
+                        <!-- general form elements -->
+
+                        <div class="card text-right col-12 p-0">
+                            <div class="card-body">
+                                <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                                <input type="submit" value="Aggiorna Leasing" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- general form elements -->
+                    <div class="col-12 col-sm-9">
+
+                        <div class="card card-primary" style="min-height: 1000px;">
+
+                            <div class="card-body">
+                                <div class="row">
+
+                                    <!--DIV LISTA UTENTI DEL CORSO-->
+
+                                    <div class="col-sm-12 col-12">
+                                        <div class="form-group">
+                                            <label>Lista Vettori</label>
+                                            <select class="js-data-example-ajax form-control">
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div> <!--fine row-->
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card card-primary">
+                                            <div class="card-body">
+                                                <div class="col-12">
+                                                    <table id="vettori" class="table table-bordered table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th class="hide-search"></th>
+                                                                <th>Targa</th>
+                                                                <th>Marca</th>
+                                                                <th>Modello</th>
+                                                                <th class="hide-search"></th>
+                                                            </tr>
+                                                        </thead>
+                                                    </table>
+
+
+                                                </div>
+
+                                            </div>
+                                            <!-- /.card-body -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!--fine card-body-->
+                        </div> <!--fine card-primary-->
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+        
+    </form>
+</section>
+
+
+@section Scripts {
+    <script>
+
+        function DeleteRow(id) {
+
+            $.ajax({
+                type: "GET",
+                url: "/Leasing/ajaxRemoveVettore",
+                data: "idAssegnazione=" + id,
+                success: function (data) {
+                    console.log("data: " + data);
+                    console.log("dataid: " + id);
+                    $(".row-element-" + id).remove();
+                    reloadTable();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("error");
+                    $('.row-element-' + id).className += ' alert-danger';
+                }
+            });
+
+        }
+
+        function reloadTable(){
+            $('#vettori').DataTable().clear();
+            $('#vettori').DataTable().destroy();
+
+
+
+            var table = $('#vettori').DataTable({
+                ajax: "/Leasing/ajaxVettoriAssegnati?id=@Model.leasing.Id",
+                //dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, isEmployee, row) {
+
+                            return '<img src="/loocUK/PackageGovernance/ServiziModellazione/ModellazioneVettori/ImgModelliVettore/' + row.img + '" style="height:50px;width:50px;margin: auto;" />';
+                        }
+                    },
+                    { "data": "targa" },
+                    { "data": "marca" },
+                    { "data": "modello" },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            console.log(row);
+                            return '<span>' +
+                                '<a class="col-1" onclick="DeleteRow(\''+row.id+'\')"><i class="nav-icon fa fa-trash"></i></a>' +
+                                '</span>';
+                        }
+                    }
+
+                ],
+                columnDefs: [
+
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        }
+
+
+        $(document).ready(function () {
+
+            $('.js-data-example-ajax').select2({
+                placeholder: "Seleziona i vettori",
+                minimumInputLength: 3,
+                ajax: {
+                    url: '/Leasing/ajaxVettoriSelect2?id=@Model.leasing.Id',
+                    dataType: 'json',
+                    data: function (params) {
+                        var query = {
+                            search: params.term
+                        }
+                        // Query parameters will be ?search=[term]&type=public
+                        return query;
+                    }
+                },
+            });
+
+            $('.js-data-example-ajax').on('select2:select', function (e) {
+                var data = e.params.data;
+                console.log(data.id);
+
+                $.ajax({
+                    type: "GET",
+                    url: "/Leasing/ajaxAddVettore",
+                    data: "IdVettore=" + data.id +"&IdLeasing=@Model.leasing.Id",
+                    success: function (data1) {
+                        reloadTable();
+                    },
+                    error: function (XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }
+                });
+
+
+            });
+            reloadTable();
+        });
+
+    </script>
+}

@@ -1,0 +1,21 @@
+# PRIMA INSTALLAZIONE GRUNT
+> cd LoocNew/wwwroot/looc
+> npm install init
+> npm install grunt --save-dev
+> npm install grunt-cli --save-dev
+> npm install grunt-sass --save-dev
+
+
+
+Everything is now ready to run. Open Task Runner Explorer in Visual Studio from the tool bar 
+View -> Other Windows -> Task Runner Explorer 
+or right click on gruntfile.js 
+in the Solution Explorer and select Task Runner Explorer.
+
+Add binding before Configuration
+
+#INSTALL Extension "NPM Task Runner" e "Command Task Runner"
+
+Open Extension Tab -> Manage Extension -> online -> search  NPM Task Runner -> install
+
+Come sopra installare anche "Command Task Runner"

@@ -1,0 +1,82 @@
+﻿@model LoocERP.Models.ResourceRequest
+<div class="card card-primary">
+    <!-- /.card-header -->
+    <div class="card-body">
+        <div class="col-12">
+            <label>Lista specializzazioni richieste</label>
+            <div class="row">
+                <div class="col-5">
+                    <label>Seleziona Specializzazione</label>
+                    <div class="form-group">
+                        <select style="width:100%" class="form-control" name="" id="specializzazioni_select2"></select>
+                    </div>
+                    <span style="color:red;display: none;" id="specializzazioni_select2_error">Errore valore</span>
+                </div>
+                <div class="col-3">
+                    <div id="macchinaSelect">
+                        <label>Quantità</label>
+                        <div class="form-group">
+                            <input type="text" class="form-control" value="1" id="qty_specializzazioni" required>
+                        </div>
+                        <span style="color:red;display: none;" id="qtySpec_error">Errore valore</span>
+                    </div>
+                </div>
+                <div class="col-1">
+                    <div id="macchinaSelect">
+                        <label></label>
+                        <div class="form-group">
+                            <a class="btn btn-primary waves-effect waves-light" onclick="addS()"><i class="fas fa-plus"></i></a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function addS() {
+        var id = $("#specializzazioni_select2").val();
+        var specializzazione = $("#specializzazioni_select2").text();
+        var idSpecializzazione = $("#specializzazioni_select2").val();
+
+
+
+        var qty = $("#qty_specializzazioni").val();
+
+
+        var i = parseInt(qty);
+
+        $("#qty_specializzazioni").removeClass("is-invalid");
+        $("#qtySpec_error").hide();
+        $("#specializzazioni_select2_error").hide();
+
+        if (idSpecializzazione == null) {
+            $("#specializzazioni_select2_error").show();
+            return;
+        }
+
+        if (i <= 0) {
+            $("#qty_specializzazioni").addClass("is-invalid");
+            $("#qtySpec_error").show();
+            return;
+        }
+
+
+        addSpecializzazione(id, idSpecializzazione, specializzazione, qty);
+
+        $("#specializzazioni_select2").val("");
+        $("#specializzazioni_select2").text("");
+    }
+
+    $('#specializzazioni_select2').select2({
+        placeholder: "Inserisci nome Specializzazione",
+        minimumInputLength: 1,
+        ajax: {
+            url: '/ResourceRequest/ajaxSpecializzazioniList',
+            dataType: 'json',
+
+        },
+    });
+
+</script>

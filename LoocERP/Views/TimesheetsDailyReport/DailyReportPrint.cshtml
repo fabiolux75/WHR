@@ -1,0 +1,694 @@
+﻿@model LoocERP.ViewModels.DailyReportViewModel
+@{
+    Layout = "_LayoutEmpty";
+    ViewData["Title"] = "Report Giornaliero";
+}
+<style>
+    body > .wrapper .content-wrapper {
+        background: white;
+    }
+    .bg-th-table{
+        background: #ffffcc
+    }
+    .bold{
+        font-weight: bold;
+    }
+    .row{
+        margin: 0;
+    }
+    
+    .transparent{
+        color: transparent;
+    }
+    @@media (min-width: 1200px){
+        body > .wrapper .content-wrapper .container, .container-lg, .container-md, .container-sm, .container-xl {
+            max-width: 100%;
+            padding: 0 15px;
+        }
+    }
+    input[type="number"],
+    input[type="text"]{
+        border:none;
+        border-bottom: 1px solid #dee2e6;
+        max-width: 100%;
+        width: 100%;
+    }
+
+/* CHECKBOX       */
+.checkmark {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  height: 20px;
+  width: 20px;
+  background-color: #eee;
+}
+
+/* On mouse-over, add a grey background color */
+.container-check .checkmark {
+  border: 1px solid black !important;
+}
+.container-check:hover input ~ .checkmark {
+  background-color: #ccc;   
+}
+
+/* When the checkbox is checked, add a blue background */
+.container-check input:checked ~ .checkmark {
+  //background-color: #2196F3;
+}
+
+/* Create the checkmark/indicator (hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the checkmark when checked */
+.container-check input:checked ~ .checkmark:after {
+  display: block;
+  //border: 1px solid;  
+  content: "X";
+}
+
+/* Style the checkmark/indicator */
+.container-check .checkmark:after {
+  left: 5px;
+    top: -3px;
+    width: 5px;
+    height: 5px;
+  //border: solid white;
+  //border-width: 0 3px 3px 0;
+  //-webkit-transform: rotate(45deg);
+  //-ms-transform: rotate(45deg);
+  //transform: rotate(45deg);
+}
+</style>
+<div>&nbsp;</div>
+<div class="container">
+<div class="col-12"><b>Documento di stampa</b> - <small>Report Giornaliero del Cantiere</small> <button onclick="window.print()"><i class="fa fa-print"></i></button></div>
+<div>&nbsp</div>
+<div class="col-12 p-0 area-header">
+    <div class="col-12 p-0 mb-1">
+        <div class="row">
+            <div class="col-6 p-0">
+                <div class="row">
+                    <div class="col-4 border text-center">
+                        <div><small>IMPRESA FRANCESCO VENTURA</small></div>
+                        <div><small>COSTRUZIONI FERROVIARE S.r.l</small></div>
+                        <div><small>Paola (Cs)</small></div>
+                    </div>
+                    <div class="col-4 border">
+                        <div><small><b>RAPPORTO DI CANTIERE</b></small></div>
+                        <div><small><small>Sistema di Gestione per la Qualità </small></small></div>
+                        <div><small><small>Mod. 7.3.1 Ed. 02 Rev. 0 - Pag. 1.2</small></small></div>
+                    </div>
+                    <div class="col-4 border bold">
+                        <div><small><span class="bold">Centro di costo: </span><input type="text" name="centrodicosto"/></small></div>
+                        <div><small><span class="bold">Data: </span> <span class="text-capitalize"><small>@Model.TimeSheetDailyReportList.FirstOrDefault().TimeSheetDailyReport.WorkDate.Value.ToString("dddd, MMMM dd, yyyy")</small></span></small></div>
+                        <div><small><span class="bold">Cantiere: </span>@Model.Cantiere.Name</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-6 p-0">
+                <div class="row">
+                    <div class="col-4 border text-center">
+                        <div><small>IMPRESA FRANCESCO VENTURA</small></div>
+                        <div><small>COSTRUZIONI FERROVIARE S.r.l</small></div>
+                        <div><small>Paola (Cs)</small></div>
+                    </div>
+                    <div class="col-4 border">
+                        <div><small><b>RAPPORTO DI CANTIERE</b></small></div>
+                        <div><small><small>Sistema di Gestione per la Qualità </small></small></div>
+                        <div><small><small>Mod. 7.3.1 Ed. 02 Rev. 0 - Pag. 1.2</small></small></div>
+                    </div>
+                    <div class="col-4 border bold">
+                        <div><small><span class="bold">Centro di costo: </span><input type="text" name="centrodicosto"/></small></div>
+                        <div><small><span class="bold">Data: </span> <span class="text-capitalize"><small>@Model.TimeSheetDailyReportList.FirstOrDefault().TimeSheetDailyReport.WorkDate.Value.ToString("dddd, MMMM dd, yyyy")</small></span></small></div>
+                        <div><small><span class="bold">Cantiere: </span>@Model.Cantiere.Name</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+<div class="col-12 p-0 area-blocco2">
+    <div class="col-12 p-0">
+        <div class="row">
+            <div class="col-6 p-0 border">
+                <div class="col-12 p-0">
+                    <div class="row">
+                        <div class="col-2">
+                            <div class="col-12">Tratta di Lavoro: </div>
+                            <div class="col-12"><input type="text"/> </div>
+                        </div>
+                        <div class="col-10 p-0">
+                            @for ( var i=0; i<2;i++){
+                                <div class="col-12 p-0">
+                                    <div class="row">
+                                        <div class="col-1">
+                                            Dal Km
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text"/>
+                                        </div>
+                                        <div class="col-1">
+                                            Al Km
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text"/>
+                                        </div>
+                                        <div class="col-1">
+                                            Dal Km
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text"/>
+                                        </div>
+                                        <div class="col-1">
+                                            Al Km
+                                        </div>
+                                        <div class="col-2">
+                                            <input type="text"/>
+                                        </div>
+                                    </div> 
+                                </div> 
+                            }                          
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 p-0"> <!-- interruzione tecnica -->
+                    <div class="row">
+                        <div class="col-3">
+                            <label class="container container-check p-0">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                <small style="margin-left: 10px;">INTERRUZIONE TERMICA</small>
+                            </label>                                                      
+                        </div>
+                        <div class="col-3">
+                            <label class="container container-check p-0">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                <small style="margin-left: 10px;">INTERRUZIONE PROGRAMMATA</small>
+                            </label>                                                      
+                        </div>
+                        <div class="col-3">
+                            <label class="container container-check p-0">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                <small style="margin-left: 10px;">INTERVALLO DI FASCIA</small>
+                            </label>                                                      
+                        </div>
+                        <div class="col-3">
+                            <label class="container container-check p-0">
+                                <input type="checkbox">
+                                <span class="checkmark"></span>
+                                <small style="margin-left: 10px;">FUORI ESERCIZIO</small>
+                            </label>                                                      
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 p-0">
+                    <div class="row">                                                
+                            <div class="col-12 p-0">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <small>Programmato dalle Ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text">
+                                    </div>
+                                    <div class="col-2">
+                                        <small>Alle Ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text">
+                                    </div>
+                                    <div class="col-2">
+                                        <small>Programmato dalle Ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text">
+                                    </div>
+                                    <div class="col-2">
+                                        <small>Alle Ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-12 p-0">
+                                <div class="row">
+                                    @for ( var i=0; i<2;i++){
+                                        <div class="col-2">
+                                            <small>Concesso/a dalle Ore</small>
+                                        </div>
+                                        <div class="col-1">
+                                            <input type="text">
+                                        </div>
+                                        <div class="col-2">
+                                            <small>Alle Ore</small>
+                                        </div>
+                                        <div class="col-1">
+                                            <input type="text">
+                                        </div>
+                                        <div class="col-2">
+                                            <small>Concesso/a dalle Ore</small>
+                                        </div>
+                                        <div class="col-1">
+                                            <input type="text">
+                                        </div>
+                                        <div class="col-2">
+                                            <small>Alle Ore</small>
+                                        </div>
+                                        <div class="col-1">
+                                            <input type="text">
+                                        </div>
+                                    }
+                                </div> 
+                            </div>     
+                            <div class="col-12 p-0">
+                                <div class="row">
+                                    <div class="col-2">
+                                        <small>Tolta tensione dalle Ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text">
+                                    </div>
+                                    <div class="col-2">
+                                        <small>Alle Ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text">
+                                    </div>
+                                    <div class="col-2">
+                                        <small>Orario di Lavoro dalle ore</small>
+                                    </div>
+                                    <div class="col-1">
+                                        <input type="text" value="@Model.Turno.OraInizio">
+                                    </div>
+                                    <div class="col-2">
+                                        <small>Alle Ore</small>
+                                    </div>
+                                    <div class="col-1">                                        
+                                        <input type="text" value="@Model.Turno.OraFine">
+                                    </div>
+                                </div>
+                            </div>                                                           
+                    </div>
+                </div>                
+            </div>
+            <div class="col-6 p-0">
+                <div class="row">
+                    <div class="col-12 p-0"> <!-- interruzione tecnica -->
+                    <div class="row">
+                        <div class="col-2 p-0 border">
+                            <div class="text-center bg-th-table bold">GASOLIO</div>                                                     
+                            <div class="col-12">
+                                <div class="row">
+                                    <div class="col-2 p-0"><input type="text"></div>  <div class="col-10 p-0"><small>Litri Tot. Pervenuti </small></div>
+                                </div>
+                            </div>
+                             <div class="col-12 ">
+                                <div class="row">
+                                    <div class="col-2 p-0"><input type="text"></div>  <div class="col-10 p-0"><small>Litri Tot. Erogati </small></div>
+                                </div>
+                            </div>                            
+                            <div class="col-12 text-right transparent">
+                                __
+                            </div>
+                        </div>
+                        <div class="col-5 p-0 border">
+                            <div class="text-center bg-th-table bold border-bottom" >RILIEVO TEMPORATURA ROTAIA</div>
+                            @for ( var i=0; i<3;i++){
+                            <div class="col-12 p-0">
+                                <div class="row">
+                                    <div class="col-6 p-0">
+                                        <div class="row">
+                                            <div class="col-6">                                                
+                                                <div class="row">
+                                                    <div class="col-6 p-0"><small><input type="text"></small></div>  <div class="col-6 p-0 text-center"><small>°C </small></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">                                                
+                                                <div class="row">
+                                                   <div class="col-6 p-0 text-center"><small>Ore: </small></div> <div class="col-6 p-0"><small><input type="text"></small></div>  
+                                                </div>
+                                            </div>                                   
+                                        </div>
+                                    </div>
+                                    <div class="col-6 p-0">
+                                        <div class="row">
+                                            <div class="col-6">                                                
+                                                <div class="row">
+                                                    <div class="col-6 p-0 "><small><input type="text"></small></div>  <div class="col-6 p-0 text-center"><small>°C </small></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-6">                                                
+                                                <div class="row">
+                                                   <div class="col-6 p-0 text-center"><small>Ore: </small></div> <div class="col-6 p-0"><small><input type="text"></small></div>  
+                                                </div>
+                                            </div>                                    
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>     
+                            }                                       
+                        </div>
+                        <div class="col-5 p-0 border">
+                            <div class="border-bottom text-center bg-th-table bold">MOTIVO DI NON LAVORO</div>                                
+                            <div class="col-12 p-0">
+                                <div class="row"> 
+                                    <div class="col-6">                                                
+                                        <div class="row">
+                                            <div class="col-2 p-0"><small><input type="text"></small></div> 
+                                            <div class="col-10 p-0 text-left"><small> Alta Temperatura</small></div>  
+                                        </div>
+                                    </div> 
+                                    <div class="col-6">                                                
+                                        <div class="row">
+                                            <div class="col-2 p-0"><small><input type="text"></small></div> 
+                                            <div class="col-10 p-0 text-left"><small> Neve</small></div>  
+                                        </div>
+                                    </div>   
+                                     <div class="col-6">                                                
+                                        <div class="row">
+                                            <div class="col-2 p-0"><small><input type="text"></small></div> 
+                                            <div class="col-10 p-0 text-left"><small> Bassa Temperatura</small></div>  
+                                        </div>
+                                    </div>   
+                                    <div class="col-6">                                                
+                                        <div class="row">
+                                            <div class="col-2 p-0"><small><input type="text"></small></div> 
+                                            <div class="col-10 p-0 text-left"><small> Pioggia</small></div>  
+                                        </div>
+                                    </div> 
+                                    <div class="col-6">                                                
+                                        <div class="row">
+                                            <div class="col-2 p-0"><small><input type="text"></small></div> 
+                                            <div class="col-10 p-0 text-left"><small> Motivi Tecnici</small></div>  
+                                        </div>
+                                    </div>   
+                                     <div class="col-6">                                                
+                                        <div class="row">
+                                            <div class="col-2 p-0"><small><input type="text"></small></div> 
+                                            <div class="col-10 p-0 text-left"><small> Altro</small></div>  
+                                        </div>
+                                    </div>                                                                                                                                                                                                                                                                                                                   
+                                </div>
+                            </div>                            
+                        </div>        
+                        <div class="col-12 p-0 border" style="min-height: 100px;">                            
+                            <div class="col-12 p-0 text-center bg-th-table bold">OSSERVAZIONI/NON CONFORMITA</div>                                
+                            <div class="col-12 p-0"><textarea rows=3 class="form-control"></textarea></div>                                
+                        </div>                
+                    </div>
+                </div>                    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 p-0 area-blocco3">
+    <div class="row">
+        <div class="col-6 p-0 border">
+            <div class="row">
+                <div class="col-3 p-0 bold border">
+                    Oggetto Lavoro
+                </div>
+                <div class="col-9 p-0 border">
+                    <input type="text">
+                </div>
+            </div>
+        </div>
+        <div class="col-6 p-0 border">
+            <div class="row">
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="col-12 p-0 area-blocco4">
+    <div class="col-12 p-0">
+        <div class="row">
+            <div class="col-6 p-0 border">
+                <div class="col-12 p-0">
+                    <div class="row">
+                        <div class="col-1 border text-center bg-th-table p-0"><small class="bold">Pos.</small></div>
+                        <div class="col-2 border text-center bg-th-table p-0"><small class="bold">Codice Lavoro</small></div>
+                        <div class="col-4 border text-center bg-th-table p-0"><small><small class="bold">Descrizione Dettagliata Fase di Lavoro e Materiali Impiegati</small></small></div>
+                        <div class="col-1 border text-center bg-th-table p-0"><small class="bold">Dal Km</small></div>
+                        <div class="col-1 border text-center bg-th-table p-0"><small class="bold">Al Km</small></div>
+                        <div class="col-1 border text-center bg-th-table p-0"><small class="bold">UM</small></div>
+                        <div class="col-1 border text-center bg-th-table p-0"><small class="bold">Quantità</small></div>
+                        <div class="col-1 border text-center bg-th-table p-0"><small class="bold">Binario</small></div>
+                    </div>
+                </div>
+                <div class="col-12 p-0">
+                    <div class="row">
+                        <div class="col-1 p-0 border "><input type="text"></div>
+                        <div class="col-2 p-0 border "><input type="text"></div>
+                        <div class="col-4 p-0 border "><input type="text"></div>
+                        <div class="col-1 p-0 border "><input type="number"></div>
+                        <div class="col-1 p-0 border "><input type="number"></div>
+                        <div class="col-1 p-0 border "><input type="text"></div>
+                        <div class="col-1 p-0 border "><input type="number"></div>
+                        <div class="col-1 p-0 border "><input type="text"></div>
+                    </div>
+                </div>
+                @for ( var i=0; i<26;i++){
+                    <div class="col-12 p-0">
+                        <div class="p-0 border text-center">
+                            <input type="text">
+                        </div>
+                    </div>
+                }                 
+            </div>
+            <div class="col-6 p-0 border">
+                <div class="row">
+                    <div class="col-12 p-0 area-personale">
+                        <div class="col-12 p-0">
+                            <div class="row">
+                                @for(var i=0;i<2;i++){
+                                <div class="col-6 p-0 border">
+                                    <div class="row">
+                                        <div class="col-1 border text-center bg-th-table bold p-0">N°</div>
+                                        <div class="col-3 border text-center bg-th-table bold p-0">Cognome</div>
+                                        <div class="col-2 border text-center bg-th-table bold p-0">Nome</div>
+                                        <div class="col-1 border text-center bg-th-table bold p-0">ore</div>
+                                        <div class="col-1 border text-center bg-th-table bold p-0">str</div>
+                                        <div class="col-1 border text-center bg-th-table bold p-0">not</div>
+                                        <div class="col-1 border text-center bg-th-table bold p-0">gal</div>
+                                        <div class="col-1 border text-center bg-th-table bold p-0">cigo</div>
+                                        <div class="col-1 border text-center bg-th-table bold p-0">EC</div>
+                                    </div>
+                                </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-12 p-0">
+                            <div class="row">
+                                @{ 
+                                    var index = 0;                                     
+                                    int take = Model.TimeSheetDailyReportList.Count;
+                                    int skip = 0;
+                                    int takelast = 0;
+                                    if ( Model.TimeSheetDailyReportList.Count >= 33 ){
+                                        take = 33;  
+                                        take = skip;
+                                        takelast = Model.TimeSheetDailyReportList.Count - 33;
+                                    }
+                                }
+                                <div class="col-6 p-0">
+                                    @foreach (var item in Model.TimeSheetDailyReportList.Take(take))
+                                    {    
+                                        <div class="col-12 p-0">
+                                            <div class="row">
+                                                <div class="col-1 border text-center p-0"><small><small>@(++index)</small></small></div>
+                                                <div class="col-3 border text-center p-0"><small><small>@item.User.LastName</small></small></div>
+                                                <div class="col-2 border text-center p-0"><small><small>@item.User.FirstName</small></small></div>                                            
+                                                <div class="col-1 border text-center p-0"><small><small>@item.TimeSheetDailyReport.Ore</small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small>@item.TimeSheetDailyReport.OreStraordinarie</small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small>@item.TimeSheetDailyReport.OreNotturne</small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small>@item.TimeSheetDailyReport.OreGalleria</small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small>@item.TimeSheetDailyReport.Cigo</small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small>@item.TimeSheetDailyReport.Ec</small></small></div>
+                                            </div>
+                                        </div>                                            
+                                    }
+                                    @for ( var i=Model.TimeSheetDailyReportList.Count; i<33;i++){                                    
+                                        <div class="col-12 p-0 ">
+                                            <div class="row">
+                                                <div class="col-1 border text-center p-0 "><small>@(++index)</small></div>
+                                                <div class="col-3 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-2 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"> </small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"> </small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                <div class="col-6 p-0">
+                                    @foreach (var item in Model.TimeSheetDailyReportList.Skip(skip).Take(takelast))
+                                    {    
+                                        <div class="col-12 p-0">
+                                            <div class="row">
+                                                <div class="col-1 border text-center p-0"><small><small>@(++index)</small></small></div>
+                                                <div class="col-3 border text-center p-0"><small><small>@item.User.LastName</small></small></div>
+                                                <div class="col-2 border text-center p-0"><small><small>@item.User.FirstName</small></small></div>                                            
+                                                <div class="col-1 border text-center p-0"><small><small><input class="text-center" type="text" style="height:100%;" value="@item.TimeSheetDailyReport.Ore"></small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small><input class="text-center" type="text" style="height:100%;" value="@item.TimeSheetDailyReport.OreStraordinarie"></small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small><input class="text-center" type="text" style="height:100%;" value="@item.TimeSheetDailyReport.OreNotturne"></small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small><input class="text-center" type="text" style="height:100%;" value="@item.TimeSheetDailyReport.OreGalleria"></small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small><input class="text-center" type="text" style="height:100%;" value="@item.TimeSheetDailyReport.Cigo"></small></small></div>
+                                                <div class="col-1 border text-center p-0"><small><small><input class="text-center" type="text" style="height:100%;" value="@item.TimeSheetDailyReport.Ec"></small></small></div>
+                                            </div>
+                                        </div>                                            
+                                    }
+                                    @for ( var i=takelast; i<(33-takelast);i++){                                    
+                                        <div class="col-12 p-0 ">
+                                            <div class="row">
+                                                <div class="col-1 border text-center p-0 "><small>@(++index)</small></div>
+                                                <div class="col-3 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-2 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"> </small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"> </small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                                <div class="col-1 border text-center p-0 "><small><input class="text-center" type="text" style="height:100%;"></small></div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div> 
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-12 p-0 area-blocco5">
+    <div class="row">
+        <div class="col-6 p-0 border">
+            <div class="col-12 p-0 border bold text-center">
+                MEZZI UTILIZZATI
+            </div>
+            
+            <div class="col-12 p-0">
+                <div class="row">
+                @for(var i=0;i<3;i++){
+                    <div class="col-4 p-0 bold">
+                        <div class="row">
+                            <div class="col-1 border bg-th-table p-0">
+                                <small class="bold">Pos.</small>
+                            </div>
+                            <div class="col-8 bg-th-table border p-0 text-center">
+                                <small class="bold">Descriz. Mezzo/Macchina</small>
+                            </div>
+                            <div class="col-3 bg-th-table border p-0 text-center">
+                                <small class="bold">Rif. Gasolio </small>
+                            </div>
+                        </div>
+                    </div>
+                }
+                    
+                    <div class="col-4 p-0 bold">
+                        <div class="row">
+                            @for(var i=0;i<8;i++){
+                                <div class="col-1 border p-0 text-center">
+                                    <small class="bold">@(i)</small>
+                                </div>
+                                <div class="col-8 p-0 border">
+                                    <input type="text">
+                                </div>
+                                <div class="col-3 p-0 border">
+                                    <input type="text">
+                                </div>
+                            }       
+                        </div>
+                    </div>                                                               
+                    <div class="col-4 p-0 bold">
+                        <div class="row">
+                            @for(var i=8;i<16;i++){
+                                <div class="col-1 border p-0 text-center">
+                                    <small class="bold">@(i)</small>
+                                </div>
+                                <div class="col-8 p-0 border">
+                                    <input type="text">
+                                </div>
+                                <div class="col-3 p-0 border">
+                                    <input type="text">
+                                </div>
+                            }        
+                        </div>
+                    </div>                                                               
+                    <div class="col-4 p-0 bold">
+                        <div class="row">
+                            @for(var i=16;i<24;i++){
+                                <div class="col-1 border p-0 text-center">
+                                    <small class="bold">@(i)</small>
+                                </div>
+                                <div class="col-8 p-0 border">
+                                    <input type="text">
+                                </div>
+                                <div class="col-3 p-0 border">
+                                    <input type="text">
+                                </div>
+                            }        
+                        </div>
+                    </div>                                                               
+                </div>
+            </div>            
+        </div>
+        <div class="col-6 p-0 border">
+            <div class="row">
+                <div class="col-6 p-0 bold">
+                    <div class="row">
+                        <div class="col-6 p-0">
+                            <div class="text-center border"><small class="bold">Responsabilità Cantiere</small></div>
+                            <div class="border transparent" style="min-height: 110px">_</div>
+                            <div class="text-center border"><small class="bold">Visto Uff. Contabilità - Data </small></div>
+                            <div class="border transparent" style="min-height: 110px">_</div>
+                        </div>
+                        <div class="col-6 p-0" >
+                            <div class="text-center border"><small class="bold">Visto Incaricato Uff. Controllo</small></div>                            
+                            <div class="border transparent" style="min-height: 110px">_</div>
+                            <div class="text-center border"><small class="bold">Visto Uff. Logistica - Data  </small></div>
+                            <div class="border transparent" style="min-height: 110px">_</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-6 p-0 bold">
+                    <div class="row">
+                        <div class="col-6 p-0">
+                            <div class="text-center border"><small class="bold">Note</small></div>
+                            <div class="border p-1" style="min-height: 110px">
+                                <small>A = Assente, PR = Permesso, M = Malattia, F = Ferie, I = Infortunio, PT=Pernotto, S=Sospeso</small>                                
+                            </div>
+                            <div class="text-center border"><small class="bold">Visto CED - Data </small></div>
+                            <div class="border transparent" style="min-height: 110px">_</div>
+                        </div>
+                        <div class="col-6 p-0" >
+                            <div class="text-center border"><small class="bold">Protocollo N/del</small></div>                            
+                            <div class="border transparent" style="min-height: 110px">_</div>
+                            <div class="text-center border"><small class="bold">Osservazioni  </small></div>
+                            <div class="border transparent" style="min-height: 110px"></div>
+                        </div>
+                    </div>
+                </div>  
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</div> <!-- end container class -->

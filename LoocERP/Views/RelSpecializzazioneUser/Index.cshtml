@@ -1,0 +1,131 @@
+﻿@model LoocERP.ViewModels.RelSpecializzazioneUserViewModel
+
+@{
+    Layout = "";
+    ViewData["Title"] = "Specializzazione";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.14/dist/css/bootstrap-select.min.css">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+<div>&nbsp;</div>
+
+<!-- CREATE MODAL -->
+@{
+    await Html.RenderPartialAsync("_create_modal", @Model);
+}
+<script>
+    if (typeof openSpecializzazioneEditModal !== 'function') { //controllo se già esiste
+        function openSpecializzazioneEditModal(id, userid, redirecturl) {
+            console.log(id);            
+            // AJAX request
+            $.ajax({
+                url: '/RelSpecializzazioneUser/Edit',                
+                type: 'get',
+                dataType : 'html',            
+                data: {
+                    id : id,
+                    userId: userid,
+                    redirectUrl: redirecturl,  
+                },            
+                success: function (data) {
+                    //console.log(data);
+                    $('#html-ajax-rel-specializzazione').html(data);
+                    var empModal = $('#rel-specializzazione-update');                    
+                    // Display Modal
+                    empModal.modal('show');
+                }
+            });
+        }
+    }
+</script>
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <a data-toggle="modal" data-target="#rel-specializzazione-create">
+                        Aggiungi <b>@ViewBag.Title</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                    <p class="col-12 p-0">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="table" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Codice</th>
+                                    <th>Specializzazione</th>
+                                    <th>Corso</th>
+                                    <th>Valido dal</th>
+                                    <th>Valido al</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in @Model.RelSpecializzazioneUserList){
+                                    <tr>                                    
+                                        <td>@item.Code</td>    
+                                        <td>@(item.Specializzazione != null ?item.Specializzazione.Name:"")</td>
+                                        <td>@(item.Corsi != null ?item.Corsi.Name:"")</td>                                          
+                                        <td>@item.ValidFrom</td> 
+                                        <td>@item.ValidTo</td>
+                                        <td>
+                                            @if (@item.CorsoId == null)
+                                             {
+                                                <a class="btn-sm"
+                                                   onclick="openSpecializzazioneEditModal('@item.Id','@item.UserId','@Model.redirectUrl');">
+                                                    <i class="fas fa-edit" style="font-size: 18px;"></i>
+                                                </a>                                                                                               
+                                             }
+                                             else if (@item.CorsoId != null && @item.Corsi.Stato == 0)
+                                             {
+                                                <a class="btn-sm"
+                                                   onclick="openSpecializzazioneEditModal('@item.Id','@item.UserId','@Model.redirectUrl');">
+                                                    <i class="fas fa-edit" style="font-size: 18px;"></i><i class="fas fa-lock" style="font-size: 18px;"></i>
+                                                </a>
+                                             }
+                                             else
+                                             {                                              
+                                                <i style="font-size: 18px;"> In svolgimento</i>
+                                             }
+                                        </td>                                 
+                                    </tr> 
+                                 }
+                            </tbody>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+    <div id="html-ajax-rel-specializzazione"></div>
+
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.9/dist/js/bootstrap-select.min.js"></script>    
+}

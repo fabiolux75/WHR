@@ -1,0 +1,169 @@
+﻿@model StazioniCantiere
+@{
+
+    DateTime today = DateTime.Now.Date;
+    string todaystring = @today.Year + "-" + @today.Month.ToString("0#") + "-" + @today.Day.ToString("0#");
+
+}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stlesheet" />
+<div class="modal fade show" id="stazioni-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Crea Stazione</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="Stazioni" asp-action="Create">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12 row">
+                            <input type="hidden" asp-for="@Model.CantiereId" />
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Stazione_id"></label>
+                                    <select style="width:100%" asp-for="@Model.Stazione_id" class="select2-parcheggiovettore form-control" required></select>
+                                    <span asp-validation-for="@Model.Stazione_id" class="text-danger"></span>
+                                </div>
+                                
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label>Inizio</label>
+                                    <input type="date" value="@todaystring" id="dateSearch" data-date="" data-date-format="DD/MM/YYYY" class="form-control" asp-for="@Model.StartValidity" placeholder="Data di consegna" required>
+                                </div>
+                                <!-- /.form group -->
+                            </div>
+                            <!-- time Picker -->
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label>Fine</label>
+                                    <div class="input-group date" id="timepickerturnofine" data-target-input="nearest">
+                                        <input type="date" value="@todaystring" id="dateSearch" data-date="" data-date-format="DD/MM/YYYY" timezone="it-IT" class="form-control" asp-for="@Model.EndValidity" placeholder="Data di consegna" required>
+                                    </div>
+                                    <!-- /.input group -->
+                                </div>
+                                <!-- /.form group -->
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.KmCopertura"></label>
+                                    <input asp-for="@Model.KmCopertura" class="form-control" placeholder="Ora auto chiusura turno" value="0" min="0" />
+                                    <span asp-validation-for="@Model.KmCopertura" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Latitude"></label>
+                                    <input asp-for="@Model.Latitude" class="form-control" placeholder="Ora auto chiusura turno" value="0" min="0" />
+                                    <span asp-validation-for="@Model.Latitude" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Longitude"></label>
+                                    <input asp-for="@Model.Longitude" class="form-control" placeholder="Ora auto chiusura turno" value="0" min="0" />
+                                    <span asp-validation-for="@Model.Longitude" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<style>
+    .map-content {
+        height: 300px;
+        width: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    table.table-bordered.dataTable tbody th,
+    table.table-bordered.dataTable tbody td {
+        padding: 3px !important;
+    }
+
+        table.table-bordered.dataTable tbody td a {
+            font-size: 13px;
+        }
+
+    span.select2-selection.select2-selection--single {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    span.select2-selection.select2-selection--default {
+        min-height: 40px;
+        width: 100% !important;
+    }
+
+    span.select2-selection {
+        min-height: 40px;
+        width: 100% !important;
+    }
+</style>
+
+<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+<script>
+
+    //Timepicker
+    $(function () {
+        $('#date-range0_validity').daterangepicker();
+
+        $("input").on("change", function () {
+            this.setAttribute(
+                "data-date",
+                moment(this.value, "YYYY-MM-DD")
+                    .format(this.getAttribute("data-date-format"))
+            )
+        }).trigger("change")
+
+
+        $('.select2-parcheggiovettore').select2({
+            placeholder: "Inserisci nome parcheggio",
+            minimumInputLength: 3,
+            dropdownParent: $("#stazioni-create"),
+            ajax: {
+                url: '/Stazioni/ajaxCantiereStazioneList',
+                dataType: 'json',
+
+            },
+        });
+
+    });
+    $(document).ready(function () {
+
+
+
+    });
+
+
+</script>
+
+
+<style>
+    .date-picker-wrapper {
+        z-index: 999999999;
+    }
+</style>

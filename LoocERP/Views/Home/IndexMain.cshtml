@@ -1,0 +1,124 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+
+@{
+    AppUser layout_user = new AppUser();
+    try
+    {
+        layout_user = @UserManager.GetUserAsync(User).Result;
+    }
+    catch (Exception)
+    {
+        layout_user = new AppUser();
+    }
+    //.MultiTenantId
+}
+
+@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Menu principale";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+<div>&nbsp;</div>
+
+<section class="content">
+    <div class="row">
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Hr.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Home" asp-action="IndexHR" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info">HR</span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">HR</span>
+                            <small class="info-box-number">Gestisci il tuo personale</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Commesse.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Home" asp-action="IndexHRProject" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-truck"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Gestione Commesse</span>
+                            <small class="info-box-number">Gestisci delle commesse</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Logistica.Show")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a asp-controller="Home" asp-action="IndexLogisticaSupporto" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-truck"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Logistica di supporto</span>
+                            <small class="info-box-number">Gestisci la tua flotta</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "anagrafica.vettore")).Succeeded)
+        {
+            <div class="col-md-3 col-sm-6 col-12">
+                <a href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=@layout_user.LoocUsername&passwd=@layout_user.LoocPassword&urlhr=/PannelloEditor.aspx&uid=@layout_user.Id" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-truck"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Anagrafica vettore</span>
+                            <small class="info-box-number">Gestione anagrafica vettore</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        }
+        @*
+            <div class="col-md-3 col-sm-6 col-12">
+                <a target="_blank" href="http://looc.kresearch.it/PackageGovernance/ServiziAutenticazione/login.aspx?user=ventura&passwd=test" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-truck"></i></span>
+                        <div class="info-box-content">
+                            <span class="info-box-text">Logistica di supporto</span>
+                            <small class="info-box-number">Gestisci la tua flotta</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                </a>
+                <!-- /.info-box -->
+            </div>
+        *@
+    </div>
+
+</section>

@@ -1,0 +1,53 @@
+﻿@model LoocERP.Models.MansioneMacchina
+
+
+
+
+<div class="modal fade" id="modalMansioni_create" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Crea Macchina</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+
+                <form asp-controller="Mansione" asp-action="createMacchina">
+                    <div class="form-group">
+                        <div class="col-sm-12 col-12">
+                            <input id="mansioneId" asp-for="@Model.MansioneId" hidden/>
+                            <div class="form-group">
+                                <label asp-for="@Model.Codice"></label>
+                                <input asp-for="@Model.Codice" class="form-control" placeholder="Codice" />
+                                <span asp-validation-for="@Model.Codice" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Name"></label>
+                                <input asp-for="@Model.Name" class="form-control" placeholder="Name"   />
+                                <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                            </div>
+                            <div class="form-group">
+                                <label asp-for="@Model.Description"></label>
+                                <input asp-for="@Model.Description" class="form-control" placeholder="Descrizione"/>
+                                <span asp-validation-for="@Model.Description" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function openModalMansioniMacchinaCreate(idMansione) {
+        console.log(idMansione);
+        var empModal = $('#modalMansioni_create');
+        $("mansioneId").val(idMansione);
+        empModal.modal('show');
+    }
+</script>

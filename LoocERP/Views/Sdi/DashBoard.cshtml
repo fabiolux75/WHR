@@ -1,0 +1,220 @@
+@model LoocERP.ViewModels.SelectBoxViewModel
+
+@{
+    
+//    ViewData["Title"] = ViewData["inout"].Equals("1")  ?  "Fatture Ricevute" : "Fatture Emesse";
+}
+
+
+
+<div>&nbsp;</div>
+<section class="content">
+
+   
+
+    <div class="row">
+        <div class="col-11 mx-auto">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h4><i class="fas fa-exchange-alt mr-2"></i> Fatture inviate e ricevute <span class="font-small font-weight-bold">[anno : <span id="anno" class="font-small" ></span>]</span></h4>
+                </div>
+                <div class="card-body">
+                    
+                    <div class="col-12">
+
+                       @(Html.DevExtreme().Chart().RedrawOnResize(true)
+                                            .Size(t => t.Height(300))
+                                            .ID("spline-chart")
+                                            .Palette(VizPalette.Violet)
+                                            .CommonSeriesSettings(s => s
+                                                .ArgumentField("mese")
+                                                .Type(SeriesType.Spline)
+                                            )
+                                            .CommonAxisSettings(s => s
+                                                .Grid(g => g.Visible(true))
+                                            )
+                                            .Margin(m => m.Bottom(20))
+                                            .Series(s => {
+                                                s.Add().ValueField("fattureEmesse").Name("Fatture Emesse").Color("Green");
+                                                s.Add().ValueField("fattureRicevute").Name("Fatture Ricevute").Color("Red");
+                                            })
+                                            .Tooltip(t => t.Enabled(true)
+                                                            //.ContentTemplate(new JS("customTooltip"))
+                                                            .CustomizeTooltip("customTooltip")
+                                                            )
+                                            .Legend(l => l
+                                                .VerticalAlignment(VerticalEdge.Top)
+                                                .HorizontalAlignment(HorizontalAlignment.Right)
+                                            )
+                                            .ArgumentAxis(a => a
+                                                .Label(l => l.CustomizeText("changeMonth"))
+                                                .AllowDecimals(false)
+                                                .Grid(g => g.Visible(false))
+                                                .AxisDivisionFactor(60)
+                                            )
+                                            .ValueAxis(y => y.Add().Label(l => l.CustomizeText("changeValue"))
+                                            )
+                                            //.Export(e => e.Enabled(true))
+                                            .DataSource(d => d.Mvc()
+                                                            .Controller("sdi")
+                                                            .LoadAction("getChart")
+                                                            .LoadParams(new
+                                                            {
+                                                                anno = new JS("function() { return anno; }")
+                                                            }) 
+                                            )
+                                            .AdaptiveLayout( t => t.Width(400).KeepLabels(true))
+                                            
+                                        )
+
+                    </div>
+                    <div class="form-group row callout callout-success">
+                        <label for="selectboxanno" class="col-sm-2 col-form-label"><i class="fas fa-search mr-2 text-muted"></i> Visualizza andamento anno: </label>
+                        
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 ">
+                                 @(Html.DevExtreme().SelectBox().ID("selectboxanno")
+                                    .Items( Model.Items )
+                                    .Placeholder(" - Seleziona anno -")
+                                    .OnValueChanged("changeYear")
+                                    .ShowClearButton(true)
+                                )
+                                @* <span class="text-muted"><small>Scegli l'anno per visualizzare l'andamento del periodo</small></span> *@
+                        </div>
+                        
+                    </div>                     
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row" style="display: none;">
+        
+        <div class="col-xs-11 col-sm-11 col-md-11 col-lg-11 mx-auto">
+            
+            <div class="row">
+                
+            
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header bg-light text-uppercase mb-2 font-weight-bold">
+                            Fatture da pagare
+                        </div>             
+                        <div class="card-body" id="js-number-tot-fatture-da-pagare-body" style="">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    @* <h6 class="text-uppercase text-muted mb-2 ">
+                                        Fatture da pagare
+                                    </h6> *@
+                                    <span id="js-number-tot-fatture-da-pagare-result" class="mb-0 font-weight-bold">€ 76.489,00</span>
+                                    <span id="js-number-tot-fatture-da-pagare-compare" class="badge mt-n1 ml-1 badge-soft-success"></span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h2 text-muted mb-0"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header bg-light text-uppercase mb-2 font-weight-bold">
+                            Fatture da incassare
+                        </div>                
+                        <div class="card-body" id="js-number-tot-fatture-da-incassare-body" style="">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    @* <h6 class="text-uppercase text-muted mb-2">
+                                        Fatture da incassare
+                                    </h6> *@
+                                    <span id="js-number-tot-fatture-da-incassare-result" class="mb-0 text-md font-weight-bold">€ -26.715,00</span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h2 text-muted mb-0"><i class="fa fa-credit-card" aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header bg-light text-uppercase mb-2 font-weight-bold">
+                            Fatture inviate
+                        </div>
+                        <div class="card-body" id="js-number-tot-fatture-inviate-body" style="">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    @* <h6 class="text-uppercase text-muted mb-2">
+                                        Fatture inviate
+                                    </h6> *@
+                                    <span id="js-number-tot-fatture-inviate-result" class="mb-0 text-md font-weight-bold">€ 97.412,00</span>
+                                    <span id="js-number-tot-fatture-inviate-compare" class="badge mt-n1 ml-1 badge-soft-danger"></span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h2 text-muted mb-0"><i class="fa fa-arrow-up text-green" aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header bg-light text-uppercase mb-2 font-weight-bold">
+                            Fatture ricevute
+                        </div>
+                        <div class="card-body" id="js-number-tot-fatture-ricevute-body" style="">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    @* <h6 class="text-uppercase text-muted mb-2">
+                                        Fatture ricevute
+                                    </h6> *@
+                                    <span id="js-number-tot-fatture-ricevute-result" class="mb-0 text-md font-weight-bold">€ -20.036,00</span>
+                                    <span id="js-number-tot-fatture-ricevute-compare" class="badge mt-n1 ml-1 badge-soft-success"></span>
+                                </div>
+                                <div class="col-auto">
+                                    <span class="h2 text-muted mb-0"><i class="fa fa-arrow-down text-danger" aria-hidden="true"></i></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div> 
+    
+    
+</section>
+
+@section Scripts{ 
+    <script>
+
+        var anno = new Date().getFullYear();
+        $("#anno").text(anno);
+        var month = ["Gen", "Feb", "Mar", "Apr", "Mag", "Giu", "Lug","Ago", "Set", "Ott", "Nov", "Dic"];
+
+        function changeMonth(info){
+            return month[info.value-1];
+        }
+
+        function changeValue(info){
+            return info.value + " €";
+        }
+
+
+        function customTooltip(data) {
+            return { text: month[data.argumentText - 1] + "<br /> <b>" + data.valueText + " €</b>"}
+        }
+
+        function changeYear(data){
+            console.log(data.value);
+            if (data.value == null) {
+                anno = new Date().getFullYear();
+            } else {
+                anno = data.value;
+            }
+
+            $("#anno").text(anno);
+            $("#spline-chart").dxChart("instance").refresh(); // Reload data. In this case, loadParams gets the new charger value
+        }        
+
+    </script>
+}

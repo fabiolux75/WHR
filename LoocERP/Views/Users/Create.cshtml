@@ -1,0 +1,203 @@
+﻿@model LoocERP.ViewModels.CreateViewModel
+@{
+    ViewData["Title"] = "Risorsa";
+    if (ViewBag.type == 0) // || ViewBag.type == 1 || ViewBag.type == 2)
+    {
+        ViewData["Title"] = "Risorse Interne";
+    }
+    else if (ViewBag.type == 4) //(ViewBag.type == 3 || ViewBag.type == 4 || ViewBag.type == 5)
+    {
+        ViewData["Title"] = "Risorse Esterne Fornitore";
+    }
+    else if (ViewBag.type == 5)
+    {
+        ViewData["Title"] = "Risorse Esterne Cliente";
+    }
+
+}
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Crea una <b>@ViewData["Title"]</b></small></h4>
+                    </div>
+                </div>
+            <div class="card">
+
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <form method="post" asp-controller="Users" asp-action="Create">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div asp-validation-summary="All" class="text-danger col-12"></div>
+
+                                <div class="form-group  col-12">
+                                    <label asp-for="@Model.User.IDCompany"></label><label>*</label>
+                                    @if (Model.Companies.Count <= 0)
+                                    {
+                                        <label class="text-danger">Non sono presenti Aziende per il tipo scelto! Creare prima un'azienda!</label>
+                                    }
+                                    <select asp-for="@Model.User.IDCompany" class="form-control">
+                                        <option selected="selected" value="">Seleziona azienda</option>
+                                        @foreach (var c in Model.Companies)
+                                        {
+                                            <option value="@c.ID">@c.RagioneSociale</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-group col-12 col-sm-6">
+                                    <label asp-for="@Model.User.InternalCode"></label>
+                                    <input asp-for="@Model.User.InternalCode" class="form-control" />
+                                    <span asp-validation-for="@Model.User.InternalCode" class="text-danger"></span>
+                                </div>
+                                <div class="form-group  col-xs-12 col-sm-6">
+                                    <label asp-for="@Model.User.Email"></label><label>*</label>
+                                    <input asp-for="@Model.User.Email" class="form-control" />
+                                    <span asp-validation-for="@Model.User.Email" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-12 col-sm-6">
+                                    <label asp-for="@Model.User.FirstName"></label>
+                                    <input asp-for="@Model.User.FirstName" class="form-control" />
+                                    <span asp-validation-for="@Model.User.FirstName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group col-12 col-sm-6">
+                                    <label asp-for="@Model.User.LastName"></label>
+                                    <input asp-for="@Model.User.LastName" class="form-control" />
+                                    <span asp-validation-for="@Model.User.LastName" class="text-danger"></span>
+                                </div>
+                                <div class="form-group  col-12 col-sm-6">
+                                    <label asp-for="@Model.User.PhoneNumber"></label>
+                                    <input asp-for="@Model.User.PhoneNumber" class="form-control" required data-errormessage-value-missing="Campo richiesto" />
+                                    <span asp-validation-for="@Model.User.PhoneNumber" class="text-danger"></span>
+                                </div>
+                                <div class="form-group  col-12 col-sm-6">
+                                    <label asp-for="@Model.User.Gender"></label>
+                                    <select asp-for="@Model.User.Gender" asp-items="Html.GetEnumSelectList<Gender>()" class="form-control"></select>
+                                </div>
+
+                                <!--E' sempre un dipendente-->
+                                <input asp-for="@Model.User.isEmployee" type="hidden" value="1" class="form-control" />
+                                <input type="hidden" name="type" value=@Model.type class="form-control" />
+
+                                <!--E' sempre un EmailConfirmed = 1-->
+                                <input asp-for="@Model.User.EmailConfirmed" type="hidden" value="true" class="form-control" />
+
+                               @* 
+                    @if (ViewBag.type == 1)
+                    {
+                        <input asp-for="@Model.User.isEmployee" type="hidden" value="1" class="form-control" />
+                    }
+                    else
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="exampleCheck1" name="User.isEmployee" value="1">
+                            <label class="form-check-label" asp-for="@Model.User.isEmployee">E' un dipendente?</label>
+                        </div>
+                    }
+                                
+
+                        <div class="col-12 col-sm-6 ">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.CodiceCartaCarb"></label>
+                                <input asp-for="@Model.User.CodiceCartaCarb" class="form-control" />
+                                <span asp-validation-for="@Model.User.CodiceCartaCarb" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 ">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.NfcCode"></label>
+                                <input asp-for="@Model.User.NfcCode" class="form-control" />
+                                <span asp-validation-for="@Model.User.NfcCode" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 ">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.CodiceFiscale"></label>
+                                <input asp-for="@Model.User.CodiceFiscale" class="form-control" />
+                                <span asp-validation-for="@Model.User.CodiceFiscale" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.Nazione"></label>
+                                <!--input asp-for="Nazione" class="form-control" /-->
+                                <!-- METTERE data-value="ITA" PER SETTARE il VALORE DI DEFAULT -->
+                                <!-- <select id="nazione" asp-for="Nazione" class="form-control" onchange="setRegioni(this)" data-value="ITA">  -->
+                                <select id="nazione" asp-for="@Model.User.Nazione" class="form-control" onchange="setRegioni(this)" data-value="ITA"></select>
+                                <span asp-validation-for="@Model.User.Nazione" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.Regione"></label>
+                                <!--input asp-for="Regione" class="form-control" /-->
+                                <select id="regione" asp-for="@Model.User.Regione" class="form-control" onchange="setProvince(this)" disabled></select>
+                                <span asp-validation-for="@Model.User.Regione" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.Provincia"></label>
+                                <!--input asp-for="Provincia" class="form-control" /-->
+                                <select id="provincia" asp-for="@Model.User.Provincia" class="form-control" onchange="setComuni(this)" disabled></select>
+                                <span asp-validation-for="@Model.User.Provincia" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.Citta"></label>
+                                <!--input asp-for="Citta" class="form-control" /-->
+                                <select id="comune" asp-for="@Model.User.Citta" class="form-control" disabled></select>
+                                <span asp-validation-for="@Model.User.Citta" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.Indirizzo"></label>
+                                <input asp-for="@Model.User.Indirizzo" class="form-control" />
+                                <span asp-validation-for="@Model.User.Indirizzo" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 ">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.TipoPatente"></label>
+                                <input asp-for="@Model.User.TipoPatente" class="form-control" />
+                                <span asp-validation-for="@Model.User.TipoPatente" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 ">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.NumeroPatente"></label>
+                                <input asp-for="@Model.User.NumeroPatente" class="form-control" />
+                                <span asp-validation-for="@Model.User.NumeroPatente" class="text-danger"></span>
+                            </div>
+                        </div>
+                                *@
+                                @*
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.User.DataScadenzaPatente"></label>
+                                <input asp-for="@Model.User.DataScadenzaPatente" class="form-control" />
+                                <span asp-validation-for="@Model.User.DataScadenzaPatente" class="text-danger"></span>
+                            </div>
+                        </div>
+                                *@
+                                <div class="form-group  col-12 text-right">
+                                    <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                                    <button type="submit" class="btn btn-primary pull-right">Salva</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+

@@ -1,0 +1,172 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+
+@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Gestione movimentazione vettori";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+<!--
+<div class="col">
+    <button id="add-row">Add Blank Row to bottom</button>
+    <button id="del-row">Remove Row "Oli Bob"</button>
+    <button id="clear">Empty the table</button>
+    <button id="reset">Reset</button>
+</div>
+-->
+
+<section class="content-header">
+    <div class="container-fluid">
+
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12 mt-3 mb-3"><b>Area Vettori </b></div>
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Vettori.View")).Succeeded)
+        {
+            <div class="col-md-12 col-sm-6 col-12">
+                <a asp-controller="Vettore" asp-action="Index" style="color: inherit;">
+                    <div class="info-box">
+                        <span class="info-box-icon bg-info"><i class="fa fa-car"></i></span>
+
+                        <div class="info-box-content">
+                            <span class="info-box-text">Vettori</span>
+                            <small class="info-box-number" style="min-height: 40px;">Visualizzazione dei vettori con assegnazione a cantiere, parcheggio, utente</small>
+                        </div>
+                        <!-- /.info-box-content -->
+                    </div>
+                    <!-- /.info-box -->
+                </a>
+            </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Vettori.View.Industriali")).Succeeded)
+        {
+        <div class="col-md-6 col-sm-6 col-12">
+            <a asp-controller="Vettore" asp-action="Index" asp-route-settore="INDUST" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-car"></i><i class="fa fa-exclamation-triangle"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Macchine Industriali</span>
+                        <small class="info-box-number" style="min-height: 40px;">Visualizzazione delle Macchine Industriali con assegnazione a cantiere, parcheggio, utente</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Vettori.View.Stradali")).Succeeded)
+        {
+        <div class="col-md-6 col-sm-6 col-12">
+            <a asp-controller="Vettore" asp-action="Index" asp-route-settore="MA.STR" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-car"></i><i class="fa fa-road"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Macchine Stradali</span>
+                        <small class="info-box-number" style="min-height: 40px;">Visualizzazione delle Macchine Stradali con assegnazione a cantiere, parcheggio, utente</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "Vettori.View.Attrezzature")).Succeeded)
+        {
+        <div class="col-md-6 col-sm-6 col-12">
+            <a asp-controller="Vettore" asp-action="Index" asp-route-settore="ATTREZ" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-car"></i><i class="fa fa-road"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Attrezzature</span>
+                        <small class="info-box-number" style="min-height: 40px;">Visualizzazione delle attrezzature con assegnazione a cantiere, parcheggio, utente</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        }
+
+         @if (
+             (await AuthorizationService.AuthorizeAsync(User, "VettoreCantiere.Show")).Succeeded ||
+             (await AuthorizationService.AuthorizeAsync(User, "VettoreParcheggio.Show")).Succeeded
+             
+             )
+         {
+            <div class="col-12 mt-3 mb-3"><b>Area Gestione Vettori </b></div>
+         }
+        @if ((await AuthorizationService.AuthorizeAsync(User, "VettoreCantiere.Show")).Succeeded)
+        {
+        <div class="col-md-6 col-sm-6 col-12">
+            <a asp-controller="Vettore" asp-action="VettoreCantiere" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-user"></i><i class="fa fa-exclamation-triangle"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Cantiere</span>
+                        <small class="info-box-number" style="min-height: 40px;">Visualizzazione degli vettori assegnati al cantiere</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        }
+       
+        <div class="col-md-6 col-sm-6 col-12">
+            <a asp-controller="Vettore" asp-action="VettoreUser" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-user"></i><i class="fa fa-car"></i></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Personale</span>
+                        <small class="info-box-number" style="min-height: 40px;"> Visualizzazione degli vettori assegnati all'utente </small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        
+        @if ((await AuthorizationService.AuthorizeAsync(User, "VettoreParcheggio.Show")).Succeeded)
+        {
+        <div class="col-md-6 col-sm-6 col-12">
+            <a asp-controller="Vettore" asp-action="VettoreParcheggio" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><b>P</b></span>
+
+                    <div class="info-box-content">
+                        <span class="info-box-text">Parcheggio</span>
+                        <small class="info-box-number" style="min-height: 40px;">Visualizzazione dei vettori inseriti nel parcheggio </small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+                <!-- /.info-box -->
+            </a>
+        </div>
+        }
+    </div>
+
+</section>

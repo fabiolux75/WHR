@@ -1,0 +1,209 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+ViewData["Title"] = "Ruoli";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+<!--
+<div class="col">
+    <button id="add-row">Add Blank Row to bottom</button>
+    <button id="del-row">Remove Row "Oli Bob"</button>
+    <button id="clear">Empty the table</button>
+    <button id="reset">Reset</button>
+</div>
+-->
+
+<section class="content-header">
+    <div class="container-fluid">
+        
+    </div><!-- /.container-fluid -->
+</section>
+<section class="content">
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <div class="float-left">
+                        <h3 class="card-title">Lista Ruoli</h3>
+                    </div>
+                    <div class="float-right">
+                        <a asp-controller="roles" asp-action="create">
+                           <i class="fas fa-plus"></i>
+                        </a>
+                    </div>
+                </div>
+                <!-- /.card-header -->
+                <div class="card-body">
+                   
+                    <div class="col-12">
+
+                        <table id="example" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Titolo</th>
+                                    <th>Permessi</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var role in Model)
+                                {
+                                    <tr>
+                                        <td>@role.Title</td> 
+                                        @if(role.Claims.Count == 0)
+                                        {
+                                            <td>Nessun ruolo assegnato</td>
+                                        }
+                                        else
+                                        {
+                                            <td>
+
+                                                @foreach (var c in role.Claims)
+                                                {
+                                                    <span class="badge badge-info">
+                                                        @Html.Raw(c.Type)
+                                                    </span>
+                                                }
+                                            </td>
+                                        }
+                                        <td><a asp-controller="roles" asp-action="edit" asp-route-id="@role.RoleId"><i class='fa fa-edit'></i></a></td>
+                                    </tr>
+                                }
+                            </tbody>
+                            
+                        </table>
+
+
+                    </div>
+                   
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    
+
+        .dossier_titre {
+            margin: 0px 0px 20px 0px;
+        }
+
+            .dossier_titre h2 {
+                color: #616263;
+                font-size: 150%;
+                font-weight: lighter;
+                padding: 0px 0px 12px 0px;
+                background: none;
+                border: 1px solid grey;
+                display: table-cell;
+                text-transform: uppercase;
+            }
+
+        .dossier_titre:after {
+            content: "";
+            display: table-cell;
+            width: 100%;
+        }
+</style>
+
+
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.5/jspdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/2.3.2/jspdf.plugin.autotable.js"></script>
+    <script>
+        $(document).ready(function () {
+            $('#example thead tr').clone(true).appendTo( '#example thead' );
+            $('#example thead tr:eq(1) th').each( function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                } else {
+                    $(this).html('');
+                }
+                
+            } );
+
+            var table = $('#example').DataTable({
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                initComplete: function () {
+                    // Apply the search
+                    this.api().columns().every(function () {
+                        var that = this;
+
+                        $('input', this.footer()).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that
+                                    .search(this.value)
+                                    .draw();
+                            }
+                        });
+                    });
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+
+
+    </script>
+}
+<style>
+    .tabulator, .tabulator-header, .tabulator-tableHolder {
+        overflow: visible !important;
+    }
+
+    .menu--expanded {
+        animation-name: menuAnimation;
+        animation-duration: 0.2s;
+        animation-timing-function: linear;
+    }
+
+    .menu__contents--expanded {
+        animation-name: menuContentsAnimation;
+        animation-duration: 0.2s;
+        animation-timing-function: linear;
+    }
+</style>

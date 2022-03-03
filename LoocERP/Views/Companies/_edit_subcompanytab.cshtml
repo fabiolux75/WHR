@@ -1,0 +1,339 @@
+﻿@model LoocERP.ViewModels.EditCompanyViewModel
+@{
+    ViewData["Title"] = "Aziende Figlia";
+    if (ViewBag.isExternal)
+    {
+        ViewData["Title"] = "Aziende Esterne";
+    }
+    ViewData["activePage"] = "CompanyPage";
+}
+
+<section id="tab-aziende">
+    <!--
+        <div class="card">
+            <div class="card-body">
+                <div class="col-12">
+                    <a href="/Companies/create?parentID=@Model.Company.ID&isExternal=@Model.Company.isExternal">
+                        Crea nuova azienda <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                    <p class="col-12 p-0">
+                        Attiva e disattiva un azienda del gruppo.
+                    </p>
+                </div>
+            </div>
+        </div>
+    -->
+    <div class="col-12">
+        <div class="row">
+            <div class="col-12" style="float-right">
+                @if ( @ViewBag.isExternal == false ){
+                    <a class="btn btn-primary" href="/Companies/create?parentID=@Model.Company.ID&isExternal=@Model.Company.isExternal">Crea <b>@ViewData["Title"] </b><i class="fa fa-plus-circle"></i></a>
+                }
+                @if ( @ViewBag.isExternal == true ){
+                    <a class="btn btn-primary" href="/Companies/create?parentID=@Model.Company.ID&isExternal=@Model.Company.isExternal&isSupplier=true">Crea <b>@ViewData["Title"] Fornitore </b><i class="fa fa-plus-circle"></i></a>
+                    <a class="btn btn-primary" href="/Companies/create?parentID=@Model.Company.ID&isExternal=@Model.Company.isExternal&isCustomer=true">Crea <b>@ViewData["Title"] Cliente </b><i class="fa fa-plus-circle"></i></a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            Aziende associate
+        </div>
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12" style="background: rgba(240,240,240,0.8);border-radius: 10px;padding: 15px;">
+                    <div class="col-12 p-0">
+                        <table id="table-top" class="tablegrid display nowrap" width="100%">
+                        </table>
+                    </div>
+                </div>
+                @*
+                    <hr />
+                    <div class="col-12" style="background: rgba(240,240,240,0.8);border-radius: 10px;padding: 15px;">
+                        <div class="col-12 p-0">
+                            <label>Aziende non attive</label>
+                        </div>
+                        <div>&nbsp;</div>
+
+                        <div class="col-12 p-0">
+                            <table id="table-bottom" class="tablegrid display nowrap" width="100%">
+                            </table>
+                        </div>
+                    </div>
+                *@
+            </div>
+        </div>
+    </div>
+</section>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.js"></script>
+
+<script>
+
+    $(document).ready(function () {
+        var mainid = '#tab-aziende';
+        var ajaxtop = '/Companies/ajaxIndex?parentId=@Model.Company.ID&isExternal=@Model.Company.isExternal';
+        var ajaxbottom = '/Companies/ajaxIndex?parentId=@Model.Company.ID&active=0';
+
+        $(mainid + " #addCompGruppo").click(function () {
+            $(mainid + " #addCompGruppo .button-new-elem").toggleClass("d-none");
+            $(mainid + " #addCompGruppo .table-bottom").toggleClass("d-none");
+        });
+
+        /* TABELLA 1 */
+        $(mainid + ' #table-top thead tr').clone(true).appendTo(mainid + ' #table-top thead');
+        $(mainid + ' #table-top thead tr:eq(1) th').each(function (i) {
+            var title = $(this).text();
+            if (!$(this).hasClass("hide-search")) {
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                $('input', this).on('keyup change', function () {
+                    if (table.column(i).search() !== this.value) {
+                        table
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            }
+        });
+
+
+        var table = $(mainid + ' #table-top').DataTable({
+            ajax: ajaxtop,
+            dom: 'Bfrtip',//dom: 'Bftp',
+            buttons: [
+                'copyHtml5',
+                'excelHtml5',
+                'csvHtml5',
+                'pdfHtml5'
+            ],
+            "columns": [
+                /*
+                {
+                    "data": null,
+                    "name": "",
+                    "render": function (data, type, row) {
+                        return '<span><i class="fa fa-arrows-alt"></i></span>';
+                    }
+                },
+                */
+                {
+                    "title": "Logo",
+                    "data": null,
+                    "name": "Immagine",
+                    "render": function (data, tModelpCompanyCisExternalompanye, row) {
+                        return '<img class="circle_icon" src="/Companies/getCompanyPicture?id=' + row.id + '&v=' + Date.now() + '" style="height:20px;width:20px;" />';
+                    }
+                },
+                { "title": "Ragione Sociale", "data": "ragioneSociale" },
+                {
+                    "data": null,
+                    "name": "",
+                    "render": function (data, type, row) {
+                        return '<span>' +
+                            '<a class="btn-sm" href="/Companies/edit?id=' + row.id + '"><i class="fa fa-edit"></i></a>' +
+                            //'<a class="btn-sm" href="/Companies/delete?id=' + row.id + '"><i class="fa fa-trash"></i></a>' +
+                            '</span>';
+                    }
+                },
+            ],
+            "language": {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+            autoWidth: false,
+            responsive: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            columnDefs: [
+                {
+                    targets: 0,
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('draggable_tr');
+                    }
+                },
+                { width: '10px', targets: 0 },
+                //{ width: '30px', targets: 1 },
+                { width: '80px', targets: 2 }
+            ],
+            /*
+            drawCallback: function () {
+                $(mainid + " #table-top tr .draggable_tr").draggable({
+                    helper: function () {
+                        var selected = $('tr.selectedRow');
+                        if (selected.length === 0) {
+                            selected = $(this).closest('tr').addClass('selectedRow');
+                        }
+                        var container = $('<div/>').attr('id', 'draggingContainer');
+                        container.append(selected.clone().removeClass("selectedRow"));
+                        return container;
+                    }
+                });
+            },
+            */
+        });
+
+        /* TABELLA 2 */
+        /*
+        $(mainid + ' #table-bottom thead tr').clone(true).appendTo(mainid + ' #table-bottom thead');
+        $(mainid + ' #table-bottom thead tr:eq(1) th').each(function (i) {
+            var title = $(this).text();
+            if (!$(this).hasClass("hide-search")) {
+                $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                $('input', this).on('keyup change', function () {
+                    if (table.column(i).search() !== this.value) {
+                        table
+                            .column(i)
+                            .search(this.value)
+                            .draw();
+                    }
+                });
+            }
+        });
+
+        var table2 = $(mainid + ' #table-bottom').DataTable({
+            ajax: ajaxbottom,
+            dom: 'Bfrtip',//dom: 'Bftp',
+            buttons: [
+                'copyHtml5',
+                'excelHtml5',
+                'csvHtml5',
+                'pdfHtml5'
+            ],
+            columns: [
+                {
+                    "data": null,
+                    "name": "",
+                    "render": function (data, type, row) {
+                        return '<span><i class="fa fa-arrows-alt"></i></span>';
+                    }
+                },
+                {
+                    "width:": "50px",
+                    "title": "Logo",
+                    "data": null,
+                    "name": "Immagine",
+                    "render": function (data, type, row) {
+                        return '<img src="/Companies/getCompanyPicture?id=' + row.id + '" style="height:20px;width:20px;" />';
+                    }
+                },
+                { "title": "Ragione Sociale", "data": "ragioneSociale" },
+                {
+                    "data": null,
+                    "name": "",
+                    "render": function (data, type, row) {
+                        return '<span>' +
+                            '<a class="btn-sm" href="/Companies/edit?id=' + row.id + '"><i class="fa fa-edit"></i></a>' +
+                            //'<a class="btn-sm" href="/Companies/delete?id=' + row.id + '"><i class="fa fa-trash"></i></a>' +
+                            '</span>';
+                    }
+                },
+            ],
+            language: {
+                "sEmptyTable": "Nessun dato presente nella tabella",
+                "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                "sInfoPostFix": "",
+                "sInfoThousands": ".",
+                "sLengthMenu": "Visualizza _MENU_ elementi",
+                "sLoadingRecords": "Caricamento...",
+                "sProcessing": "Elaborazione...",
+                "sSearch": "Cerca:",
+                "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                "oPaginate": {
+                    "sFirst": "Inizio",
+                    "sPrevious": "Precedente",
+                    "sNext": "Successivo",
+                    "sLast": "Fine"
+                },
+                "oAria": {
+                    "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                    "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                }
+            },
+            autoWidth: false,
+            responsive: true,
+            orderCellsTop: true,
+            fixedHeader: true,
+            columnDefs: [
+                {
+                    targets: 0,
+                    createdCell: function (td, cellData, rowData, row, col) {
+                        $(td).addClass('draggable_tr');
+                    }
+                },
+                { width: '10px', targets: 0 },
+                { width: '30px', targets: 1 },
+                { width: '80px', targets: 3 }
+            ],
+            drawCallback: function () {
+                $(mainid + " #table-bottom tr .draggable_tr").draggable({
+                    helper: function () {
+                        var selected = $('tr.selectedRow');
+                        if (selected.length === 0) {
+                            selected = $(this).closest('tr').addClass('selectedRow');
+                        }
+                        var container = $('<div/>').attr('id', 'draggingContainer');
+                        container.append(selected.clone().removeClass("selectedRow"));
+                        return container;
+                    }
+                });
+            }
+        });
+
+        // Dall'alto verso il basso
+        $(mainid + " #table-top, "+mainid + " #table-bottom").droppable({
+            drop: function (event, ui) {
+                //console.log(event);
+                //console.log(ui);
+                var dropTable = $(this).DataTable();
+                dropTable.row.add(ui.helper.children()).draw(false);
+                var draggingTable = $('.selectedRow').closest('table').DataTable();
+                draggingTable.row($('.selectedRow')).remove().draw(false);
+            }
+        });
+
+        // Dal basso verso alto
+        $(mainid + " #table-bottom, " + mainid + " #table-top").droppable({
+            drop: function (event, ui) {
+                console.log(event);
+                console.log(ui);
+                var dropTable = $(this).DataTable();
+                dropTable.row.add(ui.helper.children()).draw(false);
+
+                var draggingTable = $('.selectedRow').closest('table').DataTable();
+                draggingTable.row($('.selectedRow')).remove().draw(false);
+            }
+        });
+
+        $(document).on("click", ".tablegrid tr", function () {
+            console.log('toggle class')
+            $(this).toggleClass("selectedRow");
+        });
+        */
+    });
+</script>

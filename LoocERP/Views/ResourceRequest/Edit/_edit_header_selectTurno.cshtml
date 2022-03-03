@@ -1,0 +1,86 @@
+﻿@model LoocERP.Models.ResourceRequest
+
+
+<div class="form-group">
+    <div class="row">
+        <div class="col-6">
+            <label>Cantiere : </label>
+            <div class="form-group">
+                <select style="width:100%" class="form-control" name="" id="cantiere_select">
+                    @if (Model.Turno != null)
+                    {
+                        <option value="@Model.Turno.Cantiere.Id" selected="selected">@Model.Turno.Cantiere.Codice - @Model.Turno.Cantiere.Description</option>
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col-6" id="select2_turno" style="display: none;">
+            <label>Turno : </label>
+            <div class="form-group">
+                <select style="width:100%" class="form-control" name="" id="turno_select">
+                    @if (Model.Turno != null)
+                    {
+                        <option value="@Model.Turno.Id" selected="selected">@Model.Turno.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+@if (Model.Stato == StatoRequest.bozza || Model.Stato == null)
+{
+    <script>
+
+        $('#cantiere_select').select2({
+            placeholder: "Inserisci nome/codice cantiere",
+            minimumInputLength: 1,
+
+            ajax: {
+                url: '/ResourceRequest/ajaxCantiereList',
+                dataType: 'json',
+            },
+        });
+        $("#cantiere_select").change(function () {
+
+            $("#select2_turno").show();
+
+            var val = this.value;
+            $('#turno_select').select2({
+                placeholder: "Inserisci nome turno",
+                minimumInputLength: 1,
+                ajax: {
+                    url: '/ResourceRequest/ajaxTurniList?cantiereId=' + val,
+                    dataType: 'json',
+
+                },
+            });
+
+        });
+
+
+
+    </script>
+}
+
+
+@if (Model.Turno != null && (Model.Stato == StatoRequest.bozza || Model.Stato == null))
+{
+    <script>
+    $("#select2_turno").show();
+    $('#turno_select').select2({
+        placeholder: "Inserisci nome turno",
+        minimumInputLength: 1,
+        ajax: {
+            url: '/ResourceRequest/ajaxTurniList?cantiereId=@Model.Turno.CantiereId',
+            dataType: 'json',
+
+        },
+    });
+    </script>
+}
+else
+{
+    <script>
+    $("#select2_turno").show();
+    </script>
+}

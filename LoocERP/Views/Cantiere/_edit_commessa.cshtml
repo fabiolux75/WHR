@@ -1,0 +1,98 @@
+﻿@model Project
+
+<!-- edit area sinistra -->
+<li class="card">
+    <div class="card-header">
+        Dettagli Commessa
+        <div class="float-right d-none">
+            <a id="edit_company"><i class="fas fa-edit"></i></a>
+        </div>
+    </div>
+    <form asp-controller="Project" asp-action="Edit" method="post">
+        <ul class="list-group list-group-flush" id="edit_company_form">
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Codice</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Codice" asp-for="@Model.Codice" maxlength="6">
+                    <small class="text-danger">Inserire solo lettere e/o numeri, massimo 6.</small>
+                </div>
+            </li>
+
+            <li class="list-group-item">
+                <input type="hidden" class="form-control" placeholder="Id" asp-for="@Model.Id">
+                <input type="hidden" class="form-control" placeholder="Active" asp-for="@Model.Active">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Nome</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Nome" asp-for="@Model.Name" maxlength="40">
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Descrizione</span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Descrizione" asp-for="@Model.Description">
+                </div>
+            </li>
+
+
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Data Apertura</span>
+                    </div>
+                    <input asp-for="@Model.StartDate" type="datetime-local" class="form-control" class="form-control" />
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" style="min-width: 150px">Data Chiusura</span>
+                    </div>
+                    <input asp-for="@Model.EndDate" type="datetime-local" class="form-control" class="form-control" />
+                </div>
+            </li>
+
+
+
+            <li class="list-group-item" id="save_btn_edit">
+                <div class="input-group">
+                    <div class="float-right">
+                        <button type="submit" class="btn btn-primary waves-effect waves-light" data-toggle="button" aria-pressed="false" autocomplete="off">
+                            Salva    <i class="fa fa-save"></i>
+                        </button>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </form>
+
+
+    <script>
+        $(document).ready(function () {
+            /*
+            $("#edit_company").click(function () {
+
+                if (!$("#edit_company").hasClass("editing")) {
+                    $("#edit_company_form :input").attr("disabled", false);
+                    $("#edit_company").html('<i class="fas fa-remove-format"></i>');
+
+                    $("#edit_company_form .country-edit-wrapper").toggleClass("d-none");
+                } else {
+                    $("#edit_company_form :input").attr("disabled", true);
+                    $("#edit_company").html('<i class="fas fa-edit"></i>');
+
+
+                    $("#edit_company_form .country-edit-wrapper").toggleClass("d-none");
+                }
+                $("#save_btn_edit").toggleClass("d-none");
+                $("#edit_company").toggleClass("editing");
+            });
+            */
+        });
+    </script>
+

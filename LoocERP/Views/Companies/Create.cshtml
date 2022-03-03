@@ -1,0 +1,315 @@
+﻿@model LoocERP.ViewModels.CreateCompanyViewModel
+@{
+    if (ViewBag.isExternal == true)
+    {
+        ViewData["Title"] = "Nuova Azienda Esterna";
+        if (ViewBag.isSupplier)
+        {
+            ViewData["Title"] = "Nuova Azienda Esterna Fornitrice";
+        }
+        else if (ViewBag.isCustomer)
+        {
+            ViewData["Title"] = "Nuova Azienda Esterna Cliente";
+        }
+    }
+    else if(ViewBag.isExternal == false)
+    {
+        ViewData["Title"] = "Nuova Azienda Interna";
+        if (ViewBag.isSupplier)
+        {
+            ViewData["Title"] = "Nuova Azienda Interna Fornitrice";
+        }
+        else if (ViewBag.isCustomer)
+        {
+            ViewData["Title"] = "Nuova Azienda Interna Cliente";
+        }
+    }
+}
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Crea una <b>@ViewData["Title"]</b></small></h4>
+                    </div>
+                </div>
+
+                <!-- general form elements -->
+                <div class="card card-primary group-location">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <!-- PASSAGGIO PARENT SE INTERNA -->
+                            @{
+                                if (ViewBag.isExternal == false && ViewBag.parentID == null)
+                                {
+                                    <div class="form-group  col-sm-6 col-12">
+                                        <label asp-for="@Model.Company.ParentID"></label><span class="font-italic"> - Seleziona l'azienda di appartenenza se &egrave; prevista</span>
+                                        <select asp-for="@Model.Company.ParentID" class="form-control">
+                                            <option selected="selected" value="">Seleziona azienda</option>
+                                            @foreach (var c in Model.Companies)
+                                            {
+                                                <option value="@c.ID">@c.RagioneSociale</option>
+                                            }
+                                        </select>
+                                    </div>
+
+                                    <div class="col-sm-6 col-12">
+
+                                    </div>
+                                }
+                            }
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.InternalCode"></label>
+                                    <input asp-for="Company.InternalCode" class="form-control" />
+                                    <span asp-validation-for="Company.InternalCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.RagioneSociale"></label>
+                                    <input asp-for="Company.RagioneSociale" class="form-control" />
+                                    <span asp-validation-for="Company.RagioneSociale" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.PIva"></label>
+                                    <input asp-for="Company.PIva" class="form-control" />
+                                    <span asp-validation-for="Company.PIva" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.FiscalCode"></label>
+                                    <input asp-for="Company.FiscalCode" class="form-control" />
+                                    <span asp-validation-for="Company.FiscalCode" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.EmailPec"></label>
+                                    <input asp-for="Company.EmailPec" class="form-control" />
+                                    <span asp-validation-for="Company.EmailPec" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.CodiceSdi"></label>
+                                    <input asp-for="Company.CodiceSdi" class="form-control" />
+                                    <span asp-validation-for="Company.CodiceSdi" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.EmailAziendale"></label>
+                                    <input asp-for="Company.EmailAziendale" class="form-control" />
+                                    <span asp-validation-for="Company.EmailAziendale" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.SitoWeb"></label>
+                                    <input asp-for="Company.SitoWeb" class="form-control" />
+                                    <span asp-validation-for="Company.SitoWeb" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Telefono"></label>
+                                    <input asp-for="Company.Telefono" class="form-control" />
+                                    <span asp-validation-for="Company.Telefono" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Fax"></label>
+                                    <input asp-for="Company.Fax" class="form-control" />
+                                    <span asp-validation-for="Company.Fax" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <!--
+    <div class="col-sm-6 col-12">
+        <div class="form-group">
+            <label asp-for="Company.Telefono"></label>
+            <input asp-for="Company.Telefono" class="form-control" />
+            <span asp-validation-for="Company.Telefono" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-sm-6 col-12">
+        <div class="form-group">
+            <label asp-for="Company.Fax"></label>
+            <input asp-for="Company.Fax" class="form-control" />
+            <span asp-validation-for="Company.Fax" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-sm-6 col-12">
+        <div class="form-group">
+            <label asp-for="Company.SitoWeb"></label>
+            <input asp-for="Company.SitoWeb" class="form-control" />
+            <span asp-validation-for="Company.SitoWeb" class="text-danger"></span>
+        </div>
+    </div>
+        -->
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Nazione"></label>
+                                    <!--input asp-for="Nazione" class="form-control" /-->
+                                    <!-- METTERE data-value="ITA" PER SETTARE il VALORE DI DEFAULT -->
+                                    <!-- <select id="nazione" asp-for="Nazione" class="form-control" onchange="setRegioni(this)" data-value="ITA">  -->
+                                    <select id="nazione" asp-for="Company.Nazione" class="nazione form-control" onchange="setRegioni(this)" data-value="ITA"></select>
+                                    <span asp-validation-for="Company.Nazione" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Regione"></label>
+                                    <!--input asp-for="Regione" class="form-control" /-->
+                                    <select id="regione" asp-for="Company.Regione" class="region form-control" onchange="setProvince(this)" disabled></select>
+                                    <span asp-validation-for="Company.Regione" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Provincia"></label>
+                                    <!--input asp-for="Provincia" class="form-control" /-->
+                                    <select id="provincia" asp-for="Company.Provincia" class="provincia form-control" onchange="setComuni(this)" disabled></select>
+                                    <span asp-validation-for="Company.Provincia" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Citta"></label>
+                                    <!--input asp-for="Citta" class="form-control" /-->
+                                    <select id="comune" asp-for="Company.Citta" class="city form-control" disabled></select>
+                                    <span asp-validation-for="Company.Citta" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.Indirizzo"></label>
+                                    <input asp-for="Company.Indirizzo" class="form-control" />
+                                    <span asp-validation-for="Company.Indirizzo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="Company.CAP"></label>
+                                    <input asp-for="Company.CAP" class="form-control" placeholder="Codice avviamento postale" maxlength="5"/>
+                                    <span asp-validation-for="Company.CAP" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6">
+                                <label asp-for="Company.Banca"></label>
+                                <input asp-for="Company.Banca" class="form-control" />
+                                <span asp-validation-for="Company.Banca" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-12 col-sm-6">
+                                <label asp-for="Company.IBAN"></label>
+                                <input asp-for="Company.IBAN" class="form-control" />
+                                <span asp-validation-for="Company.IBAN" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group  col-12 col-sm-6">
+                                <label asp-for="Company.Pagamento"></label>
+                                <select asp-for="Company.Pagamento" asp-items="Html.GetEnumSelectList<Pagamento>()" class="form-control"></select>
+                            </div>
+
+                            <div class="form-group  col-12 col-sm-6">
+                                <label asp-for="Company.DatevCode"></label>
+                                <input asp-for="Company.DatevCode" class="form-control" />
+                                <span asp-validation-for="Company.DatevCode" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group  col-12 col-sm-6">
+                                <label asp-for="Company.TipoPagamentoID"></label>
+                                <select asp-for="Company.TipoPagamentoID" asp-items="Html.GetEnumSelectList<TipoPagamento>()" class="form-control" data-value="@Model.Company.TipoPagamentoID"></select>
+                                <span asp-validation-for="Company.TipoPagamentoID" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group  col-12 col-sm-6">
+                                <label asp-for="Company.ModalitaPagamentoID"></label>
+                                <select asp-for="Company.ModalitaPagamentoID" asp-items="Html.GetEnumSelectList<ModPagamento>()" class="form-control" data-value="@Model.Company.ModalitaPagamentoID"></select>
+                                <span asp-validation-for="Company.ModalitaPagamentoID" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group  col-12 col-sm-6">
+                                <label asp-for="Company.PagheCodAzienda"></label>
+                                <input asp-for="Company.PagheCodAzienda" class="form-control" placeholder="Cod. Azienda (max 4 caratteri)" maxlength="4" />
+                                <span asp-validation-for="Company.PagheCodAzienda" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group  col-12 col-sm-6">
+                                <label asp-for="Company.PagheCodFiliale"></label>
+                                <input asp-for="Company.PagheCodFiliale" class="form-control" placeholder="Cod. Filiale (max 2 caratteri)" maxlength="2" />
+                                <span asp-validation-for="Company.PagheCodFiliale" class="text-danger"></span>
+                            </div>
+
+                            @if (ViewBag.isSupplier || ViewBag.isCustomer)
+                            {
+                                <div class="form-group">
+                                    <div class=" col-12 col-sm-6">
+                                        <div class="custom-control custom-switch">
+                                            <input class="custom-control-input" id="customSwitch1" asp-for="Company.isCopiedOnLooc" />
+                                            <label class="custom-control-label" for="customSwitch1">Azienda importata nella Piattaforma di Logistica di supporto.</label>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <input type="hidden" asp-for="Company.isCopiedOnLooc" />
+                            }
+                            <div class="col-12">
+                                <div class="form-group d-none">
+                                    <label asp-for="Company.isExternal"></label>
+                                    <input asp-for="Company.isExternal" class="form-control" />
+                                    <span asp-validation-for="Company.isExternal" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group d-none">
+                                    <label asp-for="Company.isSupplier"></label>
+                                    <input asp-for="Company.isSupplier" class="form-control" />
+                                    <span asp-validation-for="Company.isSupplier" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="form-group d-none">
+                                    <label asp-for="Company.isCustomer"></label>
+                                    <input asp-for="Company.isCustomer" class="form-control" />
+                                    <span asp-validation-for="Company.isCustomer" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    <div class="float-right">
+                        <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                        <input type="submit" value="Crea Azienda" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+    </form>
+</section>

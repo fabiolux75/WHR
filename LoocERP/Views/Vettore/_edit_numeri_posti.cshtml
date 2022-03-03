@@ -1,0 +1,60 @@
+﻿<div class="modal fade" id="editNumeroPosti" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Modifica posti vettore</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editNposti">
+                    <input class="CodiceVettore" type="hidden" name="CodiceVettore" />
+                    <div class="form-group">
+                        <label>Numero posti*</label><br>
+                        <input type="text" class="form-control nposti" placeholder="Numero posti mezzi" data-val="true" data-val-maxlength="Lunghezza massima 200 caratteri" data-val-maxlength-max="200" id="nposti" maxlength="200" name="nposti" >
+                    </div>
+                    <button type="submit" class="btn btn-primary">Aggiorna</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openModalNPosti(CodiceVettore = null, nPostiAttuali = null) {
+        var empModal = $('#editNumeroPosti');
+        empModal.find(".CodiceVettore").val(CodiceVettore);
+        empModal.find(".nposti").val(nPostiAttuali);
+        $(".imp").val("");
+        empModal.modal('show');
+    }
+    $('#editNposti').on("submit", function (e) {
+        e.preventDefault(); // cancel the actual submit
+        var elements = $(this).serializeArray();
+        var data = [];
+        jQuery.each(elements, function (i, elem) {
+            data[elem.name] = elem.value;
+        });
+        console.log(data);
+
+        
+        $.ajax({
+            url: '/Vettore/ajaxEditNposti',
+            type: 'post',
+            data: { CodiceVettore: data['CodiceVettore'], nposti: data['nposti'] },
+            success: function (data) {
+                console.log(data.data);
+
+                // Add response in Modal body
+                //Svuoto modale
+                var empModal = $('#editNumeroPosti');
+                empModal.find(".CodiceVettore").val("");
+                empModal.find(".nposti").val("");
+                $('#editNumeroPosti').modal('hide');
+
+                reloadTable();
+            }
+        });
+        
+    });
+</script>

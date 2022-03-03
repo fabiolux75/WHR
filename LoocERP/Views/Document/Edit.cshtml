@@ -1,0 +1,101 @@
+﻿@model LoocERP.ViewModels.DocumentViewModel
+@{
+    Layout = "";
+    DocumentGroup docGroup = 0;
+    if (@Model.Document != null && @Model.Document.DocumentGroup != null) docGroup = (DocumentGroup)@Model.Document.DocumentGroup;
+}
+<div class="modal fade show" id="document-update-@Model.Document.Id" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aggiorna @ViewBag.Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="Document" asp-action="Edit" runat="server" enctype="multipart/form-data">
+                <div class="modal-body row">
+                    <input type="hidden" asp-for="@Model.redirectUrl"></input>
+                    <input type="hidden" asp-for="@Model.Document.Id" />
+                    <input type="hidden" asp-for="@Model.Document.DocumentGroup" />
+                    <input type="hidden" asp-for="@Model.Document.UserId">
+                    <div class="form-group col-sm-12">
+                        <label>@ViewBag.sNumero</label>
+                        <input asp-for="@Model.Document.Numero" class="form-control" required></input>
+                        <span asp-validation-for="@Model.Document.Numero" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <label class="col-form-label">@ViewBag.sName</label>
+                        <input asp-for="@Model.Document.Name" class="form-control" required />
+                        <span asp-validation-for="@Model.Document.Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-12">
+                        <label>@ViewBag.sDescription</label>
+                        <input asp-for="@Model.Document.Description" class="form-control" />
+                        <span asp-validation-for="@Model.Document.Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label>@ViewBag.sValidFrom</label>
+                        <input asp-for="@Model.Document.ValidFrom" class="form-control" />
+                        <span asp-validation-for="@Model.Document.ValidFrom" class="text-danger" placeholder="Valido dal"></span>
+                    </div>
+
+                    <div class="form-group col-sm-6">
+                        <label>@ViewBag.sValidTo</label>
+                        <input asp-for="@Model.Document.ValidTo" class="form-control" />
+                        <span asp-validation-for="@Model.Document.ValidTo" class="text-danger" placeholder="Valido al"></span>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label>@ViewBag.sDocumentTypeId</label>
+                        <select asp-for="@Model.Document.DocumentTypeId" class="form-control">
+                            @foreach (Domain item in @Model.DocumentTypeList)
+                            {
+                                <option value=@item.Id>@item.Name</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-group col-sm-6">
+                        <label>@ViewBag.sDetails</label>
+                        <input asp-for="@Model.Document.Details" class="form-control" />
+                        <span asp-validation-for="@Model.Document.Details" class="text-danger" placeholder="Valido al"></span>
+                    </div>
+
+
+
+                    <div class="form-group col-sm-12">
+                        @if (Model.Document.FileName != null)
+                        {
+                            <label asp-for="@Model.FileUpload">Sovrascrivi documento esistente - <a href="@ViewBag.fileDownload" download='@(DateTime.Now.ToString("dd-MM-yyyy"))"@Model.Document.DocumentGroup".pdf'><i class="fa fa-download"></i> Download</a></label>
+                        }
+                        else
+                        {
+                            <label asp-for="@Model.FileUpload">Carica documento</label>
+                        }
+                        <input type="hidden" asp-for="@Model.Document.FileName">
+                        <input asp-for="@Model.FileUpload" type="file" runat="server" accept=".pdf" class="form-control" />
+                        <span asp-validation-for="@Model.FileUpload" class="text-danger" placeholder="Nome file caricato"></span>
+                        <small class="text-danger">*Saranno caricati esclusivamente file PDF minori di 5MB.</small>
+                    </div>
+
+
+
+                    <input type="hidden" asp-for="@docGroup">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+        }
+    </script>
+}

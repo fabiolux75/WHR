@@ -1,0 +1,73 @@
+
+<div>&nbsp;</div>
+
+<section class="content">
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="card">
+            <div class="card-header text-right"><h3 class="text-muted font-weight-bold">Invio Fatture XML</h3></div>
+            <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+
+                                <div class="callout callout-success">
+                                    <h5 class="card-title"><i class="fas fa-cloud-upload-alt mr-2 fa-lg text-green"></i></h5>
+                                    <p class="card-text">Area Upload</p>
+                                            
+                                            <div class="form-row mb-4">
+                                                <div class="col-md-12 mb-12">
+                                                        <div id="fileuploader-container" class="border rounded " style="background-color: #F7F7F9;">
+                                                            <form id="form" method="post" enctype="multipart/form-data">
+                                                            @(Html.DevExtreme().FileUploader()
+                                                                .Name("invoiceFile")
+                                                                .Accept("application/xml")
+                                                                .Multiple(false)
+                                                                .AllowedFileExtensions(new[] { ".xml" })
+                                                                .UploadMode(FileUploadMode.UseButtons)
+                                                                .UploadUrl(Url.Action("UploadInvoiceXML", "Sdi"))
+                                                                .OnUploadError("errorHandler")
+                                                            )
+                                                            </form>
+                                                        </div>                                              
+                                                    </div>
+
+
+                                                </div>
+                                            
+                                </div>
+                            </div>
+
+                                            
+                            <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 alert alert-info offset-2" role="alert">
+                                    <p>
+                                        <i class="far fa-question-circle fa-lg"></i><br> Qui puoi inviare le tue fatture elettroniche in formato XML create con un altro gestionale.<br>
+                                        Se usi un altro gestionale che genera fatture in formato xml puoi usare questa pagina per caricarle e inviarle.<br>
+
+                                         Ogni fattura verrà conservata a norma per 10 anni, potrai consultarla nella sezione <i>"Fatture inviate"</i>
+                                    </p>
+                            </div>                            
+                        </div>
+            </div>
+            </div>
+        
+    </div>
+</div>
+
+
+
+
+</section>
+
+@section Scripts {
+    <script>
+
+
+        function errorHandler(e){
+            DevExpress.ui.notify( "Attenzione: " + e.request.responseText, "error", 6000);
+        }
+
+    </script>
+}

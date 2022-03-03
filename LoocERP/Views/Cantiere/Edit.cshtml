@@ -1,0 +1,129 @@
+﻿@model Cantiere
+@{ Turno Turno = ViewData["Turno"] as Turno; }
+@{ StazioniCantiere stazione = new StazioniCantiere(); }
+@{ List<Turno> Turni = ViewData["Turni"] as List<Turno>; }
+@{ List<AppUser> Employees = ViewData["Employees"] as List<AppUser>; }
+@{ List<Mansione> Mansioni = ViewData["Mansioni"] as List<Mansione>; }
+@{ List<Rel_FabbisognoMansione> FabbisognoMansione = ViewData["FabbisognoMansione"] as List<Rel_FabbisognoMansione>; }
+@{ List<Rel_FabbisognoSicurezza> FabbisognoSicurezza = ViewData["FabbisognoSicurezza"] as List<Rel_FabbisognoSicurezza>; }
+@{ List<Specializzazione> Specializzazioni = ViewData["Specializzazioni"] as List<Specializzazione>; }
+@{
+    ViewData["Title"] = "Gestione Cantiere";
+}
+
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.18/datatables.min.css" />
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+<section class="content">
+    <div class="col-12 row">
+        <div class="col-4">
+            <div class="card col-12 p-0">
+                <div class="card-body">
+                    <a class="btn-sm" asp-controller="Cantiere" asp-action="index" asp-route-idProject="@Model.ProjectId">
+                    <i class="fa fa-chevron-circle-left"></i> Vai ai <b>Cantieri</b>
+                    </a>
+                </div>
+            </div>
+            <div class="card card-primary">
+                <div class="accordion" id="accordionExample">
+                    <div class="card-header" id="headingOne">
+                        <h2 class="mb-0">
+                            <button class="btn btn-link" type="button" id="textVettore">
+                                @Model.Name
+                            </button>
+                        </h2>
+                    </div>
+                </div>
+            </div>
+            @{
+                await Html.RenderPartialAsync("_edit_sidebar", @Model);
+            }
+        </div>
+
+        <div class="col-8">
+            <section>
+                <!-- Tab links -->
+                <div class="tab" style="border:0">
+                    <button class="tablinks active" onclick="openTab(event, 'TurniList')">Turni</button>
+                    <button class="tablinks" onclick="openTab(event, 'StazioniList')">Stazioni</button>
+                </div>
+
+                <div id="TurniList" class="tabcontent active">
+                    @{
+                        await Html.RenderPartialAsync("_edit_turni", @Turno);
+                    }
+                </div>
+                <div id="StazioniList" class="tabcontent active">
+                    @{
+                        await Html.RenderPartialAsync("stazioni/_edit_stazioni", @stazione);
+                    }
+                </div>
+            </section>
+        </div>
+    </div>
+</section>
+
+
+
+
+
+
+@section Scripts {
+
+    <script>
+        function openTab(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            if (event != null) {
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(" active", "");
+                }
+
+                // Show the current tab, and add an "active" class to the button that opened the tab
+                evt.currentTarget.className += " active";
+            }
+            document.getElementById(tabName).style.display = "block";
+        }
+        openTab(event, 'TurniList');
+
+    </script>
+}
+
+<style>
+    label.country-edit-wrapper {
+        background-color: #e9ecef;
+        font-weight: 500 !important;
+    }
+
+    table#example.dataTable tbody tr.over {
+        background-color: #ffa;
+    }
+
+        table#example.dataTable tbody tr.over > .sorting_1 {
+            background-color: #ffa;
+        }
+
+    table#example2.dataTable tbody tr.over {
+        background-color: #ffa;
+    }
+
+        table#example2.dataTable tbody tr.over > .sorting_1 {
+            background-color: #ffa;
+        }
+</style>

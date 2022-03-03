@@ -1,0 +1,213 @@
+﻿@{
+    ViewData["Title"] = "Report per cantiere";
+    ViewData["activePage"] = "TimesheetReportPage";
+
+    DateTime wd = (ViewBag.WorkDate??DateTime.Now);
+    if(! DateTime.TryParse(wd.ToString(), out wd)){ 
+        wd = DateTime.Now.Date;
+    }    
+    string dten = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year;
+    string dtenfull = @wd.Month.ToString("0#")+"-"+@wd.Day.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    string dtit = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year;
+    string dtitfull = @wd.Day.ToString("0#")+"-"+@wd.Month.ToString("0#")+"-"+@wd.Year+" 00:00:00";
+    ViewBag.dtenfull = @dten;
+}
+<div>&nbsp;</div>
+<section class="content">
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="row">
+                    <div class="col-10">
+                        <form method="get" id="formreservation">
+                            <label>Data Inizio Cantiere</label>
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input id="reservation" value='@dtit' type="text" class="form-control"  im-insert="false">                                
+                                    <input id="reservationen" name="WorkDate" type="hidden" value='@dtenfull'>
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+                            <p class="col-12 p-0">
+                                
+                            </p>
+                        </form>
+                    </div>
+                    <div class="col-2">
+                        <label>Report Giornaliero Completo</label>
+                        <div class="form-group">
+                            <a class="btn btn-primary m-0" asp-controller="TimesheetsDailyReport" asp-action="DailyReport" asp-route-Workdate="@dten"><i class="fa fa-eye"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <!-- /.card-header -->
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="timesheet" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>                                    
+                                    <th>Progetto</th>
+                                    <th>Cantiere</th>                                    
+                                    <th>Turno</th>
+                                    <th>Numero Lavoratori</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>    
+</section>
+<style>
+    .map-content {
+        height: 300px;
+        width: 100%;
+    }
+
+    /* Optional: Makes the sample page fill the window. */
+    html,
+    body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+    }
+</style>
+
+@section Scripts {    
+    <script>
+        $(document).ready(function () {
+
+
+            //var startDate = '@ViewData["startDate"]';
+            //var endDate = '@ViewData["endDate"]';
+
+            $('#timesheet thead tr').clone(true).appendTo('#timesheet thead');
+            $('#timesheet thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+
+            var table = $('#timesheet').DataTable({
+                ajax: "/TimesheetsDailyReport/ajaxIndex?WorkDate=@dtenfull",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [                    
+                    { "title": "Progetto", "data": "projectName" },
+                    { "title": "Cantiere", "data": "cantiereName" },
+                    { "title": "Turno", "data": "turnoName" },                    
+                    { "title": "Numero Lavoratori", "data": "count" },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {                            
+                            return  '<span style="color:#b3a7a7; font-size: 20px;">' +
+                                '<a class="btn-sm" href="/TimesheetsDailyReport/DailyReport?turnoId='+row.turnoId+'&WorkDate=@dten"><i class="fas fa-edit" style="font-size: 18px;"></i></a>' +
+                            '</span>';                            
+                        }
+                    }
+                ],
+                columnDefs: [                    
+                    { width: '50px', targets: 4 },
+                    //{ targets: 2,render: $.fn.dataTable.render.moment('Do MMM YYYY') }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                initComplete: function () {
+                    // Apply the search
+                    this.api().columns().every(function () {
+                        var that = this;
+                        $('input', this.header()).on('keyup change clear', function () {
+                            if (that.search() !== this.value) {
+                                that
+                                    .search(this.value)
+                                    .draw();
+                            }
+                        });
+                    });
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+
+            //Date range as a button
+            $('#reservation').datepicker(
+                {
+                    format: "dd-mm-yyyy",
+                    //dateFormat: "dd-mm-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',                    
+                    changeMonth: true,
+                    changeYear: true,                    
+                    todayBtn: "linked",
+                    language: "it",
+                    autoclose: true,
+                    startDate: new Date(@wd.Day, @wd.Month, @wd.Year),
+                },
+            ).on('changeDate', function (e) {                                                
+                var year  = e.date.getFullYear();
+                var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                var day   = e.date.getDate().toString().padStart(2, "0");                
+                $('#reservationen').val(month+"-"+day+"-"+year);
+                $('#reservation').val(day+"-"+month+"-"+year);                
+                $('#formreservation').submit();
+            })
+            ;;
+        });
+
+    </script>
+}

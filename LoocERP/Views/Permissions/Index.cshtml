@@ -1,0 +1,193 @@
+﻿@**model Corsi**@
+@{
+    ViewData["Title"] = "Gestione Permessi";
+    ViewData["activePage"] = "PermessiPage";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+<!-- CREATE MODAL -->
+@{
+    //    await Html.RenderPartialAsync("_create_modal", @Model);
+}
+<!-- END CREATE MODAL -->
+<section class="content">
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <!--<a data-toggle="modal" data-target="#corsi-create">
+                        Crea <b>CORSO</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>-->
+                    <a class="btn btn-primary" onclick="openModal()">Crea nuovo <b>Permesso </b><i class="fa fa-plus-circle"></i></a>
+                    <p class="col-12 p-0">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="company" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Titolo</th>
+                                    <th>Tipo</th>
+                                    <th>Descrizione</th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="modal fade" id="empModalUser" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assignVettoreUserForm">
+                    <input class="CodiceVettore" type="hidden" name="CodiceVettore" />
+                    <div class="form-group">
+                        <div class="form-group">
+                            <label>Titolo*</label><br>
+                            <input type="text" name="title" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Tipo*</label><br>
+                            <input type="text" name="type" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label>Descrizione*</label><br>
+                            <input type="text" name="description" class="form-control" required />
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Inserisci</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        function openModal() {
+            var empModal = $('#empModalUser');
+            empModal.modal('show');
+        }
+
+
+        function reloadTable() {
+            $('#company').DataTable().clear();
+            $('#company').DataTable().destroy();
+
+
+
+            var table = $('#company').DataTable({
+                ajax: "/Permissions/ajaxIndex",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "title" },
+                    { "data": "type" },
+                    { "data": "description" },
+
+                ],
+                columnDefs: [
+
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        }
+
+        $(document).ready(function () {
+
+            $('#assignVettoreUserForm').on("submit", function (e) {
+                e.preventDefault(); // cancel the actual submit
+                var elements = $(this).serializeArray();
+                var data = [];
+                jQuery.each(elements, function (i, elem) {
+                    data[elem.name] = elem.value;
+                });
+
+
+                console.log(data);
+                $.ajax({
+                    url: '/Permissions/ajaxCreate',
+                    type: 'post',
+                    data: { title: data['title'], type: data['type'], description: data['description']},
+                    success: function (data) {
+                        console.log(data.data);
+
+                      
+                        var empModal = $('#empModalUser');
+                        $('#empModalUser').modal('hide');
+                        reloadTable();
+                    }
+                });
+                
+            });
+
+
+
+            reloadTable();
+        });
+    </script>
+}

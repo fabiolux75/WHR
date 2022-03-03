@@ -1,0 +1,199 @@
+﻿@model LoocERP.ViewModels.DocumentViewModel
+
+@{
+    Layout = "";
+    ViewData["Title"] = "Documento";
+    ViewData["activePage"] = "Documenti";
+    DocumentGroup docGroup = DocumentGroup.DocumentArea;
+    if( @Model.Document  != null && @Model.Document.DocumentGroup != null) docGroup = (DocumentGroup)@Model.Document.DocumentGroup;
+    string area=(@Model.area==null?"document_index":@Model.area);   
+    @ViewBag.area = area;     
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+<div>&nbsp;</div>
+
+<!-- CREATE MODAL -->
+@{
+    await Html.RenderPartialAsync("_create_modal", @Model);
+}
+<script>
+    if (typeof openDocumentEditModal !== 'function') { //controllo se già esiste
+        function openDocumentEditModal(id, documentgroup, userid, redirecturl, area) {
+            console.log(id);            
+            // AJAX request
+            $.ajax({
+                url: '/Document/Edit',                
+                type: 'get',
+                dataType : 'html',            
+                data: {
+                    id : id,
+                    tipo: area, 
+                    DocumentGroup: documentgroup,  
+                    userId: userid,
+                    redirectUrl: redirecturl,  
+                },            
+                success: function (data) {
+                    console.log(data);
+                    $('#html-ajax-'+area).html(data);
+                    var empModal = $('#document-update-'+id);                    
+                    // Display Modal
+                    empModal.modal('show');
+                }
+            });
+        }
+    }
+</script>
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <a data-toggle="modal" data-target="#document-create-@area">
+                        Aggiungi <b>@ViewBag.Title</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>
+                    <p class="col-12 p-0">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="table" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>                                    
+                                    <th>@ViewBag.sNumero</th>                
+                                    <th>@ViewBag.sName</th>                                                                        
+                                    <th>@ViewBag.sDocumentTypeId</th>
+                                    <th>@ViewBag.ValidTo</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            @foreach (var item in @Model.DocumentList){
+                                <tr>                                    
+                                    <td>@item.Numero</td>                
+                                    <td>@item.Name</td>                                                                        
+                                    <td>@(item.DocumentType.Name??"")</td> 
+                                    <td>@item.ValidTo</td>
+                                    <td><a class="btn-sm" 
+                                            onclick="openDocumentEditModal('@item.Id','@item.DocumentGroup','@item.UserId','@Model.redirectUrl','@area');">
+                                                <i class="fas fa-edit" style="font-size: 18px;"></i>
+                                        </a>
+                                    </td>                                    
+                                </tr> 
+                            }
+                            </tbody>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+    <div id="html-ajax-@area"></div>
+
+</section>
+
+@section Scripts {
+    <script>
+        
+        $(document).ready(function () {
+/*
+            $('#table thead tr').clone(true).appendTo('#table thead');
+            $('#table thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var table = $('#table').DataTable({
+                ajax: "/document/ajaxIndex?docType=@docGroup",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [                    
+                    { "data": "name" },                    
+                    { "data": "numero" },
+                    { "data": "validTo" },                    
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            console.log(data);
+                            return '<span style="color:#b3a7a7; font-size: 20px;">' +
+                                '<a class="btn-sm" onclick="openModal(\'' + row.id + '\');"><i class="fas fa-edit style="font-size: 18px;"></i></a>' +
+                            '</span>';                                                                                       
+                        }
+                    },
+                ],
+                columnDefs: [
+                    { width: '50px', targets: 0 },
+                  //  { width: '80px', targets: 2 }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+            */
+        });
+        
+    </script>
+}

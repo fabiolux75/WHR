@@ -1,0 +1,62 @@
+﻿@model LoocERP.ViewModels.LeasingViewModel
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="Leasing" asp-action="Create">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Creazione nuovo <b>Leasing</b></small></h4>
+                    </div>
+                </div>
+
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.leasing.ProtocolNumber"></label>
+                                    <input asp-for="@Model.leasing.ProtocolNumber" class="form-control" placeholder="Numero Protocollo" />
+                                    <span asp-validation-for="@Model.leasing.ProtocolNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.leasing.StartDate"></label>
+                                    <input asp-for="@Model.leasing.StartDate" class="form-control" placeholder="" />
+                                    <span asp-validation-for="@Model.leasing.StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.leasing.EndDate"></label>
+                                    <input asp-for="@Model.leasing.EndDate" class="form-control" placeholder="" />
+                                    <span asp-validation-for="@Model.leasing.EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="float-right">
+                        <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                        <input type="submit" value="Crea Leasing" class="btn btn-primary" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+</section>

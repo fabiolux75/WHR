@@ -1,0 +1,402 @@
+﻿@model LoocERP.ViewModels.DailyReportViewModel
+@{
+    //Layout = "_LayoutEmpty";
+    ViewData["Title"] = "Report Giornaliero";
+    DateTime wd = (ViewBag.WorkDate ?? DateTime.Now);
+    if (!DateTime.TryParse(wd.ToString(), out wd))
+    {
+        wd = DateTime.Now.Date;
+    }
+    string dten = @wd.Month.ToString("0#") + "-" + @wd.Day.ToString("0#") + "-" + @wd.Year;
+    string dtenfull = @wd.Month.ToString("0#") + "-" + @wd.Day.ToString("0#") + "-" + @wd.Year + " 00:00:00";
+    string dtit = @wd.Day.ToString("0#") + "-" + @wd.Month.ToString("0#") + "-" + @wd.Year;
+    string dtitfull = @wd.Day.ToString("0#") + "-" + @wd.Month.ToString("0#") + "-" + @wd.Year + " 00:00:00";
+    ViewBag.dtenfull = @dten;
+}
+<style>
+    input {
+        height: 100%;
+        width: 100%;
+        border: none;
+        text-align: center;
+    }
+
+    .bg-th-table {
+        background: #ffffcc;
+    }
+
+    .select2-container,
+    .select2-results__option {
+        font-size: 14px !important;
+        padding: 2px !important;
+    }
+    
+    .select2-container--default .select2-selection--single {
+        padding: 0 !important;
+    }
+</style>
+
+<link link type="text/css" href="~/theme/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css">
+<div>&nbsp</div>
+<section class="content">
+    <div class="card col-12 p-0">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="row">
+
+                    <div class="col-md-8 col-sm-6 col-12">
+                        @if (@ViewBag.TurnoId != null)
+                        {
+                            <div class="col-12"><b>Commessa:</b> @(Model.Project.Name ??"")</div>
+                            <div class="col-12"><b>Cantiere:</b> @(Model.Cantiere.Name ??"")</div>
+                        }
+                        <div class="col-12"><b>Data:</b> @dtit</div>
+                        <div class="col-12"><b>Numero Risorse:</b> @Model.TimeSheetDailyReportList.Count()</div>
+                    </div>
+
+                    <div class="col-md-4 col-sm-6 col-12">
+                        <form method="get" id="formreservation">
+                            <div class="form-group">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                    </div>
+                                    <input id="reservation" value='@dtit' type="text" class="form-control">
+                                    <input id="reservationen" name="WorkDate" type="hidden" value='@dtenfull'>
+                                    <input name="turnoId" type="hidden" value='@ViewBag.turnoId'>
+
+                                </div>
+                                <!-- /.input group -->
+                            </div>
+                            <p class="col-12 p-0">
+
+                            </p>
+                        </form>
+                        <div class="col-12 p-0 text-right">
+                            <a class="btn btn-default" onclick="location.reload();">Ricarica e verifica <i class="fa fa-sync" aria-hidden="true"></i></a>
+                            @if (@ViewBag.TurnoId != null)
+                            {
+                                <a class="btn btn-default" asp-controller="TimesheetsDailyReport" asp-action="DailyReport" asp-route-turnoId="@ViewBag.turnoId" asp-route-WorkDate="@dten" target="_blank" asp-route-WizardStep=1>Stampa <i class="fa fa-print" aria-hidden="true"></i></a>
+                            }
+                        </div>
+                        <div class="col-12 p-0 text-right">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i><a class="" asp-controller="TimesheetsDailyReport" asp-action="Index" asp-route-WorkDate="@dten">Torna lista report</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card card-primary">
+        <div class="col-12 p-0">
+            <div class="row m-0">
+                <div class="col-12 p-0">
+                    <input type="text" id="myInput" onkeyup="searchFunction()" placeholder="Ricerca per nome..">
+                </div>
+                <div class="col-12 p-0">
+                    <div class="row m-0">
+                        @if (@ViewBag.TurnoId != null)
+                        {
+                            <div class="col-3 border text-center bg-th-table bold p-0"><b>Nome completo</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>Ore App</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>ore</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>str</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>not</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>gal</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>trasf</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>giust</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>cigo</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>EC</b></div>
+                        }
+                        else
+                        {
+                            <div class="col-2 border text-center bg-th-table bold p-0"><b>Nome completo</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>Codice Cantiere - Turno</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>Ore App</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>ore</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>str</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>not</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>gal</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>trasf</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>giust</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>cigo</b></div>
+                            <div class="col-1 border text-center bg-th-table bold p-0"><b>EC</b></div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 p-0">
+            <div id="search-area-content" class="row m-0 area-contenuto">
+                @{ var index = 0; }
+                @if (@ViewBag.TurnoId != null)
+                {
+                    @foreach (var item in Model.TimeSheetDailyReportList)
+                    {<span class="d-none">@(++index)</span>
+                        <div class="col-12 p-0 searchrow" datasearch="@item.User.LastName @item.User.FirstName">
+                            <div class="row m-0">
+                                <div class="col-3 border text-center p-0">@item.User.LastName @item.User.FirstName</div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreEffettive" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.EffectiveHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.EffectiveHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="Ore" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Hour" class="edit-input dateHours " value='@item.TimeSheetDailyReport.Hour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreStraordinarie" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.OvertimeHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.OvertimeHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreNotturne" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.NightHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.NightHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreGalleria" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.GalleryHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.GalleryHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0">
+                                    <select datatype="TrasfertaId"
+                                            dataid="@item.TimeSheetDailyReport.Id"
+                                            dataprev="@item.TimeSheetDailyReport.TrasfertaId"
+                                            class="select3-giust form-control">
+                                        @if (@item.TimeSheetDailyReport.TrasfertaId != null && @item.TimeSheetDailyReport.Trasferta.type == 1) // 
+                                        {
+                                            <option selected value="@item.TimeSheetDailyReport.TrasfertaId">@item.TimeSheetDailyReport.Trasferta.Name</option>
+
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-1 border text-center p-0">
+                                    <select datatype="GiustificativoId"
+                                            dataid="@item.TimeSheetDailyReport.Id"
+                                            dataprev="@item.TimeSheetDailyReport.GiustificativoId"
+                                            class="select2-giust form-control">
+                                        @if (@item.TimeSheetDailyReport.GiustificativoId != null && @item.TimeSheetDailyReport.Giustificativo.type == 0)
+                                        {
+                                            <option selected value="@item.TimeSheetDailyReport.GiustificativoId">@item.TimeSheetDailyReport.Giustificativo.Name</option>
+
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-1 border text-center p-0"><input datatype="Cigo" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Cigo" class="edit-input" value='@item.TimeSheetDailyReport.Cigo'></div>
+                                <div class="col-1 border text-center p-0"><input datatype="Ec" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Ec" class="edit-input" value='@item.TimeSheetDailyReport.Ec'></div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    @foreach (var item in Model.TimeSheetDailyReportList)
+                    {
+                        <span class="d-none">@(++index)</span>
+                        <div class="col-12 p-0 searchrow" datasearch="@item.User.LastName @item.User.FirstName">
+                            <div class="row m-0">
+                                <div class="col-2 border text-center p-0">@item.User.LastName @item.User.FirstName</div>
+                                <div class="col-1 border text-center p-0">@item.Cantiere.Codice - @item.Turno.Name</div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreEffettive" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.EffectiveHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.EffectiveHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="Ore" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Hour" class="edit-input dateHours " value='@item.TimeSheetDailyReport.Hour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreStraordinarie" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.OvertimeHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.OvertimeHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreNotturne" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.NightHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.NightHour' placeholder="HH:mm"></div>
+                                <div class="col-1 border text-center p-0"><input min=0 type="datetime" datatype="OreGalleria" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.GalleryHour" class="edit-input dateHours" value='@item.TimeSheetDailyReport.GalleryHour' placeholder="HH:mm"></div>                                
+                                <div class="col-1 border text-center p-0">
+                                    <select datatype="TrasfertaId"
+                                            dataid="@item.TimeSheetDailyReport.Id"
+                                            dataprev="@item.TimeSheetDailyReport.TrasfertaId"
+                                            class="select3-giust form-control">
+                                        @if (@item.TimeSheetDailyReport.TrasfertaId != null && @item.TimeSheetDailyReport.Trasferta.type == 1) // 
+                                        {
+                                            <option selected value="@item.TimeSheetDailyReport.TrasfertaId">@item.TimeSheetDailyReport.Trasferta.Name</option>
+
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-1 border text-center p-0">
+                                    <select datatype="GiustificativoId"
+                                            dataid="@item.TimeSheetDailyReport.Id"
+                                            dataprev="@item.TimeSheetDailyReport.GiustificativoId"
+                                            class="select2-giust form-control">
+                                        @if (@item.TimeSheetDailyReport.GiustificativoId != null)
+                                        {
+                                            <option selected value="@item.TimeSheetDailyReport.GiustificativoId">@item.TimeSheetDailyReport.Giustificativo.Name</option>
+
+                                        }
+                                    </select>
+                                </div>
+                                <div class="col-1 border text-center p-0"><input datatype="Cigo" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Cigo" class="edit-input" value='@item.TimeSheetDailyReport.Cigo'></div>
+                                <div class="col-1 border text-center p-0"><input datatype="Ec" dataid="@item.TimeSheetDailyReport.Id" dataprev="@item.TimeSheetDailyReport.Ec" class="edit-input" value='@item.TimeSheetDailyReport.Ec'></div>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+
+
+@section Scripts {
+    <script>
+        function selectHour(obj) {
+            //console.log(obj.dataid);
+            $(obj).datetimepicker(
+                "show",
+                {
+                    autoclose: true
+                }
+            );
+        }
+
+        function searchFunction() {
+            // Declare variables
+            var input, filter, ul, li, a, i, txtValue;
+            input = document.getElementById('myInput');
+            filter = input.value.toUpperCase();
+            //ul = document.getElementById("search-area-content");
+            li = document.getElementsByClassName('searchrow');
+            console.log(li);
+
+            // Loop through all list items, and hide those who don't match the search query
+            for (i = 0; i < li.length; i++) {
+                txtValue = li[i].getAttribute("datasearch");
+                /*
+                a = li[i].getElementsByTagName("a")[0];
+                txtValue = a.textContent || a.innerText;
+                */
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                }
+                else {
+                    li[i].style.display = "none";
+                }
+
+            }
+        }
+
+        $(document).ready(function () {
+
+            $(".dateHours").mask("ZY:MN", {
+                translation: {
+                    'Z': {
+                        pattern: /[0-2]/, optional: true
+                    },
+                    'Y': {
+                        pattern: /[0-9]/, optional: true
+                    },
+                    'M': {
+                        pattern: /[0-6]/, optional: true
+                    },
+                    'N': {
+                        pattern: /[0-9]/, optional: true
+                    },
+                }
+            });
+
+            $(".dateHours").datetimepicker(
+                {
+                    format: "HH:mm",
+                    startDate: new Date(0,0,0,0,0,0,0),
+                }
+            );
+
+
+            //Date range as a button
+            $('#reservation').datepicker(
+                {
+                    format: "dd-mm-yyyy",
+                    //dateFormat: "dd-mm-yyyy",
+                    showOn: "button",
+                    buttonText: '<i class="fa fa-calendar"></i>',
+                    changeMonth: true,
+                    changeYear: true,
+                    todayBtn: "linked",
+                    language: "it",
+                    autoclose: true,
+                    startDate: new Date(@wd.Day, @wd.Month, @wd.Year),
+                },
+            ).on('changeDate', function (e) {
+                var year  = e.date.getFullYear();
+                var month = (e.date.getMonth() + 1).toString().padStart(2, "0");
+                var day   = e.date.getDate().toString().padStart(2, "0");
+                $('#reservationen').val(month+"-"+day+"-"+year);
+                $('#reservation').val(day+"-"+month+"-"+year);
+                $('#formreservation').submit();
+            })
+                ;;
+
+            $(".edit-input").on('change', function postinput(e){
+                //alert("ok");
+                var Id = e.target.getAttribute('dataid');
+                var dataprev = e.target.getAttribute('dataprev');
+                var datatype = e.target.getAttribute('datatype');
+                var value=e.target.value.replace(",",'.');
+                $.ajax({
+                    //beforeSend: function() { textreplace(description); },
+                    type: "GET",
+                    url: "/TimesheetsDailyReport/ajaxEditCellMontlyReport",
+                    data: "Id="+Id+"&"+datatype+"="+value,
+                    success: function(data){
+                        e.target.className += ' alert-success';
+                        e.target.setAttribute('dataprev',e.target.value);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }
+                });
+            });
+
+            $('.select2-giust').select2({
+                ajax: {
+                    url: '/Giustificativo/ajaxIndex',
+                    dataType: 'json'
+                    // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                }
+            })
+            .on('change', function(e){
+                var Id = e.target.getAttribute('dataid');
+                var dataprev = e.target.getAttribute('dataprev');
+                var datatype = e.target.getAttribute('datatype');
+                var value=e.target.value;
+                $.ajax({
+                    //beforeSend: function() { textreplace(description); },
+                    type: "GET",
+                    url: "/TimesheetsDailyReport/ajaxEditCellMontlyReport",
+                    data: "Id="+Id+"&"+datatype+"="+value,
+                    success: function(data){
+                        e.target.className += ' alert-success';
+                        e.target.setAttribute('dataprev',e.target.value);
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        console.log(textStatus);
+                        console.log(errorThrown);
+                        e.target.className += ' alert-danger';
+                        e.target.value = dataprev;
+                    }
+                });
+            });
+
+
+            $('.select3-giust').select2({
+                ajax: {
+                    url: '/Giustificativo/ajaxIndex?type=1',
+                    dataType: 'json'
+                    // Additional AJAX parameters go here; see the end of this chapter for the full code of this example
+                }
+            })
+                .on('change', function (e) {
+                    var Id = e.target.getAttribute('dataid');
+                    var dataprev = e.target.getAttribute('dataprev');
+                    var datatype = e.target.getAttribute('datatype');
+                    var value = e.target.value;
+                    $.ajax({
+                        //beforeSend: function() { textreplace(description); },
+                        type: "GET",
+                        url: "/TimesheetsDailyReport/ajaxEditCellMontlyReport",
+                        data: "Id=" + Id + "&" + datatype + "=" + value,
+                        success: function (data) {
+                            e.target.className += ' alert-success';
+                            e.target.setAttribute('dataprev', e.target.value);
+                        },
+                        error: function (XMLHttpRequest, textStatus, errorThrown) {
+                            console.log(textStatus);
+                            console.log(errorThrown);
+                            e.target.className += ' alert-danger';
+                            e.target.value = dataprev;
+                        }
+                    });
+                });
+
+        });
+    </script>
+}

@@ -1,0 +1,154 @@
+﻿@model LoocERP.ViewModels.RichiestaDipendenteViewModel
+
+<style>
+    .hide {
+        display: none;
+    }
+</style>
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="RichiestaDipendente" asp-action="Create">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Creazione nuova <b>Richiesta</b></small></h4>
+                    </div>
+                </div>
+
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.TipologiaRichiesta"></label>
+                                    <select asp-for="@Model.RichiestaDipendente.TipologiaRichiesta" asp-items="Html.GetEnumSelectList<RichiestaDipendente.TipologiaRichiestaEnum>()" class="form-control" onchange="SetTipoRichiesta(this.value)">
+                                        <option> - </option>
+                                    </select>
+                                    <span asp-validation-for="@Model.RichiestaDipendente.TipologiaRichiesta" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12 request_input hide richiesta_id">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.RichiestaId"></label>
+                                    <select asp-for="@Model.RichiestaDipendente.RichiestaId" class="form-control">
+                                        <option value="">-</option>
+                                        @foreach (Giustificativo item in @Model.GiustificativiList)
+                                        {
+                                            <option value=@item.Id>@item.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12 request_input hide richieste_dal">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.RichiestaDal"></label>
+                                    <input asp-for="@Model.RichiestaDipendente.RichiestaDal" class="form-control" />
+                                    <span asp-validation-for="@Model.RichiestaDipendente.RichiestaDal" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12 request_input hide richieste_dal">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.RichiestaAl"></label>
+                                    <input asp-for="@Model.RichiestaDipendente.RichiestaAl" class="form-control" />
+                                    <span asp-validation-for="@Model.RichiestaDipendente.RichiestaAl" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12 request_input hide richieste_dal">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.NumeroGiorni"></label>
+                                    <input asp-for="@Model.RichiestaDipendente.NumeroGiorni" class="form-control" min="0"/>
+                                    <span asp-validation-for="@Model.RichiestaDipendente.NumeroGiorni" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12 request_input hide richieste_dal">
+                                <div class="form-group">
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12 request_input hide richieste_al">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.RichiestaIl"></label>
+                                    <input asp-for="@Model.RichiestaDipendente.RichiestaIl" class="form-control" />
+                                    <span asp-validation-for="@Model.RichiestaDipendente.RichiestaIl" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12 request_input hide richieste_al">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.NumeroOre"></label>
+                                    <input asp-for="@Model.RichiestaDipendente.NumeroOre" class="form-control" min="0" max="8" />
+                                    <span asp-validation-for="@Model.RichiestaDipendente.NumeroOre" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.RichiestaDipendente.Data"></label>
+                                    <input asp-for="@Model.RichiestaDipendente.Data" class="form-control" disabled />
+                                    <span asp-validation-for="@Model.RichiestaDipendente.Data" class="text-danger"></span>
+                                </div>
+                            </div>
+
+
+                            <input type="hidden" asp-for="@Model.RichiestaDipendente.Stato" value="1" class="form-control" />
+                            <input type="hidden" asp-for="@Model.RichiestaDipendente.Data" class="form-control" />
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="float-right">
+                        <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                        <input type="submit" value="Crea Richiesta" class="btn btn-primary" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+</section>
+
+@section Scripts {
+    <script>
+
+        function SetTipoRichiesta(tipo) {
+            console.log(tipo);
+            if (tipo == 1) {
+                var elem = $('.request_input');
+                elem.addClass("hide");
+                $('.richiesta_id').removeClass("hide");
+                var elemrem = $('.richieste_dal');
+                elemrem.removeClass("hide");
+            }
+            else if (tipo == 2) {
+                var elem = $('.request_input');
+                elem.addClass("hide");
+                $('.richiesta_id').removeClass("hide");
+                var elemrem = $('.richieste_al');
+                elemrem.removeClass("hide");
+            }
+            else {
+                var elem = $('.request_input');
+                elem.addClass("hide");
+            }
+        }
+
+
+    </script>
+}

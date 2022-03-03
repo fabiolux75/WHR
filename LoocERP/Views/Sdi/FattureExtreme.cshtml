@@ -1,0 +1,217 @@
+@model LoocERP.ViewModels.SelectBoxViewModel
+
+@{
+    
+    ViewData["Title"] = ViewData["inout"].Equals("1")  ?  "Fatture Ricevute" : "Fatture Emesse";
+    var captionTitle = ViewData["inout"].Equals("1")  ?  "Mittente" : "Destinatario";
+
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+
+
+<div>&nbsp;</div>
+<section class="content">
+
+   
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-alt mr-2"></i> @ViewData["Title"]</h3>
+                </div>
+                <div class="card-body">
+                    <div class="form-group row callout callout-success">
+                        <label for="selectboxanno" class="col-sm-2 col-form-label"><i class="fas fa-search mr-2 text-muted"></i> Visualizza fatture anno: </label>
+                        
+                        <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 ">
+                                @(Html.DevExtreme().SelectBox().ID("selectboxanno")
+                                    .Items( Model.Items )
+                                    .Placeholder(" - Seleziona anno -")
+                                    .OnValueChanged("changeYear")
+                                    .ShowClearButton(true)
+                                )
+                                <span class="text-muted"><small>Scegli l'anno per visualizzare le fatture di quel periodo</small></span>
+                        </div>
+                        <div class="col-3 offset-5">
+                                    <!-- small box -->
+                                    <div class="small-box bg-success pt-3 pl-3 pb-3">
+                                            <div class="row">
+                                                <div class="col-3">
+                                                    <i class="fas fa-wallet fa-3x "></i>
+                                                </div>
+                                                <div class="col-6 text-right offset-2">
+                                                        <div class="inner">
+                                                            <h4 class="font-weight-bold">&euro; <span id="importoVal" class="ml-2">0,00 </span></h4>
+                                                            <p class="font-italic">Importo totale</p>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                    </div>
+                        </div>                        
+                    </div>                     
+                    <div class="col-12">
+
+                        @( Html.DevExtreme().DataGrid<LoocERP.Models.Sdi.SdiDoc>()
+                            .ID("gridContainer")
+                            .ShowBorders(true)
+                            .HeaderFilter(headerFilter => headerFilter.Visible(true))
+                            .AllowColumnReordering(true)
+                            .AllowColumnResizing(true)
+                            .ColumnAutoWidth(true)
+                            .HoverStateEnabled(true)
+                            .OnContentReady("aggiornaImportoTotale")
+                            .RowAlternationEnabled(true)
+                            .Grouping(grouping => grouping.AutoExpandAll(true))
+                            .GroupPanel(groupPanel => groupPanel.Visible(true))
+                            .Paging(paging => paging.PageSize(10))
+                            .Pager(pager => {
+                                pager.Visible(true);
+                                pager.DisplayMode(GridPagerDisplayMode.Full);
+                                pager.ShowPageSizeSelector(true);
+                                pager.AllowedPageSizes(new JS("[5, 10, 'all']"));
+                                pager.ShowInfo(true);
+                                pager.ShowNavigationButtons(true);
+                            })                            
+                            .FilterRow(filterRow => filterRow
+                                .Visible(true)
+                                .ApplyFilter(GridApplyFilterMode.Auto)
+                            )
+                            .SearchPanel(searchPanel => searchPanel
+                                .Visible(true)
+                                .Width(240)
+                                .Placeholder("Cerca...")
+                            )
+                            .DataSource(ds => ds.Mvc()
+                                .Controller("sdi")
+                                .LoadAction("Get")
+                                .LoadParams(new
+                                {
+                                    tipoFattura = ViewData["inout"],
+                                    anno = new JS("function() { return anno; }")
+                                })                                
+                                .Key("Id")
+                            )
+                            .RemoteOperations(true)
+                            .Summary(s => s.TotalItems(items => {
+                                items.AddFor(m => m.Importo)
+                                .SummaryType(SummaryType.Sum)
+                                .Name("TotaleImporto")
+                                .CustomizeText(@<text>
+                                    function(data) { return "Totale: " + formatDate(data.value); }
+                                </text>);
+
+                            }))                            
+                            .Columns(columns => {
+                                columns.AddFor(m => m.numDoc).Caption("Num. Fattura").Alignment(HorizontalAlignment.Right).Width(150);
+                                columns.AddFor(m => m.DataDoc).Caption("Data Fattura").Format("dd/MM/yyyy").Alignment(HorizontalAlignment.Right).Width(180).SortOrder(SortOrder.Desc);
+                                columns.AddFor(m => m.CompanyName).Caption(@captionTitle); 
+                                columns.AddFor(m => m.DataCreazione).Caption("Data invio").Format("dd/MM/yyyy").Alignment(HorizontalAlignment.Right).Width(180); 
+                                columns.AddFor(m => m.Importo).Caption("Importo").Format(f=> f.Currency("EUR").Type("currency").Precision(2));
+                                columns.Add()
+                                .Caption("Operazioni")
+                                        .Type(GridCommandColumnType.Buttons)
+                                            .Buttons(b => {
+                                                b.Add().Icon("far fa-file-alt").Hint("Apri documento").OnClick("viewInvoice");
+                                                b.Add().Icon("fas fa-file-pdf text-danger").Hint("Scarica PDF").OnClick("pdfDownload");
+                                                b.Add().Icon("far fa-file-code").Hint("Scarica XML").OnClick("xmlDownload");
+                                            });
+
+                                columns.Add().Visible(false)
+                                .Caption("")  
+                                .CellTemplate(@<text>
+
+                                                @* @(Html.DevExtreme().Button()
+                                                        .Icon("far fa-file-alt")
+                                                        .Type(ButtonType.Success)
+                                                        .Width(40)
+                                                        ) *@
+                                                @(Html.DevExtreme().Button()
+                                                        .Icon("far fa-file-alt")
+                                                        .Type(ButtonType.Success)
+                                                        .Text("Apri DDT")
+                                                        .OnClick("function(e) { onDelete(e, data) }")  
+                                                        )
+                                                </text>);
+
+                            }
+                            )
+                               /* columns.Add()
+                                        .Caption("Tipologia")
+                                        .Width(230)
+                                        .CalculateCellValue(
+                                            @<text>
+                                                function(data){
+                                                    if (data.Suffisso == null) return '-';
+                                                    if (data.Suffisso == 'S') return " DDT di scarico";
+                                                    if (data.Suffisso == 'T') return " DDT di trasferimento";
+                                                }
+                               </text>);*/
+
+                          
+
+                        )
+
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+</section>
+
+@section Scripts{ 
+    <script>
+        var anno = null;
+        
+        var formatDate = new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format;
+
+
+        function pdfDownload(data){
+            var url  = '@Url.Action("getPdf","sdi")?idPdf='+data.row.data.Id;
+            window.open(url); 
+        }
+
+        function xmlDownload(data){
+            var url  = '/api/FattureApi/download?id='+data.row.data.Id;
+            window.open(url); 
+        }
+
+        function viewInvoice(data) {
+
+            var url  = '@Url.Action("ViewFattura","sdi")?id='+data.row.data.Id;
+//            DevExpress.ui.notify("The " + url + " button was clicked");
+            window.open(url);
+        }
+
+        function onDelete(e,data) {
+            console.log(data);
+            var url  = '@Url.Action("FattureDdt","sdi")?idFattura='+data.Id;
+            window.open(url);            
+            
+        }
+
+        function changeYear(data){
+            anno = data.value;
+            $("#gridContainer").dxDataGrid("instance").refresh(); // Reload data. In this case, loadParams gets the new charger value
+        }
+
+
+        function aggiornaImportoTotale(){
+            var valore = $("#gridContainer").dxDataGrid("instance").getTotalSummaryValue("TotaleImporto");
+            $("#importoVal").text(Number(valore).toLocaleString("it-IT", {minimumFractionDigits: 2}));
+        }
+
+    </script>
+}

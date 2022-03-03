@@ -1,0 +1,170 @@
+﻿@**model Corsi**@
+@{
+    ViewData["Title"] = "Gestione Corsi";
+    ViewData["activePage"] = "CorsiPage";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<div>&nbsp;</div>
+<!-- CREATE MODAL -->
+@{
+//    await Html.RenderPartialAsync("_create_modal", @Model);
+}
+<!-- END CREATE MODAL -->
+<section class="content">
+    @{
+        await Html.RenderPartialAsync("../CommonPartial/_message");
+    }
+    <div class="card card-primary">
+        <div class="card-body">
+            <div class="col-12">
+                <div class="col-12">
+                    <!--<a data-toggle="modal" data-target="#corsi-create">
+                        Crea <b>CORSO</b> <i class="fa fa-plus-circle" aria-hidden="true"></i>
+                    </a>-->
+                    <a class="btn btn-primary" asp-action="create">Crea nuovo <b>CORSO </b><i class="fa fa-plus-circle"></i></a>
+                    <p class="col-12 p-0">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- /.card-body -->
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card card-primary">
+                <div class="card-body">
+                    <div class="col-12">
+                        <table id="company" class="table table-bordered table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Codice</th>
+                                    <th>Titolo</th>
+                                    <th>Data Inizio</th>
+                                    <th>Data Fine</th>
+                                    <th>Attivo</th>
+                                    <th class="hide-search"></th>
+                                </tr>
+                            </thead>
+                        </table>
+
+
+                    </div>
+
+                </div>
+                <!-- /.card-body -->
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            $('#company thead tr').clone(true).appendTo('#company thead');
+            $('#company thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var table = $('#company').DataTable({
+                ajax: "/Corsi/ajaxIndex",
+                dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+                    { "data": "code" },
+                    { "data": "name" },
+                    {
+                        data: "startDate",
+                        render: function (data, type, row) {
+                            console.log(data);                            
+                            return moment(data).format("DD-MM-YYYY");
+                        }                       
+                    },
+                    {
+                        data: "endDate",
+                        render: function (data, type, row) {
+                            console.log(data);
+                            return moment(data).format("DD-MM-YYYY");
+                        }     
+                    },
+                    {
+                        "data": "stato",
+                        "render": function (data, type, row) {
+                            if (row.stato) {
+                                return '<i class="fa fa-check c-green"></i>'
+                            }
+                            return '-';
+                        }
+                    },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            return '<span>' +
+                                '<a class="btn-sm" href="/Corsi/Edit?IdCorso=' + row.id + '"><i class="fa fa-edit"></i></a>' +
+                                '</span>';
+                        }
+                    }
+                ],
+                columnDefs: [
+                    { width: '30px', targets: 0 },
+                    { width: '30px', targets: 4 },
+                    { width: '30px', targets: 5 }
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+        });
+    </script>
+}

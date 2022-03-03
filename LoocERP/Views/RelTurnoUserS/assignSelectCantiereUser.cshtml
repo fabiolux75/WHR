@@ -1,0 +1,432 @@
+﻿@*model List<Rel_CantiereUser>*@
+@{ LoocERP.Models.Turno turno = ViewData["Turno"] as LoocERP.Models.Turno; }
+@model List<LoocERP.Models.Cantiere>
+@{
+    Layout = "";
+    ViewData["Title"] = "Cantiere-Dipendente";
+    //DateTime WorkDate = @ViewBag.WorkDate;
+}
+<!-- Modal -->
+    <div id="empModal" class="modal fade bd-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <!-- Modal content-->
+            <div class="modal-content"
+                 style="position: fixed;top: 1%;left: 1%;width: 98%;height: 98%; overflow: auto;border: 1px solid white;">
+
+                <div class="modal-header">
+                    <h4 class="modal-title">
+
+                        <small>Turno </small>
+                    </h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <label>Cantiere : </label>
+
+
+                    <select class="selectpicker" id="cartiere_drop" data-live-search="true">
+                    </select>
+                  
+
+                    <table id="example" class="table table-bordered table-hover" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Orario Inizio</th>
+
+                                <th>Oario fine</th>
+                                <th>Assegnato</th>
+                                <th>Cantiere</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+
+                    <table id="tableTurni" class="table table-bordered table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nome</th>
+                                <th>Orario Inizio</th>
+                                <th>Orario Fine</th>
+                                <th class="hide-search">
+                                    Assegnato
+
+                                </th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                </div>
+               
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+       <style>
+           tr.group,
+           tr.group:hover {
+               background-color: #ddd !important;
+           }
+       </style>
+       <script>
+            $(document).ready(function () {
+                console.log("here!!");
+                var groupColumn = 4;
+                var table = $('#example').DataTable({
+                    ajax: '/RelTurnoUserS/ajaxTurni?WorkDate=@ViewBag.WorkDate',
+                    "columnDefs": [
+                        { "visible": false, "targets": groupColumn }
+                    ],
+                    columns: [
+                        { "data": "name" },
+                        {
+                            "data": "oraInizio",
+                            "render": function (data, type, row) {
+                                return moment(new Date(1, 1, 1, row.oraInizio.hours, row.oraInizio.minutes)).format("HH:mm");
+                            }
+                        },
+                        {
+                            "data": "oraFine",
+                            "render": function (data, type, row) {
+
+                                return moment(new Date(1, 1, 1, row.oraFine.hours, row.oraFine.minutes)).format("HH:mm");
+                            }
+                        },
+
+                        {
+                            "data": "oraFine",
+                            "render": function (data, type, row) {
+
+                                return '<div class="custom-control custom-switch">  <input type="checkbox" class="custom-control-input" id="customSwitch1"><label class="custom-control-label" for="customSwitch1"></label></div>';
+                            }
+                        },
+                        {
+                            "data": "cantiere"
+                        }
+
+                    ],
+                    "order": [[groupColumn, 'asc']],
+                    "displayLength": 25,
+                    "drawCallback": function (settings) {
+                        var api = this.api();
+                        var rows = api.rows({ page: 'current' }).nodes();
+                        var last = null;
+
+                        api.column(groupColumn, { page: 'current' }).data().each(function (group, i) {
+                            if (last !== group) {
+                                $(rows).eq(i).before(
+                                    '<tr class="group"><td colspan="5">Cantiere: ' + group + '</td></tr>'
+                                );
+
+                                last = group;
+                            }
+                        });
+                    },
+                    autoWidth: false,
+                    responsive: true,
+                    orderCellsTop: true,
+                    fixedHeader: true
+                });
+
+                // Order by the grouping
+                $('#example tbody').on('click', 'tr.group', function () {
+                    var currentOrder = table.order()[0];
+                    if (currentOrder[0] === groupColumn && currentOrder[1] === 'asc') {
+                        table.order([groupColumn, 'desc']).draw();
+                    }
+                    else {
+                        table.order([groupColumn, 'asc']).draw();
+                    }
+                });
+            });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            $.ajax({
+                url: "/Cantiere/ajaxIndex",
+                type: 'get',
+                success: function (response) {
+
+                    var tmp = response.data;
+
+                    for (var k = 0; k < tmp.length; k++) {
+                        $('#cartiere_drop').append('<option value="'+tmp[k].id+'">'+tmp[k].name+'</option>');
+                    }
+
+
+                    var vlp = $('#cartiere_drop').selectpicker();
+                    vlp.val(null);
+                    $('#cartiere_drop').selectpicker('refresh');
+
+
+                    //$("#cantiere_drop").selectpicker('refresh');
+
+                    vlp.on("changed.bs.select", function (e, clickedIndex, isSelected, oldValue) {
+                        
+                        loadTurni(vlp.val())
+                    });
+
+                }
+            });
+
+
+
+        //Aggiorna il salvataggio dei dati
+        function UpdateTimework(userId, isAdd = true) {
+            var url = '/RelTurnoUser/ajaxAssign';
+            if (!isAdd) {
+                url = '/RelTurnoUser/ajaxRemove';
+            }
+            $.ajax({
+                type: 'GET',
+                @*data: {
+                    userId: userId,
+                    turnoId: "@ViewBag.turnoId",
+                    workDate: @ViewBag.WorkDate
+                },*@
+                url: url+"?UserId="+userId+"&TurnoId=@ViewBag.turnoId&WorkDate=@ViewBag.WorkDate",
+                success: function (data) {
+                }
+            });
+            }
+
+            function upTimeWork(userId, TurnoId, isAdd = true) {
+                console.log(userId);
+                console.log(TurnoId);
+            }
+
+
+        function moveRows(fromTable, toTable, isAdd = true) {
+            var $row = fromTable.find(".selected");
+            $.each($row, function (k, v) {
+                if (this !== null) {
+                    addRow = fromTable.fnGetData(this);
+                    console.log(addRow);
+                    var userId = addRow.id;
+                    //ajax call save date
+                    UpdateTimework(userId, isAdd);
+                    toTable.fnAddData(addRow);
+                    fromTable.fnDeleteRow(this);
+                }
+            });
+            }
+
+            var table = null;
+
+            function loadTurni(selection) {
+
+                console.log(selection);
+
+                if (table != null) {
+                    table.destroy();
+                }
+                table = $('#tableTurni').DataTable({
+                    ajax: '/RelTurnoUserS/ajaxTurniCantiere?WorkDate=@ViewBag.WorkDate&CantiereId=' + selection,
+                    /*
+                    dom: 'Bfrtip',//dom: 'Bftp',
+                    buttons: [
+                        'copyHtml5',
+                        'excelHtml5',
+                        'csvHtml5',
+                        'pdfHtml5'
+                    ],
+                    */
+                    columns: [
+                        { "data": "name" },
+                        {
+                            "data": "oraInizio",
+                            "render": function (data, type, row) {
+                                return moment(new Date(1, 1, 1, row.oraInizio.hours, row.oraInizio.minutes)).format("HH:mm");
+                            }
+                        },
+                        {
+                            "data": "oraFine",
+                            "render": function (data, type, row) {
+
+                                return moment(new Date(1, 1, 1, row.oraFine.hours, row.oraFine.minutes)).format("HH:mm");
+                            }
+                        },
+
+                        {
+                            "data": "oraFine",
+                            "render": function (data, type, row) {
+
+                                return '<div class="custom-control custom-switch">  <input type="checkbox" class="custom-control-input" id="customSwitch1"><label class="custom-control-label" for="customSwitch1"></label></div>';
+                            }
+                        },
+
+                    ],
+                    /*
+                    columnDefs: [
+                        { width: '50px', targets: 0 },
+                        { width: '80px', targets: 3 }
+                    ],
+                    */
+                    language: {
+                        "sEmptyTable": "Nessun dato presente nella tabella",
+                        "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                        "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                        "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                        "sInfoPostFix": "",
+                        "sInfoThousands": ".",
+                        "sLengthMenu": "Visualizza _MENU_ elementi",
+                        "sLoadingRecords": "Caricamento...",
+                        "sProcessing": "Elaborazione...",
+                        "sSearch": "Cerca:",
+                        "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                        "oPaginate": {
+                            "sFirst": "Inizio",
+                            "sPrevious": "Precedente",
+                            "sNext": "Successivo",
+                            "sLast": "Fine"
+                        },
+                        "oAria": {
+                            "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                            "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                        }
+                    },
+                    autoWidth: false,
+                    responsive: true,
+                    orderCellsTop: true,
+                    fixedHeader: true
+                });
+            }
+
+            @{
+
+
+            }
+
+
+           $(document).ready(function () {
+
+               
+
+
+
+            $('#leftTable thead tr').clone(true).appendTo('#leftTable thead');
+            $('#leftTable thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Search ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+
+            var leftTable = $('#leftTable').dataTable({
+                ajax: "/RelTurnoUser/ajaxSelectCantiereUserTurno?TurnoId=@ViewBag.TurnoId&WorkDate=@ViewBag.WorkDate&isIncluded=1",
+                columns: [
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, type, row) {
+                            return '<img src="/Users/getProfilePicture?id=' + row.id + '&v=' + row.dataModifica +'" style="height:50px;width:50px;border: 1px solid;border-radius:50%;" />';
+                        }
+                    },
+                    { "data": "firstName" },
+                    { "data": "lastName" },
+                ],
+                sPaginationType: "full_numbers",
+                bFilter: false
+            }); // Second table
+
+            $('#rightTable thead tr').clone(true).appendTo('#rightTable thead');
+            $('#rightTable thead tr:eq(1) th').each(function (i) {
+                var title = $(this).text();
+                if (!$(this).hasClass("hide-search")) {
+                    $(this).html('<input type="text" placeholder="Cerca ' + title + '" />');
+                    $('input', this).on('keyup change', function () {
+                        if (table.column(i).search() !== this.value) {
+                            table
+                                .column(i)
+                                .search(this.value)
+                                .draw();
+                        }
+                    });
+                }
+            });
+            var rightTable = $('#rightTable').dataTable({
+                ajax: '/RelTurnoUser/ajaxSelectCantiereUserTurno?TurnoId=@ViewBag.TurnoId&WorkDate=@ViewBag.WorkDate&isIncluded=0',
+                "columns": [
+                    {
+                        "data": null,
+                        "name": "Immagine",
+                        "render": function (data, type, row) {
+                            return '<img src="/Users/getProfilePicture?id=' + row.id + '&v=' + row.dataModifica + '" style="height:50px;width:50px;border: 1px solid;border-radius:50%;" />';
+                        }
+                    },
+                    { "data": "firstName" },
+                    { "data": "lastName" },
+                ],
+                "sPaginationType": "full_numbers",
+                "bFilter": false
+            }); // Second table
+
+            leftTable.on('click', 'tbody tr', function () {
+                $(this).toggleClass('selected');
+            });
+            rightTable.on('click', 'tbody tr', function () {
+                $(this).toggleClass('selected');
+            });
+
+            $('#LeftMove').on('click', function () {
+                moveRows(rightTable, leftTable, true);
+            });
+
+            $('#RightMove').on('click', function () {
+                moveRows(leftTable, rightTable, false);
+            });
+        });
+
+       </script>
+        <style>
+
+            /* Styles go here */
+
+            table.dataTable tbody tr.selected {
+                background-color: #b0bed9;
+            }
+
+            table.dataTable.display tbody tr.odd.selected > .sorting_1, table.dataTable.order-column.stripe tbody tr.odd.selected > .sorting_1 {
+                background-color: #a6b3cd;
+            }
+
+            table.dataTable.display tbody tr:hover.selected > .sorting_1, table.dataTable.display tbody tr.odd:hover.selected > .sorting_1, table.dataTable.display tbody tr.even:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.odd:hover.selected > .sorting_1, table.dataTable.order-column.hover tbody tr.even:hover.selected > .sorting_1 {
+                background-color: #a1aec7;
+            }
+
+            .modal-dialog .modal-content .modal-header {
+                background: #8d8d8d;
+                color: white;
+            }
+        </style>
+    </div>

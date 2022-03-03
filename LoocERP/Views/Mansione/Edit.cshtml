@@ -1,0 +1,329 @@
+﻿@using Microsoft.AspNetCore.Http
+@using Microsoft.AspNetCore.Identity
+@using LoocERP.Models
+@using System.Globalization;
+@using Microsoft.AspNetCore.Authorization
+
+@inject SignInManager<AppUser> SignInManager
+@inject UserManager<AppUser> UserManager
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor IHttpContextAccessor
+@inject IAuthorizationService AuthorizationService
+
+@model LoocERP.Models.Mansione
+
+
+@{
+    //Layout = "_LayoutEmpty";
+    ViewData["Title"] = "Aggiornamento Mansione";
+
+}
+
+<style>
+    .list-group-inner {
+        border-left: 5px solid blue;
+    }
+
+    input.edit-input {
+        border: none;
+        border-bottom: 1px solid #ccc;
+        text-align: center;
+    }
+
+    span.select2-selection.select2-selection--single {
+        min-height: 40px;
+    }
+</style>
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+@{
+    await Html.RenderPartialAsync("_create_macchina", new MansioneMacchina());
+    await Html.RenderPartialAsync("_sposta_macchina", new MansioneMacchina());
+    await Html.RenderPartialAsync("_sposta_macchinaMansione", new MansioneMacchina());
+}
+
+
+
+<section class="content">
+    <form method="post" asp-controller="Mansione" asp-action="Edit">
+        <div class="row">
+            <div class="col-12">
+                <!---------------------------------------------- general form elements------------------------ -->
+                <div class="row">
+
+                    <div class="col-12 col-sm-3">
+                        <div class="card col-12 p-0">
+                            <div class="card-body">
+                                <a class="btn-sm" href="/Mansione"><i class="fa fa-chevron-circle-left"></i> Torna alle <b>Mansioni</b></a>
+                            </div>
+                        </div>
+                        <div class="card card-top">
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-sm-6 col-12">
+                                        <input asp-for="@Model.ID" class="form-control" hidden />
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Codice"></label>
+                                            <input asp-for="@Model.Codice" class="form-control" required />
+                                            <span asp-validation-for="@Model.Codice" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Name"></label>
+                                            <input asp-for="@Model.Name" class="form-control" required />
+                                            <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-sm-6 col-12">
+                                        <div class="form-group">
+                                            <label asp-for="@Model.Descrizione"></label>
+                                            <input asp-for="@Model.Descrizione" class="form-control" required />
+                                            <span asp-validation-for="@Model.Descrizione" class="text-danger"></span>
+                                        </div>
+                                    </div>
+
+
+
+                                </div> <!---ROW-->
+
+                            </div>
+                        </div>
+                        <!-- general form elements -->
+
+                        <div class="card text-right col-12 p-0">
+                            <div class="card-body">
+                                <input type="submit" value="Aggiorna Mansione" class="btn btn-primary" />
+                            </div>
+                        </div>
+                    </div>
+                    <!-- general form elements -->
+                    <div class="col-12 col-sm-9">
+
+                        <div class="card card-primary" style="min-height: 1000px;">
+
+                            <div class="card-body">
+                                <label>Lista Macchine</label>
+                                @if ((await AuthorizationService.AuthorizeAsync(User, "mansione.add.macchina")).Succeeded || (await AuthorizationService.AuthorizeAsync(User, "mansione.move.macchina")).Succeeded)
+                                {
+                                    <div class="row">
+
+                                        <!--DIV LISTA UTENTI DEL CORSO-->
+
+                                        <div class="col-sm-12 col-12">
+                                            <div class="form-group">
+
+                                                <div class="card col-12 p-0">
+                                                    <div class="card-header">
+                                                        <label>Aggiungi macchina</label>
+                                                    </div>
+
+                                                    <div class="card-body">
+                                                        @if ((await AuthorizationService.AuthorizeAsync(User, "mansione.add.macchina")).Succeeded)
+                                                        {
+                                                            <input value="Nuova Macchina" class="btn btn-primary" onclick="openModalMansioniMacchinaCreate('@Model.ID')" />
+                                                        }
+                                                        @if ((await AuthorizationService.AuthorizeAsync(User, "mansione.move.macchina")).Succeeded)
+                                                        {
+                                                            <input value="Macchina Esistente" class="btn btn-primary" onclick="openModalSpostaMansioniMacchina('@Model.ID')" />
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                    </div> <!--fine row-->
+
+                                }
+
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="card card-primary">
+                                            <div class="card-body">
+                                                <div class="col-12">
+                                                    <table id="vettori" class="table table-bordered table-hover">
+                                                        <thead>
+                                                            <tr>
+                                                                <th>Codice</th>
+                                                                <th>Nome</th>
+                                                                <th>Descrizione</th>
+                                                                <th class="hide-search"></th>
+                                                            </tr>
+                                                        </thead>
+                                                    </table>
+
+
+                                                </div>
+
+                                            </div>
+                                            <!-- /.card-body -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!--fine card-body-->
+                        </div> <!--fine card-primary-->
+                    </div>
+
+                </div>
+
+
+            </div>
+        </div>
+
+    </form>
+</section>
+
+
+@section Scripts {
+    <script>
+
+        function DeleteRow(id) {
+
+            $.ajax({
+                type: "GET",
+                url: "/Mansione/ajaxRemoveVettore",
+                data: "idAssegnazione=" + id,
+                success: function (data) {
+                    console.log("data: " + data);
+                    console.log("dataid: " + id);
+                    $(".row-element-" + id).remove();
+                    reloadTable();
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    console.log("error");
+                    $('.row-element-' + id).className += ' alert-danger';
+                }
+            });
+
+        }
+
+        function reloadTable() {
+
+            @if (!(await AuthorizationService.AuthorizeAsync(User, "mansione.delete.macchina")).Succeeded) {
+                @Html.Raw(@"var delete_macchina_mansioni = false;")
+            } else {
+                @Html.Raw(@"var delete_macchina_mansioni = true;")
+            }
+
+            @if (!(await AuthorizationService.AuthorizeAsync(User, "mansione.move.macchina")).Succeeded) {
+                @Html.Raw(@"var move_macchina_mansioni = false;")
+            } else {
+                @Html.Raw(@"var move_macchina_mansioni = true;")
+            }
+
+            $('#vettori').DataTable().clear();
+            $('#vettori').DataTable().destroy();
+
+
+
+            var table = $('#vettori').DataTable({
+                ajax: "/Mansione/ajaxMacchineAssegnate?id=@Model.ID",
+                //dom: 'Bfrtip',//dom: 'Bftp',
+                buttons: [
+                    'copyHtml5',
+                    'excelHtml5',
+                    'csvHtml5',
+                    'pdfHtml5'
+                ],
+                "columns": [
+
+                    { "data": "codice" },
+                    { "data": "name" },
+                    { "data": "description" },
+                    {
+                        "data": null,
+                        "name": "",
+                        "render": function (data, type, row) {
+                            var ret = '';
+
+                            if (delete_macchina_mansioni)
+                                ret += '<span>' +
+                                    '<a class="col-1" class="delete-btn" onclick="removeMacchina(\'' + row.id + '\')"><i class="nav-icon fa fa-trash"></i></a>' +
+                                    '</span>';
+                            if (move_macchina_mansioni)
+                                ret += '<span>' +
+                                    '<a class="btn-sm" class="" onclick="openModalSpostaMansioniMacchinaTo(\'' + row.id + '\')"><i class=" fas fa-expand-arrows-alt" ></i></a>' +
+                                    '</span>';
+
+                            return ret;
+                        }
+                    }
+
+                ],
+                columnDefs: [
+
+                ],
+                "language": {
+                    "sEmptyTable": "Nessun dato presente nella tabella",
+                    "sInfo": "Vista da _START_ a _END_ di _TOTAL_ elementi",
+                    "sInfoEmpty": "Vista da 0 a 0 di 0 elementi",
+                    "sInfoFiltered": "(filtrati da _MAX_ elementi totali)",
+                    "sInfoPostFix": "",
+                    "sInfoThousands": ".",
+                    "sLengthMenu": "Visualizza _MENU_ elementi",
+                    "sLoadingRecords": "Caricamento...",
+                    "sProcessing": "Elaborazione...",
+                    "sSearch": "Cerca:",
+                    "sZeroRecords": "La ricerca non ha portato alcun risultato.",
+                    "oPaginate": {
+                        "sFirst": "Inizio",
+                        "sPrevious": "Precedente",
+                        "sNext": "Successivo",
+                        "sLast": "Fine"
+                    },
+                    "oAria": {
+                        "sSortAscending": ": attiva per ordinare la colonna in ordine crescente",
+                        "sSortDescending": ": attiva per ordinare la colonna in ordine decrescente"
+                    }
+                },
+                "autoWidth": false,
+                "responsive": true,
+                orderCellsTop: true,
+                fixedHeader: true
+            });
+
+
+            $('table').on('click', '.delete-btn', function () {
+                let rrr = this;
+                let rowData = $('table').DataTable().row($(this).closest('tr')).data();
+
+                $.ajax({
+                    url: '/Mansione/ajaxRemoveMacchinaMansione?idMacchina=' + rowData.id,
+                    type: 'get',
+                    success: function (data) {
+                        let row = table.row($(rrr).parents('tr'));
+
+                        row.remove();
+
+                        table.draw();
+                    }
+                });
+
+            });
+        }
+
+        function removeMacchina(idMacchina) {
+            $.ajax({
+                url: '/Mansione/ajaxRemoveMacchinaMansione?idMacchina=' + idMacchina,
+                type: 'get',
+                success: function (data) {
+                    reloadTable();
+                }
+            });
+        }
+
+
+
+        $(document).ready(function () {
+            reloadTable();
+        });
+
+    </script>
+}

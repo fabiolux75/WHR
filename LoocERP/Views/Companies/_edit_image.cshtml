@@ -1,0 +1,35 @@
+﻿@model LoocERP.ViewModels.EditCompanyViewModel
+<!-- edit area sinistra -->
+<div id="collapseImage" class="collapse">
+    <form action="updateImage?isExternal=@Model.isExternal" method="post" enctype="multipart/form-data">
+        <!-- /.card-header -->
+        <div class="card-body">
+            <input type="hidden" class="form-control" placeholder="Id" asp-for="@Model.isExternal" disabled="disabled">
+            <div class="row">
+                <div class="col-md-12">
+                    <input type="text" value="@Model.Company.ID" name="codice" hidden />
+                    <div class="custom-file">
+                        <input class="form-control custom-file-input" type="file" id="companyImage" name="companyImage">
+                        <label class="custom-file-label">Scegli File...</label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <div class="float-right">
+                <button type="submit" class="btn btn-primary">Salva <i class="fas fa-save"></i></button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionExample">
+    <div class="card-body">
+        <div class="row">
+            <div class="col">
+                <a data-toggle="collapse" data-target="#collapseImage" href="#"><i class="fas fa-edit fa-lg"></i> Modifica Immagine</a>
+            </div>
+        </div>
+    </div>
+</div>

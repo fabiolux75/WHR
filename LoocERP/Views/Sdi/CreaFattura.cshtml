@@ -1,0 +1,120 @@
+@{
+    @model FatturaElettronica.Ordinaria.FatturaOrdinaria;
+    ViewData["Title"] = "Nuova Fattura";
+}
+
+
+<div>&nbsp;</div>
+
+<section class="content">
+
+
+<div class="row">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="card">
+            <div class="card-header text-right"><h3 class="text-muted font-weight-bold">Fattura</h3></div>
+            <div class="card-body">
+                        <div class="row">
+                            <div class="col-sm-6">
+
+                                <div class="callout callout-success">
+                                    <h5 class="card-title"><i class="fas fa-file-invoice mr-2 fa-lg text-green"></i>Dati Documento</h5>
+                                    <p class="card-text">Compila i dati della fattura</p>
+                                            <form>
+                                            <div class="form-row mb-4">
+                                                <div class="col-md-12 mb-12">
+                                                    <label for="tipoDoc">Tipo documento</label>
+                                                            @(Html.DevExtreme().Lookup()
+                                                                .DataSource(ds => ds.WebApi().Controller("Sdi").LoadAction("GetTipiDocumento").Key("ID"))
+                                                                .DataSourceOptions(opt => opt.Sort("Descrizione"))   
+                                                                .DropDownOptions(p => p.CloseOnOutsideClick(true)
+                                                                    .ShowTitle(false)
+                                                                )                                                                                                         
+                                                                .DisplayExpr("Descrizione")
+                                                                .ValueExpr("ID")
+                                                                .ID("tipoDoc")
+                                                                .Value("TD01")
+                                                            )                                                
+                                                    </div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <div class="col-md-4 mb-3">
+                                                        <label for="data_doc">Data</label>
+                                                        @(Html.DevExtreme().DateBox()
+                                                            .Type(DateBoxType.Date)
+                                                            .Value(DateTime.Now)
+                                                            .Max(DateTime.Now)
+                                                            .ID("data_doc")
+                                                        )                                                        
+                                                    </div>
+                                                    <div class="offset-4 col-md-4 mb-3">
+                                                        <label for="num_doc">Num. progressivo</label>
+                                                            @(Html.DevExtreme().TextBox()
+                                                                            .Value("")
+                                                                            .ID("num_doc")
+                                                                            .Placeholder("#num")
+                                                                            )
+                                                    </div>
+                                                </div> 
+                                            </form>
+                                </div>
+                            </div>
+                            <div class="col-sm-6">
+                                <div class="callout callout-info">
+                                    <h5 class="card-title"> <i class="fas fa-address-book mr-2 fa-lg text-info"></i> Destinatario</h5>
+                                    <p class="card-text">Seleziona il destinatario della fattura</p>
+
+                                              <form>
+                                                  <div class="form-row">
+                                                    <div class="col-md-12 mb-12">
+                                                    <label for="num_doc">Cliente</label>
+                                                        <div class="col-md-10 mb-3">
+                                                            @(Html.DevExtreme().SelectBox()
+                                                                .DataSource(
+                                                                        ds => ds.WebApi()
+                                                                        .Controller("Companies")
+                                                                        .LoadAction("GetCompanies")
+                                                                        .Key("ID")
+                                                                        .LoadParams(new
+                                                                        {
+                                                                            tipoUtente = 0,
+                                                                        })                                                                         
+                                                                        )
+                                                                .DataSourceOptions(opt => opt.Sort("Descrizione").Paginate(true).PageSize(10))   
+                                                                .DropDownOptions(p => p.CloseOnOutsideClick(true)
+                                                                    .ShowTitle(false)
+                                                                )                                                                                                         
+                                                                .DisplayExpr("Descrizione")
+                                                                .ValueExpr("ID")
+                                                                .SearchEnabled(true)
+                                                                .ID("idcompany")
+                                                            )                                                           
+                                                        </div>
+                                                  </div>
+                                                </div>
+                                              </form>
+
+                                    
+                                </div>
+                            </div>
+                        </div>
+            </div>
+            </div>
+        
+    </div>
+</div>
+
+
+
+
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+
+            
+        });
+    </script>
+}

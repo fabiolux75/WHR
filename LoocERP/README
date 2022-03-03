@@ -1,0 +1,38 @@
+-- SVILUPPO --
+Per sviluppo logale rimuovere il commento su #define LOCAL_DEV in startup.cs
+
+
+-- Database --
+
+Installare un SQL server e inserire le password nel file appsettings.json
+
+--Comandi migrazioni--
+
+Per aprire la console = Visualizza -> Altre finestre -> Console di gestione pacchetti
+
+EntityFrameworkCore\Add-Migration -Context ApplicationDbContext [Nome migrazione]    //Crea migrazione
+EntityFrameworkCore\Update-Database -Context ApplicationDbContext                    // Eseguire Migrazione database
+
+-------------------------------------------------
+
+Dopo la migrazione utente di DEFAULT per accedere �:
+
+Nome utente: test@looc.com
+Password: Produzione.15
+
+
+
+--------------------------------------------------
+################     DEBUG   #####################
+Per disabilitare la ricarica delle pagine ad ogni modifica commentare la prima riga
+in Startup.cs 
+
+
+################     LINUX SETTING   #####################
+#Genera migration
+   dotnet-ef migrations add --context ApplicationDBContext --project LoocERP Initial
+#Aggiorna Database
+   dotnet-ef database update --context ApplicationDBContext --project LoocERP
+
+#Remove migration - rimuove ultima migrazione
+   dotnet-ef migrations remove--context ApplicationDBContext --project LoocERP

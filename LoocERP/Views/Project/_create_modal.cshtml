@@ -1,0 +1,60 @@
+﻿@model Project
+
+<div class="modal fade show" id="project-create" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Nuova Commessa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form method="post" asp-controller="Project" asp-action="Create">
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.Codice"></label>
+                                <input asp-for="@Model.Codice" class="form-control" placeholder="Codice Commessa" maxlength="6" required pattern="^[a-zA-Z0-9]{0,6}$" />
+                                <span asp-validation-for="@Model.Codice" class="text-danger"></span>
+                                <small class="text-danger">Inserire solo lettere e/o numeri, massimo 6.</small>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.Name"></label>
+                                <input asp-for="@Model.Name" class="form-control"  placeholder="Nome Commessa" maxlength="40" required/>
+                                <span asp-validation-for="@Model.Name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.Description"></label>
+                                <input asp-for="@Model.Description" class="form-control" placeholder="Descrizione Commessa" required />
+                                <span asp-validation-for="@Model.Description" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.StartDate"></label>
+                                <input asp-for="@Model.StartDate" class="form-control" required />
+                                <span asp-validation-for="@Model.StartDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6 col-12">
+                            <div class="form-group">
+                                <label asp-for="@Model.EndDate"></label>
+                                <input asp-for="@Model.EndDate" class="form-control" required />
+                                <span asp-validation-for="@Model.EndDate" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Annulla</button>
+                    <button type="submit" class="btn btn-primary" onclick="sendAjaxRequest()">Salva</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

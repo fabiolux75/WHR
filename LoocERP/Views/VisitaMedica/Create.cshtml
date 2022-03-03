@@ -1,0 +1,76 @@
+﻿@model LoocERP.ViewModels.CreateVisitaMedicaViewModel
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="VisitaMedica" asp-action="Create">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Creazione nuova <b>Visita Medica</b></small></h4>
+                    </div>
+                </div>
+
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.VisitaMedica.Description"></label>
+                                    <input asp-for="@Model.VisitaMedica.Description" class="form-control" placeholder="Descrizione Visita Medica" />
+                                    <span asp-validation-for="@Model.VisitaMedica.Description" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.VisitaMedica.StartDate"></label>
+                                    <input asp-for="@Model.VisitaMedica.StartDate" class="form-control" required />
+                                    <span asp-validation-for="@Model.VisitaMedica.StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.VisitaMedica.EndDate"></label>
+                                    <input asp-for="@Model.VisitaMedica.EndDate" class="form-control" required />
+                                    <span asp-validation-for="@Model.VisitaMedica.EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.VisitaMedica.Medico"></label>
+                                    <input asp-for="@Model.VisitaMedica.Medico" class="form-control" placeholder="Medico" />
+                                    <span asp-validation-for="@Model.VisitaMedica.Medico" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            
+                            <input type="hidden" asp-for="@Model.VisitaMedica.Stato" value="1" class="form-control" />
+                            <input type="hidden" asp-for="@Model.VisitaMedica.Tipologia" value="2" class="form-control" />
+                            <input type="hidden" asp-for="@Model.VisitaMedica.TipoEvento" value="3" class="form-control" />
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="float-right">
+                        <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                        <input type="submit" value="Crea Visita Medica" class="btn btn-primary" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+</section>

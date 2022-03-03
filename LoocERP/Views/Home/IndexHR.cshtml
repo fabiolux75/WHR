@@ -1,0 +1,72 @@
+﻿@model IEnumerable<LoocERP.ViewModels.RoleClaimsViewModel>
+@{
+    ViewData["Title"] = "Anagrafica";
+}
+
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid.min.css">
+<link rel="stylesheet" href="~/theme/plugins/jsgrid/jsgrid-theme.min.css">
+<link href="~/theme/plugins/tabulator/css/semantic-ui/tabulator_semantic-ui.min.css" rel="stylesheet">
+
+
+<!--Export stuff-->
+<script type="text/javascript" src="https://oss.sheetjs.com/sheetjs/xlsx.full.min.js"></script>
+
+<section class="content">
+    <div class="row">
+        <div class="col-12 mt-3 mb-3"><b>Menu</b></div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Home" asp-action="IndexHRAnagrafica" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-building"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Anagrafica</span>
+                        <small class="info-box-number">Lista anagrafica</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+        </div>        
+           
+        <div class="col-12 mt-5 mb-3"><b>Assenze e malattie</b></div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="VisitaMedica" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-euro-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Visita Medica</span>
+                        <small class="info-box-number">Area dedicata alla gestione dei progetti</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>    
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="RichiestaDipendente" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-euro-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Richiesta assenza</span>
+                        <small class="info-box-number">Area dedicata alla gestione dei progetti</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div>    
+        <div class="col-12 mt-5 mb-3"><b>Corsi</b></div>
+        <div class="col-md-3 col-sm-6 col-12">
+            <a asp-controller="Corsi" asp-action="Index" style="color: inherit;">
+                <div class="info-box">
+                    <span class="info-box-icon bg-info"><i class="fa fa-euro-sign"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Corsi</span>
+                        <small class="info-box-number">Area dedicata alla gestione dei progetti</small>
+                    </div>
+                    <!-- /.info-box-content -->
+                </div>
+            </a>
+            <!-- /.info-box -->
+        </div> 
+    </div>
+</section>

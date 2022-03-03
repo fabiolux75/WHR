@@ -1,0 +1,127 @@
+﻿@model LoocERP.ViewModels.CreateCorsiViewModel
+
+<section class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+            </div>
+        </div>
+    </div><!-- /.container-fluid -->
+</section>
+
+<section class="content">
+    <form method="post" asp-controller="Corsi" asp-action="Create">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-top">
+                    <div class="card-body">
+                        <h4><small>Creazione nuovo <b>Corso</b></small></h4>
+                    </div>
+                </div>
+
+                <!-- general form elements -->
+                <div class="card card-primary">
+                    <div class="card-body">
+                        <div class="row">
+
+                            <div class="form-group col-sm-6 col-12">
+                                <label asp-for="@Model.Corso.SpecializzazioneId"></label>
+                                <select asp-for="@Model.Corso.SpecializzazioneId" class="form-control">
+                                    <option value="">-</option>
+                                    @foreach (Specializzazione item in @Model.SpecializzazioneList)
+                                    {
+                                        <option value=@item.ID>@item.Descrizione</option>
+                                    }
+                                </select>
+                            </div>
+
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.Code"></label>
+                                    <input asp-for="@Model.Corso.Code" class="form-control" placeholder="Codice Corso" />
+                                    <span asp-validation-for="@Model.Corso.Code" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.Name"></label>
+                                    <input asp-for="@Model.Corso.Name" class="form-control" placeholder="Nome Corso" />
+                                    <span asp-validation-for="@Model.Corso.Name" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.Description"></label>
+                                    <input asp-for="@Model.Corso.Description" class="form-control" placeholder="Descrizione Corso" />
+                                    <span asp-validation-for="@Model.Corso.Description" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.StartDate"></label>
+                                    <input asp-for="@Model.Corso.StartDate" class="form-control" required />
+                                    <span asp-validation-for="@Model.Corso.StartDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.EndDate"></label>
+                                    <input asp-for="@Model.Corso.EndDate" class="form-control" required />
+                                    <span asp-validation-for="@Model.Corso.EndDate" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.ValidFrom"></label>
+                                    <input asp-for="@Model.Corso.ValidFrom" class="form-control" required />
+                                    <span asp-validation-for="@Model.Corso.ValidFrom" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.ValidTo"></label>
+                                    <input asp-for="@Model.Corso.ValidTo" class="form-control" required />
+                                    <span asp-validation-for="@Model.Corso.ValidTo" class="text-danger"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.ReleasedFrom"></label>
+                                    <input asp-for="@Model.Corso.ReleasedFrom" class="form-control" placeholder="Rilasciato Da" />
+                                    <span asp-validation-for="@Model.Corso.ReleasedFrom" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.ReleasedAt"></label>
+                                    <input asp-for="@Model.Corso.ReleasedAt" class="form-control" required />
+                                    <span asp-validation-for="@Model.Corso.ReleasedAt" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="col-sm-6 col-12">
+                                <div class="form-group">
+                                    <label asp-for="@Model.Corso.Docente"></label>
+                                    <input asp-for="@Model.Corso.Docente" class="form-control" placeholder="Docente" />
+                                    <span asp-validation-for="@Model.Corso.Docente" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <input type="hidden" asp-for="@Model.Corso.Stato" value="1" class="form-control"/>
+                            
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="float-right">
+                        <input type="button" value="Annulla" class="btn btn-default" onclick="history.back(-1)" />
+                        <input type="submit" value="Crea Corso" class="btn btn-primary" />
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </form>
+</section>

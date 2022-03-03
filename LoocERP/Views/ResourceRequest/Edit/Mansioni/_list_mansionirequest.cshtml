@@ -1,0 +1,130 @@
+﻿@model LoocERP.Models.ResourceRequest
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Authorization
+@inject IAuthorizationService AuthorizationService
+@{
+    var permitted = ((await AuthorizationService.AuthorizeAsync(User, "ResourceRequest.Assignment")).Succeeded);
+}
+@{
+    var dettagli = Model.dettagli.Where(c => c.MansioneId != null).ToList();
+}
+<div class="card card-primary" style="min-height: 1000px;">
+    <form id="form_mansioni">
+        <div class="card-body">
+            <div class="row">
+                <ul class="col-12" id="intestazione">
+                    <li class="list-group-item">
+                        <div class="input-group">
+                            <div class="input-group-prepend row col-12">
+                                <span class="col-8 bold"><b>Mansioni Selezionate</b></span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <ul class="col-12" id="mansioni-list">
+                    <li class="list-group-item list-group-inner">
+                        <div class="input-group-prepend row col-12">
+                            <span class="" style="display: none">12345</span>
+                            <a>&nbsp;</a>
+                            <span class="col-4">Mansione</span>
+                            <span class="col-4">Macchina</span>
+                            <span class="col-2">Quantità</span>
+
+                        </div>
+                    </li>
+                    @for (int i = 0; i < dettagli.Count; i++)
+                    {
+                        <li class="list-group-item list-group-inner row-element-E21F5527-7CE0-4F9C-8EE8-0636B3AD0F4A element">
+                            <div class="input-group-prepend row col-12">
+                                <span class="" style="display: none">
+                                    <input class="Id_request" hidden="" value="@dettagli[i].Id">
+                                </span>
+                                <a><i class="col-1 nav-icon fa fa-user"></i></a>
+                                <span class="col-4">@dettagli[i].mansione.Descrizione</span>
+                                <input class="MansioneId" hidden="" value="@dettagli[i].mansione.ID">
+                                @if (@dettagli[i].macchina != null)
+                                {
+                                    <span class="col-4">@dettagli[i].macchina.Description</span>
+                                }
+                                else
+                                {
+                                    <span class="col-4"></span>
+                                }
+
+                                @{
+                                    var alreadySelected = Model.Turno.TurniUser.Where(c => c.MansioneId == dettagli[i].MansioneId && EF.Functions.DateDiffDay(Model.WorkDate, c.WorkDate) == 0).Count();
+                                }
+                                <span class="col-2 qty_text">@alreadySelected / @dettagli[i].qty</span>
+                                <input class="qty" hidden="" value="@dettagli[i].qty">
+                                <input class="done" hidden="" value="@alreadySelected">
+                                @if (Model.Stato == StatoRequest.bozza || Model.Stato == null)
+                                {
+                                    <a onclick="deleteRow(this)"><i class="col-1 nav-icon fa fa-trash"></i></a>
+                                }
+                                @if (Model.Stato == StatoRequest.inCarico)
+                                {
+
+                                    @if ((dettagli[i].qty - alreadySelected) != 0 && permitted)
+                                    {
+                                        <div class="col-1 div-associa">
+                                            <button type="button" onclick="openModalAddRisorsa(this,'@dettagli[i].Id',0,@dettagli[i].qty,@alreadySelected)" class="btn btn-primary waves-effect waves-light" data-toggle="button" aria-pressed="false" autocomplete="off">
+                                                <i class="fa fa-plus"></i>
+                                            </button>
+                                        </div>
+                                    }
+
+                                }
+                                @if (Model.Stato > StatoRequest.bozza)
+                                {
+                                    if ((dettagli[i].qty - alreadySelected) == 0)
+                                    {
+                                        <i class="fas fa-check-circle" style="color: green;"></i>
+                                    }
+                                }
+                            </div>
+                        </li>
+                    }
+                </ul>
+
+            </div> <!--fine row-->
+        </div> <!--fine card-body-->
+    </form>
+</div> <!--fine card-primary-->
+<script>
+
+
+    function deleteRow(row) {
+        mansioniReqs--;
+        updateTotal();
+        $(row).parent().parent().remove();
+    }
+
+    function addMansione(id, idMansione, mansione, idMacchina, macchina, qty) {
+        mansioniReqs++;
+        updateTotal();
+        if (macchina == null) {
+            macchina = "";
+            idMacchina = null;
+        }
+
+
+        var item = '<li class="list-group-item list-group-inner row-element-' + id + ' element">';
+        item += '       <div class="input-group-prepend row col-12">';
+        item += '           <span class=""  style="display: none">12345</span>';
+        item += '           <a target="_blank" ><i class="col-1 nav-icon fa fa-user"></i></a>';
+        item += '           <span class="col-4" >' + mansione + '</span>';
+        item += '           <input class="MansioneId" hidden value="' + idMansione + '"></input>';
+        item += '           <span class="col-4" >' + macchina + '</span>';
+        if (macchina != "") {
+            item += '           <input class="MacchinaId" hidden value="' + idMacchina + '"></input>';
+        }
+        item += '           <span class="col-3" >' + qty + '</span>';
+        item += '           <input  class="qty" hidden value="' + qty + '"></input>';
+        item += '           <a onclick="deleteRow(this)"><i class="col-1 nav-icon fa fa-trash"></i></a>';
+        item += '       </div>';
+        item += '</li>';
+
+        $("#mansioni-list").append(item);
+    }
+</script>
